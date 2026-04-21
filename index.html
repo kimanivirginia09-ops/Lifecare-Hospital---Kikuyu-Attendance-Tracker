@@ -3,164 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShiftGuard Enterprise | LifeCare</title>
+    <title>LifeCare Hospital | Secure Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        :root { --navy: #0f172a; --teal: #0d9488; }
-        body { background-color: var(--navy); font-family: 'Inter', sans-serif; color: #f8fafc; }
-        .teal-accent { color: var(--teal); }
-        .bg-teal-accent { background-color: var(--teal); }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .nav-item.active { border-bottom: 2px solid var(--teal); color: var(--teal); }
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .teal-glow { box-shadow: 0 0 20px rgba(13, 148, 136, 0.2); }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen flex items-center justify-center p-4">
 
-    <nav class="sticky top-0 z-50 bg-slate-900 border-b border-slate-800 px-4">
-        <div class="max-w-6xl mx-auto flex justify-between items-center h-16">
-            <div class="font-bold text-xl tracking-tight uppercase">ShiftGuard <span class="teal-accent">Pro</span></div>
-            <div class="hidden md:flex space-x-6 text-sm font-medium">
-                <button onclick="showPage('clock')" class="nav-item active py-5" id="nav-clock">Clock</button>
-                <button onclick="showPage('dash')" class="nav-item py-5" id="nav-dash">Dashboard</button>
-                <button onclick="showPage('staff')" class="nav-item py-5" id="nav-staff">Employees</button>
-                <button onclick="showPage('reports')" class="nav-item py-5" id="nav-reports">Reports</button>
-                <button onclick="showPage('settings')" class="nav-item py-5" id="nav-settings">Settings</button>
-            </div>
-            <button onclick="toggleAdmin()" class="md:hidden text-teal-500">Menu</button>
+    <div class="glass max-w-md w-full rounded-3xl p-8 shadow-2xl teal-glow">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold tracking-tight text-teal-500">LIFECARE</h1>
+            <p id="modeText" class="text-slate-400 text-xs uppercase tracking-widest mt-1 font-semibold">Employee Login</p>
         </div>
-    </nav>
 
-    <main class="max-w-6xl mx-auto p-4 md:p-8">
-
-        <section id="page-clock" class="page-content">
-            <div class="max-w-md mx-auto glass-card rounded-3xl p-8 text-center shadow-2xl">
-                <h2 class="text-3xl font-bold mb-2">Shift Entry</h2>
-                <p class="text-slate-400 mb-8">Enter your 5-digit Company ID</p>
-                
-                <input type="password" id="loginID" maxlength="5" placeholder="00000" 
-                    class="w-full bg-slate-950 border border-slate-700 rounded-2xl p-4 text-3xl text-center font-mono tracking-[1rem] mb-6 outline-none focus:border-teal-500">
-                
-                <div id="locStatus" class="mb-6 text-xs uppercase tracking-widest text-slate-500">Waiting for GPS...</div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <button id="btnIn" onclick="handleShift('IN')" disabled class="bg-slate-800 opacity-50 cursor-not-allowed py-5 rounded-2xl font-bold transition-all">CLOCK IN</button>
-                    <button id="btnOut" onclick="handleShift('OUT')" disabled class="bg-slate-800 opacity-50 cursor-not-allowed py-5 rounded-2xl font-bold transition-all">CLOCK OUT</button>
-                </div>
+        <div id="authSection" class="space-y-4">
+            <div class="space-y-1">
+                <label class="text-[10px] text-slate-500 uppercase ml-2">Verified Email</label>
+                <input type="email" id="email" placeholder="name@lifecare.com" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 transition-all">
             </div>
-        </section>
-
-        <section id="page-dash" class="page-content hidden">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="glass-card p-6 rounded-2xl">
-                    <p class="text-slate-400 text-sm">Active Employees</p>
-                    <h3 id="stat-active" class="text-4xl font-bold teal-accent">0</h3>
-                </div>
-                <div class="glass-card p-6 rounded-2xl text-center">
-                    <p class="text-slate-400 text-sm">Today's Total</p>
-                    <h3 id="stat-total" class="text-4xl font-bold">0</h3>
-                </div>
+            <div class="space-y-1">
+                <label class="text-[10px] text-slate-500 uppercase ml-2">Secure Password</label>
+                <input type="password" id="pass" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 transition-all">
             </div>
-            <div class="glass-card rounded-2xl overflow-hidden">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-800/50">
-                        <tr><th class="p-4">Name</th><th class="p-4">Department</th><th class="p-4">Status</th></tr>
+            
+            <button id="mainBtn" onclick="handleAuth()" class="w-full bg-teal-600 hover:bg-teal-500 py-4 rounded-2xl font-bold transition-all shadow-lg shadow-teal-900/20">LOG IN & PROCEED</button>
+            
+            <div class="text-center">
+                <button onclick="toggleRegister()" id="toggleBtn" class="text-[10px] text-slate-500 hover:text-teal-400 uppercase tracking-widest transition-colors">First time? Register here</button>
+            </div>
+        </div>
+
+        <div id="clockSection" class="hidden space-y-6 text-center animate-in fade-in duration-500">
+            <div class="py-4 border-b border-slate-800">
+                <p class="text-slate-400 text-xs uppercase tracking-widest">Signed in as</p>
+                <p id="welcomeMsg" class="font-bold text-xl text-teal-400"></p>
+                <p id="staffDetails" class="text-[10px] text-slate-500 italic"></p>
+            </div>
+            
+            <div id="gpsStatus" class="text-[10px] text-emerald-500 font-bold uppercase tracking-widest mb-2">Location Verified ✓</div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="submitShift('IN')" class="bg-emerald-600 hover:bg-emerald-500 py-6 rounded-2xl font-bold shadow-lg shadow-emerald-900/20 transition-all active:scale-95">CLOCK IN</button>
+                <button onclick="submitShift('OUT')" class="bg-rose-600 hover:bg-rose-500 py-6 rounded-2xl font-bold shadow-lg shadow-rose-900/20 transition-all active:scale-95">CLOCK OUT</button>
+            </div>
+
+            <button onclick="showAdmin()" class="text-[9px] text-slate-600 uppercase hover:text-slate-400">View Monthly Reports</button>
+        </div>
+
+        <div id="adminSection" class="hidden mt-8 pt-6 border-t border-slate-800">
+            <h2 class="text-teal-500 font-bold text-sm mb-4">Department Analytics</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-[10px] text-left">
+                    <thead>
+                        <tr class="text-slate-500 border-b border-slate-800">
+                            <th class="pb-2">Name</th>
+                            <th class="pb-2">Worked</th>
+                            <th class="pb-2">Hours</th>
+                            <th class="pb-2">Leaves</th>
+                        </tr>
                     </thead>
-                    <tbody id="dash-table-body"></tbody>
+                    <tbody id="reportData" class="divide-y divide-slate-800"></tbody>
                 </table>
-            </div>
-        </section>
-
-        <section id="page-staff" class="page-content hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Manage Staff</h2>
-                <button onclick="openStaffModal()" class="bg-teal-accent px-4 py-2 rounded-lg text-sm font-bold">+ Onboard</button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="staff-grid"></div>
-        </section>
-
-        <section id="page-reports" class="page-content hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Time Records</h2>
-                <button onclick="exportToExcel()" class="bg-emerald-600 px-4 py-2 rounded-lg text-sm font-bold">Export to Excel</button>
-            </div>
-            <div class="glass-card rounded-2xl overflow-x-auto">
-                <table class="w-full text-left text-xs md:text-sm" id="reportTable">
-                    <thead class="bg-slate-800/50">
-                        <tr><th class="p-4">ID</th><th class="p-4">Name</th><th class="p-4">Type</th><th class="p-4">Time</th><th class="p-4">Location</th></tr>
-                    </thead>
-                    <tbody id="report-table-body"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="page-settings" class="page-content hidden">
-            <div class="max-w-xl glass-card rounded-2xl p-8">
-                <h2 class="text-2xl font-bold mb-6">System Configuration</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm text-slate-400 mb-1">Company Latitude</label>
-                        <input type="text" id="setLat" class="w-full bg-slate-900 border border-slate-800 rounded p-3">
-                    </div>
-                    <div>
-                        <label class="block text-sm text-slate-400 mb-1">Company Longitude</label>
-                        <input type="text" id="setLon" class="w-full bg-slate-900 border border-slate-800 rounded p-3">
-                    </div>
-                    <div>
-                        <label class="block text-sm text-slate-400 mb-1">Allowed Radius (Meters)</label>
-                        <input type="number" id="setRadius" class="w-full bg-slate-900 border border-slate-800 rounded p-3">
-                    </div>
-                    <button onclick="saveSettings()" class="w-full bg-teal-accent py-3 rounded-xl font-bold">Save Config</button>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <div id="staffModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4">
-        <div class="glass-card w-full max-w-md p-8 rounded-3xl">
-            <h3 class="text-xl font-bold mb-4">Onboard New Staff</h3>
-            <div class="space-y-4">
-                <input type="text" id="mName" placeholder="Full Name" class="w-full bg-slate-900 rounded p-3">
-                <input type="number" id="mID" placeholder="5-Digit ID" class="w-full bg-slate-900 rounded p-3">
-                <input type="text" id="mDept" placeholder="Department" class="w-full bg-slate-900 rounded p-3">
-                <input type="text" id="mDesig" placeholder="Designation" class="w-full bg-slate-900 rounded p-3">
-                <div class="flex space-x-2">
-                    <button onclick="closeStaffModal()" class="flex-1 bg-slate-700 py-3 rounded-xl">Cancel</button>
-                    <button onclick="saveStaff()" class="flex-1 bg-teal-accent py-3 rounded-xl font-bold">Save</button>
-                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // INITIAL DATA
-        let employees = JSON.parse(localStorage.getItem('LCH_Employees')) || [];
-        let records = JSON.parse(localStorage.getItem('LCH_Records')) || [];
-        let config = JSON.parse(localStorage.getItem('LCH_Config')) || { lat: -1.24486, lon: 36.6619, rad: 100 };
+        // YOUR UNIQUE CLOUD LINK
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzL_6aJpiSzkyh61SqM_nFgIXUOCwi4qHc8LtTMTDzN88iyYWpngnjaGc6sNT8LG7eN/exec";
+        
+        // HOSPITAL LOCATION (Current: Eldoret/LifeCare)
+        const HOSPITAL_LOC = { lat: -1.2448, lon: 36.6619, rad: 500 }; 
+        
+        let isRegisterMode = false;
+        let currentUser = null;
 
-        // GPS ENGINE
-        let userPos = null;
-        function watchLocation() {
-            navigator.geolocation.watchPosition(pos => {
-                userPos = pos.coords;
-                const dist = calculateDistance(userPos.latitude, userPos.longitude, config.lat, config.lon);
-                const status = document.getElementById('locStatus');
-                const btnIn = document.getElementById('btnIn');
-                const btnOut = document.getElementById('btnOut');
+        function toggleRegister() {
+            isRegisterMode = !isRegisterMode;
+            document.getElementById('modeText').innerText = isRegisterMode ? "Staff Registration" : "Employee Login";
+            document.getElementById('mainBtn').innerText = isRegisterMode ? "SAVE PASSWORD & REGISTER" : "LOG IN & PROCEED";
+            document.getElementById('toggleBtn').innerText = isRegisterMode ? "Back to Login" : "First time? Register here";
+        }
 
-                if(dist <= config.rad) {
-                    status.innerHTML = `<span class="text-teal-400">● Within Range (${Math.round(dist)}m)</span>`;
-                    btnIn.disabled = false; btnOut.disabled = false;
-                    btnIn.className = "bg-emerald-600 py-5 rounded-2xl font-bold transition-all";
-                    btnOut.className = "bg-rose-600 py-5 rounded-2xl font-bold transition-all";
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+            const btn = document.getElementById('mainBtn');
+
+            if(!email || !pass) return alert("Please fill in both fields");
+            
+            btn.innerText = "VERIFYING...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(CLOUD_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        action: "check_auth", 
+                        email: email, 
+                        password: pass, 
+                        type: isRegisterMode ? "register" : "login" 
+                    })
+                });
+                const data = await response.json();
+
+                if (isRegisterMode) {
+                    if (data.result === "registered") {
+                        alert("Account activated! You can now log in.");
+                        toggleRegister();
+                    } else { alert("Email not found in authorized staff list."); }
                 } else {
-                    status.innerHTML = `<span class="text-rose-500">● Outside Range (${Math.round(dist)}m)</span>`;
-                    btnIn.disabled = true; btnOut.disabled = true;
-                    btnIn.className = "bg-slate-800 opacity-50 cursor-not-allowed py-5 rounded-2xl font-bold";
-                    btnOut.className = "bg-slate-800 opacity-50 cursor-not-allowed py-5 rounded-2xl font-bold";
+                    if (data.exists && data.savedPass === pass) {
+                        currentUser = data;
+                        document.getElementById('welcomeMsg').innerText = data.name;
+                        document.getElementById('staffDetails').innerText = `${data.dept} | ${data.desig}`;
+                        document.getElementById('authSection').classList.add('hidden');
+                        document.getElementById('clockSection').classList.remove('hidden');
+                    } else { alert("Invalid email or password."); }
                 }
-            }, err => console.error(err), { enableHighAccuracy: true });
+            } catch (e) { alert("Connection Error. Check your internet."); }
+            
+            btn.disabled = false;
+            btn.innerText = isRegisterMode ? "SAVE PASSWORD & REGISTER" : "LOG IN & PROCEED";
+        }
+
+        async function submitShift(type) {
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, HOSPITAL_LOC.lat, HOSPITAL_LOC.lon);
+                
+                if (dist > HOSPITAL_LOC.rad) {
+                    return alert(`Access Denied: You are ${Math.round(dist)}m outside the hospital perimeter.`);
+                }
+
+                await fetch(CLOUD_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        id: currentUser.id, name: currentUser.name,
+                        dept: currentUser.dept, desig: currentUser.desig,
+                        type: type, loc: `${pos.coords.latitude.toFixed(4)},${pos.coords.longitude.toFixed(4)}`
+                    })
+                });
+                alert(`${type} Success: Logged at ${new Date().toLocaleTimeString()}`);
+            }, () => alert("GPS is required to verify your location."));
+        }
+
+        async function showAdmin() {
+            const adminPass = prompt("Admin Security Check - Enter Password:");
+            if(adminPass === "Admin99") { // You can change this admin password
+                document.getElementById('adminSection').classList.remove('hidden');
+                const resp = await fetch(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: "generate_report" }) });
+                const data = await resp.json();
+                document.getElementById('reportData').innerHTML = data.map(row => `
+                    <tr>
+                        <td class="py-2">${row.name}</td>
+                        <td class="py-2 text-center">${row.days}d</td>
+                        <td class="py-2 text-center text-teal-400 font-bold">${row.totalHours}h</td>
+                        <td class="py-2 text-center text-rose-400">${row.leaveDays}d</td>
+                    </tr>
+                `).join('');
+            }
         }
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -170,111 +174,6 @@
             const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
             return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
         }
-
-        // NAVIGATION
-        function showPage(pageId) {
-            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
-            document.getElementById('page-' + pageId).classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('nav-' + pageId).classList.add('active');
-            if(pageId === 'dash') renderDash();
-            if(pageId === 'staff') renderStaff();
-            if(pageId === 'reports') renderReports();
-        }
-
-        // SHIFT LOGIC
-        function handleShift(type) {
-            const idInput = document.getElementById('loginID');
-            const emp = employees.find(e => e.id === idInput.value);
-            if(!emp) return alert("Employee ID not registered!");
-
-            const newRecord = {
-                id: emp.id,
-                name: emp.name,
-                type: type,
-                time: new Date().toLocaleString(),
-                loc: `${userPos.latitude.toFixed(4)},${userPos.longitude.toFixed(4)}`
-            };
-            records.push(newRecord);
-            localStorage.setItem('LCH_Records', JSON.stringify(records));
-            alert(`${type} Recorded for ${emp.name}`);
-            idInput.value = '';
-        }
-
-        // EMPLOYEE MANAGEMENT
-        function openStaffModal() { document.getElementById('staffModal').style.display = 'flex'; }
-        function closeStaffModal() { document.getElementById('staffModal').style.display = 'none'; }
-        
-        function saveStaff() {
-            const emp = { 
-                name: document.getElementById('mName').value,
-                id: document.getElementById('mID').value,
-                dept: document.getElementById('mDept').value,
-                desig: document.getElementById('mDesig').value
-            };
-            if(emp.id.length !== 5) return alert("ID must be 5 digits!");
-            employees.push(emp);
-            localStorage.setItem('LCH_Employees', JSON.stringify(employees));
-            closeStaffModal(); renderStaff();
-        }
-
-        function renderStaff() {
-            const grid = document.getElementById('staff-grid');
-            grid.innerHTML = employees.map(e => `
-                <div class="glass-card p-6 rounded-2xl">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-teal-400 font-bold">${e.name[0]}</div>
-                        <div>
-                            <h4 class="font-bold">${e.name}</h4>
-                            <p class="text-xs text-slate-400">${e.desig} • ${e.dept}</p>
-                        </div>
-                    </div>
-                    <div class="mt-4 text-xs font-mono text-slate-500">ID: ${e.id}</div>
-                </div>
-            `).join('');
-        }
-
-        // DASHBOARD & REPORTS
-        function renderDash() {
-            const tbody = document.getElementById('dash-table-body');
-            document.getElementById('stat-total').innerText = records.length;
-            tbody.innerHTML = employees.map(e => {
-                const last = records.filter(r => r.id === e.id).slice(-1)[0];
-                const status = last && last.type === 'IN' ? 'IN' : 'OUT';
-                return `<tr><td class="p-4 font-medium">${e.name}</td><td class="p-4 text-slate-400">${e.dept}</td><td class="p-4"><span class="${status==='IN'?'text-emerald-500':'text-rose-500'} font-bold">${status}</span></td></tr>`;
-            }).join('');
-        }
-
-        function renderReports() {
-            const tbody = document.getElementById('report-table-body');
-            tbody.innerHTML = records.map(r => `<tr><td class="p-4 text-slate-400">${r.id}</td><td class="p-4 font-medium">${r.name}</td><td class="p-4">${r.type}</td><td class="p-4">${r.time}</td><td class="p-4 font-mono text-xs text-slate-500">${r.loc}</td></tr>`).reverse().join('');
-        }
-
-        function exportToExcel() {
-            const ws = XLSX.utils.json_to_sheet(records);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Attendance");
-            XLSX.writeFile(wb, "LifeCare_ShiftReport.xlsx");
-        }
-
-        // SETTINGS
-        function saveSettings() {
-            config = { 
-                lat: parseFloat(document.getElementById('setLat').value), 
-                lon: parseFloat(document.getElementById('setLon').value), 
-                rad: parseInt(document.getElementById('setRadius').value) 
-            };
-            localStorage.setItem('LCH_Config', JSON.stringify(config));
-            alert("Configuration Saved!");
-        }
-
-        // INIT
-        window.onload = () => {
-            document.getElementById('setLat').value = config.lat;
-            document.getElementById('setLon').value = config.lon;
-            document.getElementById('setRadius').value = config.rad;
-            watchLocation();
-        };
     </script>
 </body>
 </html>
