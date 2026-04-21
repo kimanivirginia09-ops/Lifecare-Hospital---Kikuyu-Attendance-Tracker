@@ -3,66 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LifeCare Hospital | Secure Staff Portal</title>
+    <title>LifeCare Hospital | Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .teal-glow { box-shadow: 0 0 20px rgba(13, 148, 136, 0.2); }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
-    <div class="glass max-w-md w-full rounded-3xl p-8 shadow-2xl teal-glow">
+    <div class="glass max-w-md w-full rounded-3xl p-8 shadow-2xl">
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold tracking-tight text-teal-500">LIFECARE</h1>
             <p id="modeText" class="text-slate-400 text-xs uppercase tracking-widest mt-1 font-semibold">Employee Login</p>
         </div>
 
         <div id="authSection" class="space-y-4">
-            <div class="space-y-1">
-                <label class="text-[10px] text-slate-500 uppercase ml-2">Verified Email</label>
-                <input type="email" id="email" placeholder="name@lifecare.com" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 transition-all">
-            </div>
-            <div class="space-y-1">
-                <label class="text-[10px] text-slate-500 uppercase ml-2">Secure Password</label>
-                <input type="password" id="pass" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 transition-all">
-            </div>
+            <input type="email" id="email" placeholder="Official Email" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 transition-all">
+            <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 transition-all">
             
-            <button id="mainBtn" onclick="handleAuth()" class="w-full bg-teal-600 hover:bg-teal-500 py-4 rounded-2xl font-bold transition-all shadow-lg shadow-teal-900/20">LOG IN & PROCEED</button>
+            <button id="mainBtn" onclick="handleAuth()" class="w-full bg-teal-600 hover:bg-teal-500 py-4 rounded-2xl font-bold transition-all">LOG IN & PROCEED</button>
             
             <div class="text-center">
-                <button onclick="toggleRegister()" id="toggleBtn" class="text-[10px] text-slate-500 hover:text-teal-400 uppercase tracking-widest transition-colors">First time? Register here</button>
+                <button onclick="toggleRegister()" id="toggleBtn" class="text-[10px] text-slate-500 hover:text-teal-400 uppercase tracking-widest">First time? Register here</button>
             </div>
         </div>
 
-        <div id="clockSection" class="hidden space-y-6 text-center animate-in fade-in duration-500">
+        <div id="clockSection" class="hidden space-y-6 text-center">
             <div class="py-4 border-b border-slate-800">
-                <p class="text-slate-400 text-xs uppercase tracking-widest">Signed in as</p>
                 <p id="welcomeMsg" class="font-bold text-xl text-teal-400"></p>
                 <p id="staffDetails" class="text-[10px] text-slate-500 italic"></p>
             </div>
             
-            <div id="gpsStatus" class="text-[10px] text-emerald-500 font-bold uppercase tracking-widest mb-2">Location Verified ✓</div>
-
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="submitShift('IN')" class="bg-emerald-600 hover:bg-emerald-500 py-6 rounded-2xl font-bold shadow-lg shadow-emerald-900/20 transition-all active:scale-95">CLOCK IN</button>
-                <button onclick="submitShift('OUT')" class="bg-rose-600 hover:bg-rose-500 py-6 rounded-2xl font-bold shadow-lg shadow-rose-900/20 transition-all active:scale-95">CLOCK OUT</button>
+                <button onclick="submitShift('IN')" class="bg-emerald-600 hover:bg-emerald-500 py-6 rounded-2xl font-bold shadow-lg">CLOCK IN</button>
+                <button onclick="submitShift('OUT')" class="bg-rose-600 hover:bg-rose-500 py-6 rounded-2xl font-bold shadow-lg">CLOCK OUT</button>
             </div>
-
-            <button onclick="showAdmin()" class="text-[9px] text-slate-600 uppercase hover:text-slate-400">View Monthly Reports</button>
+            <button onclick="showAdmin()" class="text-[9px] text-slate-600 uppercase">View Monthly Reports</button>
         </div>
 
         <div id="adminSection" class="hidden mt-8 pt-6 border-t border-slate-800">
-            <h2 class="text-teal-500 font-bold text-sm mb-4">Department Analytics</h2>
+            <h2 class="text-teal-500 font-bold text-sm mb-4">Monthly Analytics</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-[10px] text-left">
                     <thead>
                         <tr class="text-slate-500 border-b border-slate-800">
                             <th class="pb-2">Name</th>
-                            <th class="pb-2">Worked</th>
-                            <th class="pb-2">Hours</th>
-                            <th class="pb-2">Leaves</th>
+                            <th class="pb-2 text-center">Days</th>
+                            <th class="pb-2 text-center">Hours</th>
+                            <th class="pb-2 text-center">Leaves</th>
                         </tr>
                     </thead>
                     <tbody id="reportData" class="divide-y divide-slate-800"></tbody>
@@ -72,12 +61,10 @@
     </div>
 
     <script>
-        // YOUR UNIQUE CLOUD LINK
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzL_6aJpiSzkyh61SqM_nFgIXUOCwi4qHc8LtTMTDzN88iyYWpngnjaGc6sNT8LG7eN/exec";
+        // UPDATED URL FROM YOUR LATEST DEPLOYMENT
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzu4ZJyeifn_CEIKWJgpl39oxscN1VQbxqAU6a9TDfPLJa0120sJ-IDopfJJQ9N_-KiA/exec";
         
-        // HOSPITAL LOCATION (Current: Eldoret/LifeCare)
         const HOSPITAL_LOC = { lat: -1.2448, lon: 36.6619, rad: 500 }; 
-        
         let isRegisterMode = false;
         let currentUser = null;
 
@@ -94,12 +81,23 @@
             const btn = document.getElementById('mainBtn');
 
             if(!email || !pass) return alert("Please fill in both fields");
-            
-            btn.innerText = "VERIFYING...";
-            btn.disabled = true;
+            btn.innerText = "CONNECTING...";
 
             try {
                 const response = await fetch(CLOUD_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Added to prevent some connection blocks
+                    body: JSON.stringify({ 
+                        action: "check_auth", 
+                        email: email, 
+                        password: pass, 
+                        type: isRegisterMode ? "register" : "login" 
+                    })
+                });
+
+                // Since 'no-cors' limits response reading, we retry with normal fetch if that fails
+                // But first, let's try a standard fetch which is required to read registration status
+                const normalResponse = await fetch(CLOUD_URL, {
                     method: 'POST',
                     body: JSON.stringify({ 
                         action: "check_auth", 
@@ -108,72 +106,36 @@
                         type: isRegisterMode ? "register" : "login" 
                     })
                 });
-                const data = await response.json();
+                
+                const data = await normalResponse.json();
 
                 if (isRegisterMode) {
                     if (data.result === "registered") {
-                        alert("Account activated! You can now log in.");
+                        alert("Success! You can now log in with your new password.");
                         toggleRegister();
-                    } else { alert("Email not found in authorized staff list."); }
+                    } else { alert("Email not found in authorized list."); }
                 } else {
                     if (data.exists && data.savedPass === pass) {
                         currentUser = data;
-                        document.getElementById('welcomeMsg').innerText = data.name;
+                        document.getElementById('welcomeMsg').innerText = `Hello, ${data.name}`;
                         document.getElementById('staffDetails').innerText = `${data.dept} | ${data.desig}`;
                         document.getElementById('authSection').classList.add('hidden');
                         document.getElementById('clockSection').classList.remove('hidden');
                     } else { alert("Invalid email or password."); }
                 }
-            } catch (e) { alert("Connection Error. Check your internet."); }
-            
-            btn.disabled = false;
+            } catch (e) { 
+                alert("Connection Error. Ensure your Google Script is deployed with 'Who has access: Anyone'."); 
+            }
             btn.innerText = isRegisterMode ? "SAVE PASSWORD & REGISTER" : "LOG IN & PROCEED";
         }
 
         async function submitShift(type) {
             navigator.geolocation.getCurrentPosition(async (pos) => {
                 const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, HOSPITAL_LOC.lat, HOSPITAL_LOC.lon);
-                
-                if (dist > HOSPITAL_LOC.rad) {
-                    return alert(`Access Denied: You are ${Math.round(dist)}m outside the hospital perimeter.`);
-                }
+                if (dist > HOSPITAL_LOC.rad) return alert(`Out of range (${Math.round(dist)}m away)`);
 
                 await fetch(CLOUD_URL, {
                     method: 'POST',
                     body: JSON.stringify({
                         id: currentUser.id, name: currentUser.name,
-                        dept: currentUser.dept, desig: currentUser.desig,
-                        type: type, loc: `${pos.coords.latitude.toFixed(4)},${pos.coords.longitude.toFixed(4)}`
-                    })
-                });
-                alert(`${type} Success: Logged at ${new Date().toLocaleTimeString()}`);
-            }, () => alert("GPS is required to verify your location."));
-        }
-
-        async function showAdmin() {
-            const adminPass = prompt("Admin Security Check - Enter Password:");
-            if(adminPass === "Admin99") { // You can change this admin password
-                document.getElementById('adminSection').classList.remove('hidden');
-                const resp = await fetch(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: "generate_report" }) });
-                const data = await resp.json();
-                document.getElementById('reportData').innerHTML = data.map(row => `
-                    <tr>
-                        <td class="py-2">${row.name}</td>
-                        <td class="py-2 text-center">${row.days}d</td>
-                        <td class="py-2 text-center text-teal-400 font-bold">${row.totalHours}h</td>
-                        <td class="py-2 text-center text-rose-400">${row.leaveDays}d</td>
-                    </tr>
-                `).join('');
-            }
-        }
-
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3;
-            const dLat = (lat2-lat1) * Math.PI/180;
-            const dLon = (lon2-lon1) * Math.PI/180;
-            const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-        }
-    </script>
-</body>
-</html>
+                        dept: currentUser.dept, desig: currentUser.des
