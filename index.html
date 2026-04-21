@@ -3,146 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShiftGuard Advanced | LifeCare Hospital</title>
+    <title>ShiftGuard Enterprise | LifeCare</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        :root { --navy: #0f172a; --teal: #0d9488; }
+        body { background-color: var(--navy); font-family: 'Inter', sans-serif; color: #f8fafc; }
+        .teal-accent { color: var(--teal); }
+        .bg-teal-accent { background-color: var(--teal); }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .nav-item.active { border-bottom: 2px solid var(--teal); color: var(--teal); }
     </style>
 </head>
-<body class="gradient-bg min-h-screen text-white flex items-center justify-center p-4">
+<body class="min-h-screen">
 
-    <div class="glass max-w-md w-full rounded-2xl p-8 shadow-2xl">
-        <div class="text-center mb-8">
-            <h1 class="text-2xl font-bold tracking-tight">LIFECARE HOSPITAL</h1>
-            <p class="text-slate-400 text-sm">Secure Personnel Portal</p>
+    <nav class="sticky top-0 z-50 bg-slate-900 border-b border-slate-800 px-4">
+        <div class="max-w-6xl mx-auto flex justify-between items-center h-16">
+            <div class="font-bold text-xl tracking-tight uppercase">ShiftGuard <span class="teal-accent">Pro</span></div>
+            <div class="hidden md:flex space-x-6 text-sm font-medium">
+                <button onclick="showPage('clock')" class="nav-item active py-5" id="nav-clock">Clock</button>
+                <button onclick="showPage('dash')" class="nav-item py-5" id="nav-dash">Dashboard</button>
+                <button onclick="showPage('staff')" class="nav-item py-5" id="nav-staff">Employees</button>
+                <button onclick="showPage('reports')" class="nav-item py-5" id="nav-reports">Reports</button>
+                <button onclick="showPage('settings')" class="nav-item py-5" id="nav-settings">Settings</button>
+            </div>
+            <button onclick="toggleAdmin()" class="md:hidden text-teal-500">Menu</button>
         </div>
+    </nav>
 
-        <div id="loginForm" class="space-y-4">
-            <div>
-                <label class="block text-xs font-medium uppercase tracking-wider mb-1 text-slate-400">Employee ID (5 Digits)</label>
-                <input type="number" id="empID" maxlength="5" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                    class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xl font-mono outline-none focus:border-blue-500">
+    <main class="max-w-6xl mx-auto p-4 md:p-8">
+
+        <section id="page-clock" class="page-content">
+            <div class="max-w-md mx-auto glass-card rounded-3xl p-8 text-center shadow-2xl">
+                <h2 class="text-3xl font-bold mb-2">Shift Entry</h2>
+                <p class="text-slate-400 mb-8">Enter your 5-digit Company ID</p>
+                
+                <input type="password" id="loginID" maxlength="5" placeholder="00000" 
+                    class="w-full bg-slate-950 border border-slate-700 rounded-2xl p-4 text-3xl text-center font-mono tracking-[1rem] mb-6 outline-none focus:border-teal-500">
+                
+                <div id="locStatus" class="mb-6 text-xs uppercase tracking-widest text-slate-500">Waiting for GPS...</div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="btnIn" onclick="handleShift('IN')" disabled class="bg-slate-800 opacity-50 cursor-not-allowed py-5 rounded-2xl font-bold transition-all">CLOCK IN</button>
+                    <button id="btnOut" onclick="handleShift('OUT')" disabled class="bg-slate-800 opacity-50 cursor-not-allowed py-5 rounded-2xl font-bold transition-all">CLOCK OUT</button>
+                </div>
             </div>
-            <div>
-                <label class="block text-xs font-medium uppercase tracking-wider mb-1 text-slate-400">Password</label>
-                <input type="password" id="empPass" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xl outline-none focus:border-blue-500">
+        </section>
+
+        <section id="page-dash" class="page-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glass-card p-6 rounded-2xl">
+                    <p class="text-slate-400 text-sm">Active Employees</p>
+                    <h3 id="stat-active" class="text-4xl font-bold teal-accent">0</h3>
+                </div>
+                <div class="glass-card p-6 rounded-2xl text-center">
+                    <p class="text-slate-400 text-sm">Today's Total</p>
+                    <h3 id="stat-total" class="text-4xl font-bold">0</h3>
+                </div>
             </div>
-            <div class="grid grid-cols-2 gap-4 pt-2">
-                <button onclick="processAction('CLOCK_IN')" class="bg-emerald-600 hover:bg-emerald-500 py-4 rounded-xl font-bold transition">CLOCK IN</button>
-                <button onclick="processAction('CLOCK_OUT')" class="bg-rose-600 hover:bg-rose-500 py-4 rounded-xl font-bold transition">CLOCK OUT</button>
+            <div class="glass-card rounded-2xl overflow-hidden">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-800/50">
+                        <tr><th class="p-4">Name</th><th class="p-4">Department</th><th class="p-4">Status</th></tr>
+                    </thead>
+                    <tbody id="dash-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="page-staff" class="page-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Manage Staff</h2>
+                <button onclick="openStaffModal()" class="bg-teal-accent px-4 py-2 rounded-lg text-sm font-bold">+ Onboard</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="staff-grid"></div>
+        </section>
+
+        <section id="page-reports" class="page-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Time Records</h2>
+                <button onclick="exportToExcel()" class="bg-emerald-600 px-4 py-2 rounded-lg text-sm font-bold">Export to Excel</button>
+            </div>
+            <div class="glass-card rounded-2xl overflow-x-auto">
+                <table class="w-full text-left text-xs md:text-sm" id="reportTable">
+                    <thead class="bg-slate-800/50">
+                        <tr><th class="p-4">ID</th><th class="p-4">Name</th><th class="p-4">Type</th><th class="p-4">Time</th><th class="p-4">Location</th></tr>
+                    </thead>
+                    <tbody id="report-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="page-settings" class="page-content hidden">
+            <div class="max-w-xl glass-card rounded-2xl p-8">
+                <h2 class="text-2xl font-bold mb-6">System Configuration</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Company Latitude</label>
+                        <input type="text" id="setLat" class="w-full bg-slate-900 border border-slate-800 rounded p-3">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Company Longitude</label>
+                        <input type="text" id="setLon" class="w-full bg-slate-900 border border-slate-800 rounded p-3">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Allowed Radius (Meters)</label>
+                        <input type="number" id="setRadius" class="w-full bg-slate-900 border border-slate-800 rounded p-3">
+                    </div>
+                    <button onclick="saveSettings()" class="w-full bg-teal-accent py-3 rounded-xl font-bold">Save Config</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="staffModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4">
+        <div class="glass-card w-full max-w-md p-8 rounded-3xl">
+            <h3 class="text-xl font-bold mb-4">Onboard New Staff</h3>
+            <div class="space-y-4">
+                <input type="text" id="mName" placeholder="Full Name" class="w-full bg-slate-900 rounded p-3">
+                <input type="number" id="mID" placeholder="5-Digit ID" class="w-full bg-slate-900 rounded p-3">
+                <input type="text" id="mDept" placeholder="Department" class="w-full bg-slate-900 rounded p-3">
+                <input type="text" id="mDesig" placeholder="Designation" class="w-full bg-slate-900 rounded p-3">
+                <div class="flex space-x-2">
+                    <button onclick="closeStaffModal()" class="flex-1 bg-slate-700 py-3 rounded-xl">Cancel</button>
+                    <button onclick="saveStaff()" class="flex-1 bg-teal-accent py-3 rounded-xl font-bold">Save</button>
+                </div>
             </div>
         </div>
-
-        <div class="mt-10 pt-6 border-t border-slate-800">
-            <button id="adminBtn" onclick="toggleAdmin()" class="text-slate-500 text-xs hover:text-white transition w-full">ADMIN ACCESS</button>
-            
-            <div id="adminPanel" class="hidden mt-4 space-y-4 bg-slate-800/50 p-4 rounded-lg">
-                <p class="text-xs font-bold text-blue-400">ONBOARD NEW STAFF</p>
-                <input type="number" id="newID" placeholder="New 5-Digit ID" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm">
-                <input type="password" id="newPass" placeholder="Set Password" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm">
-                <button onclick="onboardStaff()" class="w-full bg-blue-600 text-xs py-2 rounded">REGISTER STAFF</button>
-                <hr class="border-slate-700">
-                <button onclick="downloadLogs()" class="w-full bg-slate-700 text-xs py-2 rounded">DOWNLOAD PAYROLL CSV</button>
-            </div>
-        </div>
-
-        <div id="statusBox" class="hidden mt-6 rounded-lg p-4 text-sm text-center"></div>
     </div>
 
     <script>
-        const HOSPITAL_LAT = -1.2448624;
-        const HOSPITAL_LON = 36.6619612;
-        const RADIUS = 150; 
-        const ADMIN_MASTER_KEY = "12345"; // Change this to your secret admin password!
+        // INITIAL DATA
+        let employees = JSON.parse(localStorage.getItem('LCH_Employees')) || [];
+        let records = JSON.parse(localStorage.getItem('LCH_Records')) || [];
+        let config = JSON.parse(localStorage.getItem('LCH_Config')) || { lat: -1.24486, lon: 36.6619, rad: 100 };
 
-        // Load data from storage
-        let staffDatabase = JSON.parse(localStorage.getItem('staffDB')) || {}; 
-        let attendanceLogs = JSON.parse(localStorage.getItem('logs')) || [];
+        // GPS ENGINE
+        let userPos = null;
+        function watchLocation() {
+            navigator.geolocation.watchPosition(pos => {
+                userPos = pos.coords;
+                const dist = calculateDistance(userPos.latitude, userPos.longitude, config.lat, config.lon);
+                const status = document.getElementById('locStatus');
+                const btnIn = document.getElementById('btnIn');
+                const btnOut = document.getElementById('btnOut');
 
-        function processAction(type) {
-            const id = document.getElementById('empID').value;
-            const pass = document.getElementById('empPass').value;
-
-            // 1. Validate ID Length
-            if (id.length !== 5) {
-                return showStatus("Error: ID must be exactly 5 digits.", "bg-rose-900/50 text-rose-200");
-            }
-
-            // 2. Check if onboarded
-            if (!staffDatabase[id]) {
-                return showStatus("Access Denied: ID not onboarded in system.", "bg-rose-900/50 text-rose-200");
-            }
-
-            // 3. Check Password
-            if (staffDatabase[id] !== pass) {
-                return showStatus("Error: Incorrect Password.", "bg-rose-900/50 text-rose-200");
-            }
-
-            // 4. GPS Check
-            showStatus("Verifying Location...", "bg-blue-900/50 text-blue-200");
-            navigator.geolocation.getCurrentPosition((pos) => {
-                const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, HOSPITAL_LAT, HOSPITAL_LON);
-                
-                if (dist > RADIUS) {
-                    showStatus(`Denied: You are ${Math.round(dist)}m from Hospital.`, "bg-rose-900/50 text-rose-200");
+                if(dist <= config.rad) {
+                    status.innerHTML = `<span class="text-teal-400">● Within Range (${Math.round(dist)}m)</span>`;
+                    btnIn.disabled = false; btnOut.disabled = false;
+                    btnIn.className = "bg-emerald-600 py-5 rounded-2xl font-bold transition-all";
+                    btnOut.className = "bg-rose-600 py-5 rounded-2xl font-bold transition-all";
                 } else {
-                    const log = { id, time: new Date().toLocaleString(), type, loc: `${pos.coords.latitude.toFixed(4)},${pos.coords.longitude.toFixed(4)}` };
-                    attendanceLogs.push(log);
-                    localStorage.setItem('logs', JSON.stringify(attendanceLogs));
-                    showStatus(`${type} SUCCESSFUL`, "bg-emerald-900/50 text-emerald-200");
-                    document.getElementById('empPass').value = '';
+                    status.innerHTML = `<span class="text-rose-500">● Outside Range (${Math.round(dist)}m)</span>`;
+                    btnIn.disabled = true; btnOut.disabled = true;
+                    btnIn.className = "bg-slate-800 opacity-50 cursor-not-allowed py-5 rounded-2xl font-bold";
+                    btnOut.className = "bg-slate-800 opacity-50 cursor-not-allowed py-5 rounded-2xl font-bold";
                 }
-            }, () => showStatus("Error: Enable GPS.", "bg-rose-900/50 text-rose-200"));
-        }
-
-        function onboardStaff() {
-            const nID = document.getElementById('newID').value;
-            const nPass = document.getElementById('newPass').value;
-            if(nID.length === 5 && nPass) {
-                staffDatabase[nID] = nPass;
-                localStorage.setItem('staffDB', JSON.stringify(staffDatabase));
-                alert("Staff ID " + nID + " successfully onboarded!");
-                document.getElementById('newID').value = '';
-                document.getElementById('newPass').value = '';
-            } else {
-                alert("Invalid Onboarding Data");
-            }
-        }
-
-        function toggleAdmin() {
-            const key = prompt("Enter Admin Master Password:");
-            if (key === ADMIN_MASTER_KEY) {
-                document.getElementById('adminPanel').classList.toggle('hidden');
-            } else {
-                alert("Unauthorized!");
-            }
+            }, err => console.error(err), { enableHighAccuracy: true });
         }
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3;
             const dLat = (lat2-lat1) * Math.PI/180;
             const dLon = (lon2-lon1) * Math.PI/180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
             return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
         }
 
-        function showStatus(msg, cls) {
-            const b = document.getElementById('statusBox');
-            b.className = `mt-6 rounded-lg p-4 text-sm text-center ${cls}`;
-            b.innerHTML = msg;
-            b.classList.remove('hidden');
+        // NAVIGATION
+        function showPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+            document.getElementById('page-' + pageId).classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('nav-' + pageId).classList.add('active');
+            if(pageId === 'dash') renderDash();
+            if(pageId === 'staff') renderStaff();
+            if(pageId === 'reports') renderReports();
         }
 
-        function downloadLogs() {
-            let csv = "ID,Time,Action,GPS\n";
-            attendanceLogs.forEach(l => csv += `${l.id},${l.time},${l.type},${l.loc}\n`);
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'LifeCare_Payroll.csv';
-            a.click();
+        // SHIFT LOGIC
+        function handleShift(type) {
+            const idInput = document.getElementById('loginID');
+            const emp = employees.find(e => e.id === idInput.value);
+            if(!emp) return alert("Employee ID not registered!");
+
+            const newRecord = {
+                id: emp.id,
+                name: emp.name,
+                type: type,
+                time: new Date().toLocaleString(),
+                loc: `${userPos.latitude.toFixed(4)},${userPos.longitude.toFixed(4)}`
+            };
+            records.push(newRecord);
+            localStorage.setItem('LCH_Records', JSON.stringify(records));
+            alert(`${type} Recorded for ${emp.name}`);
+            idInput.value = '';
         }
+
+        // EMPLOYEE MANAGEMENT
+        function openStaffModal() { document.getElementById('staffModal').style.display = 'flex'; }
+        function closeStaffModal() { document.getElementById('staffModal').style.display = 'none'; }
+        
+        function saveStaff() {
+            const emp = { 
+                name: document.getElementById('mName').value,
+                id: document.getElementById('mID').value,
+                dept: document.getElementById('mDept').value,
+                desig: document.getElementById('mDesig').value
+            };
+            if(emp.id.length !== 5) return alert("ID must be 5 digits!");
+            employees.push(emp);
+            localStorage.setItem('LCH_Employees', JSON.stringify(employees));
+            closeStaffModal(); renderStaff();
+        }
+
+        function renderStaff() {
+            const grid = document.getElementById('staff-grid');
+            grid.innerHTML = employees.map(e => `
+                <div class="glass-card p-6 rounded-2xl">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-teal-400 font-bold">${e.name[0]}</div>
+                        <div>
+                            <h4 class="font-bold">${e.name}</h4>
+                            <p class="text-xs text-slate-400">${e.desig} • ${e.dept}</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-xs font-mono text-slate-500">ID: ${e.id}</div>
+                </div>
+            `).join('');
+        }
+
+        // DASHBOARD & REPORTS
+        function renderDash() {
+            const tbody = document.getElementById('dash-table-body');
+            document.getElementById('stat-total').innerText = records.length;
+            tbody.innerHTML = employees.map(e => {
+                const last = records.filter(r => r.id === e.id).slice(-1)[0];
+                const status = last && last.type === 'IN' ? 'IN' : 'OUT';
+                return `<tr><td class="p-4 font-medium">${e.name}</td><td class="p-4 text-slate-400">${e.dept}</td><td class="p-4"><span class="${status==='IN'?'text-emerald-500':'text-rose-500'} font-bold">${status}</span></td></tr>`;
+            }).join('');
+        }
+
+        function renderReports() {
+            const tbody = document.getElementById('report-table-body');
+            tbody.innerHTML = records.map(r => `<tr><td class="p-4 text-slate-400">${r.id}</td><td class="p-4 font-medium">${r.name}</td><td class="p-4">${r.type}</td><td class="p-4">${r.time}</td><td class="p-4 font-mono text-xs text-slate-500">${r.loc}</td></tr>`).reverse().join('');
+        }
+
+        function exportToExcel() {
+            const ws = XLSX.utils.json_to_sheet(records);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Attendance");
+            XLSX.writeFile(wb, "LifeCare_ShiftReport.xlsx");
+        }
+
+        // SETTINGS
+        function saveSettings() {
+            config = { 
+                lat: parseFloat(document.getElementById('setLat').value), 
+                lon: parseFloat(document.getElementById('setLon').value), 
+                rad: parseInt(document.getElementById('setRadius').value) 
+            };
+            localStorage.setItem('LCH_Config', JSON.stringify(config));
+            alert("Configuration Saved!");
+        }
+
+        // INIT
+        window.onload = () => {
+            document.getElementById('setLat').value = config.lat;
+            document.getElementById('setLon').value = config.lon;
+            document.getElementById('setRadius').value = config.rad;
+            watchLocation();
+        };
     </script>
 </body>
 </html>
