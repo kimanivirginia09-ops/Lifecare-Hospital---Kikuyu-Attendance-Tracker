@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LifeCare Hospital | Staff Portal</title>
+    <title>LifeCare Hospital Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }
@@ -14,35 +14,43 @@
 
     <div class="glass max-w-md w-full rounded-3xl p-8 shadow-2xl">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold tracking-tight text-teal-500 text-center">LIFECARE</h1>
-            <p id="modeText" class="text-slate-400 text-xs uppercase tracking-widest mt-1 font-semibold text-center">Staff Portal</p>
+            <h1 class="text-3xl font-bold tracking-tight text-teal-500">LIFECARE</h1>
+            <p id="modeText" class="text-slate-400 text-xs uppercase tracking-widest mt-1 font-semibold">Staff Portal</p>
         </div>
 
         <div id="authSection" class="space-y-4">
-            <input type="email" id="email" placeholder="Email Address" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 transition-all text-white">
-            <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 transition-all text-white">
+            <div class="space-y-1">
+                <label class="text-[10px] text-slate-500 uppercase ml-2">Email Address</label>
+                <input type="email" id="email" placeholder="name@lifecare.com" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 transition-all text-white">
+            </div>
+            <div class="space-y-1">
+                <label class="text-[10px] text-slate-500 uppercase ml-2">Password</label>
+                <input type="password" id="pass" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 transition-all text-white">
+            </div>
             
-            <button id="mainBtn" onclick="handleAuth()" class="w-full bg-teal-600 hover:bg-teal-500 py-4 rounded-2xl font-bold transition-all">LOG IN</button>
+            <button id="mainBtn" onclick="handleAuth()" class="w-full bg-teal-600 hover:bg-teal-500 py-4 rounded-2xl font-bold transition-all shadow-lg shadow-teal-900/20">LOG IN</button>
             
             <div class="text-center">
-                <button onclick="toggleRegister()" id="toggleBtn" class="text-[10px] text-slate-500 hover:text-teal-400 uppercase tracking-widest">First time? Register here</button>
+                <button onclick="toggleRegister()" id="toggleBtn" class="text-[10px] text-slate-500 hover:text-teal-400 uppercase tracking-widest transition-colors">First time? Register here</button>
             </div>
         </div>
 
-        <div id="clockSection" class="hidden space-y-6 text-center">
+        <div id="clockSection" class="hidden space-y-6 text-center animate-in fade-in duration-500">
             <div class="py-4 border-b border-slate-800">
                 <p id="welcomeMsg" class="font-bold text-xl text-teal-400"></p>
                 <p id="staffDetails" class="text-[10px] text-slate-500 italic"></p>
             </div>
+            
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="submitShift('IN')" class="bg-emerald-600 hover:bg-emerald-500 py-6 rounded-2xl font-bold">CLOCK IN</button>
-                <button onclick="submitShift('OUT')" class="bg-rose-600 hover:bg-rose-500 py-6 rounded-2xl font-bold">CLOCK OUT</button>
+                <button onclick="submitShift('IN')" class="bg-emerald-600 hover:bg-emerald-500 py-6 rounded-2xl font-bold transition-all active:scale-95">CLOCK IN</button>
+                <button onclick="submitShift('OUT')" class="bg-rose-600 hover:bg-rose-500 py-6 rounded-2xl font-bold transition-all active:scale-95">CLOCK OUT</button>
             </div>
-            <button onclick="showAdmin()" class="text-[9px] text-slate-600 uppercase">View Reports</button>
+
+            <button onclick="showAdmin()" class="text-[9px] text-slate-600 uppercase hover:text-slate-400">View Monthly Reports</button>
         </div>
 
         <div id="adminSection" class="hidden mt-8 pt-6 border-t border-slate-800">
-            <h2 class="text-teal-500 font-bold text-sm mb-4">Monthly Analytics</h2>
+            <h2 class="text-teal-500 font-bold text-sm mb-4">Staff Analytics</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-[10px] text-left">
                     <thead>
@@ -60,17 +68,17 @@
     </div>
 
     <script>
-        // YOUR EXACT URL
+        // CORRECTED FINAL URL
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzu4ZJyeifn_CEIKWJgpl39oxscN1VQbxqAU6a9TDfPLJa0120sJ-IDopfJJQ9N_K-NiA/exec";
         
-        const HOSPITAL_LOC = { lat: -1.2448, lon: 36.6619, rad: 500 }; 
+        const HOSPITAL_LOC = { lat: -1.2448, lon: 36.6619, rad: 1000 }; 
         let isRegisterMode = false;
         let currentUser = null;
 
         function toggleRegister() {
             isRegisterMode = !isRegisterMode;
             document.getElementById('modeText').innerText = isRegisterMode ? "Staff Registration" : "Staff Portal";
-            document.getElementById('mainBtn').innerText = isRegisterMode ? "REGISTER PASSWORD" : "LOG IN";
+            document.getElementById('mainBtn').innerText = isRegisterMode ? "REGISTER & SAVE" : "LOG IN";
             document.getElementById('toggleBtn').innerText = isRegisterMode ? "Back to Login" : "First time? Register here";
         }
 
@@ -80,6 +88,7 @@
             if(!email || !pass) return alert("Fill all fields");
 
             document.getElementById('mainBtn').innerText = "CONNECTING...";
+            document.getElementById('mainBtn').disabled = true;
 
             try {
                 const response = await fetch(CLOUD_URL, {
@@ -96,9 +105,9 @@
 
                 if (isRegisterMode) {
                     if (data.result === "registered") {
-                        alert("Success! You are now registered. Please log in.");
+                        alert("Registration successful! Please log in.");
                         toggleRegister();
-                    } else { alert("Email not found in authorized Staff list."); }
+                    } else { alert("Email not found in Staff tab."); }
                 } else {
                     if (data.exists && data.savedPass === pass) {
                         currentUser = data;
@@ -109,15 +118,16 @@
                     } else { alert("Invalid email or password."); }
                 }
             } catch (e) {
-                alert("Connection Error. Check your Google Script 'Who has access' setting.");
+                alert("Connection Error. Ensure your Google Script 'Who has access' is set to 'Anyone'.");
             }
-            document.getElementById('mainBtn').innerText = isRegisterMode ? "REGISTER PASSWORD" : "LOG IN";
+            document.getElementById('mainBtn').innerText = isRegisterMode ? "REGISTER & SAVE" : "LOG IN";
+            document.getElementById('mainBtn').disabled = false;
         }
 
         async function submitShift(type) {
             navigator.geolocation.getCurrentPosition(async (pos) => {
                 const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, HOSPITAL_LOC.lat, HOSPITAL_LOC.lon);
-                if (dist > HOSPITAL_LOC.rad) return alert("Out of range.");
+                if (dist > HOSPITAL_LOC.rad) return alert(`Out of range.`);
 
                 await fetch(CLOUD_URL, {
                     method: 'POST',
@@ -127,22 +137,25 @@
                         type: type, loc: `${pos.coords.latitude.toFixed(4)},${pos.coords.longitude.toFixed(4)}`
                     })
                 });
-                alert(type + " recorded!");
-            });
+                alert(`${type} Success!`);
+            }, () => alert("GPS Permission is required."));
         }
 
         async function showAdmin() {
-            const adminPass = prompt("Admin Password:");
+            const adminPass = prompt("Admin Security Password:");
             if(adminPass === "Admin99") {
                 document.getElementById('adminSection').classList.remove('hidden');
                 const resp = await fetch(CLOUD_URL, { method: 'POST', body: JSON.stringify({ action: "generate_report" }) });
                 const data = await resp.json();
                 document.getElementById('reportData').innerHTML = data.map(row => `
                     <tr class="border-b border-slate-900">
-                        <td class="py-2">${row.name}</td>
-                        <td class="py-2 text-center">${row.days}</td>
+                        <td class="py-2">
+                            <div class="font-bold text-slate-200">${row.name}</div>
+                            <div class="text-[8px] text-slate-500">${row.desig}</div>
+                        </td>
+                        <td class="py-2 text-center">${row.days}d</td>
                         <td class="py-2 text-center text-teal-400 font-bold">${row.totalHours}h</td>
-                        <td class="py-2 text-center text-rose-400">${row.leaveDays}</td>
+                        <td class="py-2 text-center text-rose-400">${row.leaveDays}d</td>
                     </tr>
                 `).join('');
             }
