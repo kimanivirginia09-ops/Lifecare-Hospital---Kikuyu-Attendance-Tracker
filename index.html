@@ -3,86 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LifeCare Staff Portal</title>
+    <title>LifeCare Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; padding-bottom: 90px; overflow-x: hidden; }
+        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; padding-bottom: 90px; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #94a3b8; width: 20%; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 9px; color: #94a3b8; width: 20%; }
         .nav-btn.active { color: #2dd4bf; border-top: 2px solid #2dd4bf; padding-top: 4px; }
         .btn-disabled { opacity: 0.2; pointer-events: none; filter: grayscale(1); }
-        table { border-collapse: collapse; width: 100%; font-size: 9px; margin-top: 10px; }
-        th, td { border: 1px solid #334155; padding: 4px; text-align: center; }
-        th { background: #1e293b; color: #2dd4bf; }
-        .status-P { color: #2dd4bf; font-weight: bold; }
-        .status-A { color: #f43f5e; font-weight: bold; }
-        .status-W { color: #64748b; }
+        table { border-collapse: collapse; width: 100%; font-size: 10px; }
+        th, td { border: 1px solid #334155; padding: 6px; text-align: center; }
+        .status-P { background: #065f46; color: #fff; font-weight: bold; border-radius: 4px; }
+        .status-A { color: #f43f5e; }
+        .status-W { color: #64748b; font-style: italic; }
     </style>
 </head>
 <body>
 
     <div id="authSection" class="min-h-screen flex items-center justify-center p-4">
         <div class="glass max-w-md w-full rounded-3xl p-8 shadow-2xl">
-            <h1 class="text-3xl font-bold text-teal-500 text-center mb-6 tracking-tight">LIFECARE</h1>
+            <h1 class="text-3xl font-bold text-teal-500 text-center mb-6">LIFECARE</h1>
             <div class="space-y-4">
-                <input type="email" id="email" placeholder="Staff Email" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-white outline-none focus:border-teal-500">
-                <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-white outline-none focus:border-teal-500">
-                <button id="loginBtn" onclick="runAuth()" class="w-full bg-teal-600 p-4 rounded-2xl font-bold active:scale-95 transition-all">LOG IN</button>
-                <button onclick="openAdminPrompt()" class="w-full text-slate-600 text-[10px] uppercase tracking-widest pt-2">Admin Panel</button>
+                <input type="email" id="email" placeholder="Email" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-white">
+                <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-white">
+                <button id="loginBtn" onclick="runAuth()" class="w-full bg-teal-600 p-4 rounded-2xl font-bold">LOG IN</button>
+                <button onclick="openAdminPrompt()" class="w-full text-slate-600 text-[10px] uppercase mt-2">Admin Panel</button>
             </div>
         </div>
     </div>
 
     <div id="mainApp" class="hidden">
         <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900 sticky top-0 z-50">
-            <h2 id="pageTitle" class="text-xl font-bold text-teal-400">HOME</h2>
+            <h2 id="pageTitle" class="text-xl font-bold text-teal-400 uppercase">Home</h2>
             <button onclick="logout()" class="text-rose-500 text-[10px] border border-rose-900/30 px-2 py-1 rounded">LOGOUT</button>
         </div>
 
         <div id="content" class="p-4 space-y-6">
             <div id="page-home" class="page-view space-y-6 text-center">
                 <div class="glass p-8 rounded-3xl">
-                    <p id="userNameDisplay" class="text-lg font-bold text-white mb-2 uppercase"></p>
+                    <p id="userNameDisplay" class="text-lg font-bold text-white mb-2"></p>
                     <p id="distDisplay" class="text-[10px] text-slate-500 mb-4 italic">Calculating location...</p>
                     <div class="grid grid-cols-2 gap-4">
-                        <button id="btnIn" onclick="clockAction('IN')" class="bg-emerald-600 p-8 rounded-2xl font-bold shadow-lg shadow-emerald-900/20">CLOCK IN</button>
-                        <button id="btnOut" onclick="clockAction('OUT')" class="bg-rose-600 p-8 rounded-2xl font-bold shadow-lg shadow-rose-900/20">CLOCK OUT</button>
+                        <button id="btnIn" onclick="clockAction('IN')" class="bg-emerald-600 p-8 rounded-2xl font-bold">CLOCK IN</button>
+                        <button id="btnOut" onclick="clockAction('OUT')" class="bg-rose-600 p-8 rounded-2xl font-bold">CLOCK OUT</button>
                     </div>
-                    <p id="rangeMsg" class="text-rose-500 text-[11px] mt-6 hidden font-semibold">⚠️ OUT OF RANGE: Please be at the Hospital to clock in/out.</p>
+                    <p id="rangeMsg" class="text-rose-500 text-[11px] mt-6 hidden font-semibold">⚠️ OUT OF RANGE: Clock-in disabled.</p>
                 </div>
             </div>
 
-            <div id="page-history" class="page-view hidden glass p-4 rounded-3xl">
-                <h3 class="text-teal-400 font-bold mb-4 text-sm uppercase">Personal Attendance Logs</h3>
-                <div id="attendanceList" class="space-y-2"></div>
-            </div>
-
-            <div id="page-bio" class="page-view hidden glass p-6 rounded-3xl space-y-4">
-                <p class="text-xs uppercase text-slate-500 border-b border-slate-800 pb-2">ID: <span id="bio-id" class="text-white font-bold ml-2"></span></p>
-                <p class="text-xs uppercase text-slate-500 border-b border-slate-800 pb-2">Dept: <span id="bio-dept" class="text-white font-bold ml-2"></span></p>
-                <p class="text-xs uppercase text-slate-500">Title: <span id="bio-desig" class="text-white font-bold ml-2"></span></p>
-            </div>
-
-            <div id="page-admin" class="page-view hidden space-y-6 pb-10">
+            <div id="page-history" class="page-view hidden space-y-6">
+                <div class="glass p-4 rounded-3xl overflow-x-auto">
+                    <h3 class="text-teal-400 font-bold mb-4 text-xs uppercase">Your Monthly Calendar</h3>
+                    <div id="empCalendarOutput"></div>
+                </div>
                 <div class="glass p-4 rounded-3xl">
-                    <h3 class="text-teal-400 font-bold mb-4 text-sm">GEOFENCE SETTINGS</h3>
+                    <h3 class="text-teal-400 font-bold mb-4 text-xs uppercase">Recent Activity Logs</h3>
+                    <div id="attendanceList" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <div id="page-leave" class="page-view hidden glass p-6 rounded-3xl space-y-4">
+                <h3 class="text-teal-400 font-bold text-sm border-b border-slate-800 pb-2">REQUEST LEAVE</h3>
+                <select id="leaveType" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl text-white outline-none">
+                    <option>Annual Leave (21 Days)</option>
+                    <option>Sick Leave</option>
+                    <option>Maternity Leave (90 Days)</option>
+                    <option>Paternity Leave (14 Days)</option>
+                    <option>Compassionate Leave</option>
+                </select>
+                <div class="space-y-2">
+                    <label class="text-[10px] text-slate-500">START DATE</label>
+                    <input type="date" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl text-white outline-none">
+                </div>
+                <button onclick="alert('Leave request submitted to HR')" class="w-full bg-teal-600 p-4 rounded-xl font-bold">SUBMIT REQUEST</button>
+            </div>
+
+            <div id="page-admin" class="page-view hidden space-y-6">
+                <div class="glass p-4 rounded-3xl">
+                    <h3 class="text-teal-400 font-bold mb-4 text-sm uppercase">Admin Control</h3>
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <input id="setLat" placeholder="Lat" class="bg-slate-900 p-3 rounded-xl text-xs text-white">
                         <input id="setLon" placeholder="Lon" class="bg-slate-900 p-3 rounded-xl text-xs text-white">
                     </div>
                     <input id="setRad" placeholder="Radius (meters)" class="w-full bg-slate-900 p-3 rounded-xl text-xs text-white mb-2">
-                    <button onclick="saveSettings()" class="w-full bg-teal-600 p-3 rounded-xl text-xs font-bold">SAVE HOSPITAL LOCATION</button>
+                    <button onclick="saveSettings()" class="w-full bg-teal-600 p-3 rounded-xl text-xs font-bold">UPDATE LOCATION</button>
                 </div>
-
                 <div class="glass p-4 rounded-3xl overflow-x-auto">
-                    <h3 class="text-teal-400 font-bold mb-4 text-sm">MONTHLY REPORTS</h3>
-                    <div class="flex gap-2 mb-4">
-                        <select id="rptMonth" class="bg-slate-900 p-2 rounded text-[10px] text-white">
-                            <option value="3">April</option><option value="4">May</option><option value="5">June</option>
-                        </select>
-                        <button onclick="generateReport()" class="bg-slate-800 px-4 py-2 rounded text-[10px] font-bold">GENERATE GRID</button>
-                    </div>
-                    <div id="reportOutput"></div>
+                    <h3 class="text-teal-400 font-bold mb-4 text-sm">FULL STAFF REPORT</h3>
+                    <button onclick="generateReport()" class="bg-slate-800 px-4 py-2 rounded text-[10px] mb-4 font-bold">LOAD CURRENT MONTH</button>
+                    <div id="adminReportOutput"></div>
                 </div>
             </div>
         </div>
@@ -90,6 +99,7 @@
         <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 p-4 flex justify-around items-center z-50">
             <button onclick="nav('home')" class="nav-btn active" id="nav-home"><span>🏠</span>Home</button>
             <button onclick="nav('history')" class="nav-btn" id="nav-history"><span>📅</span>Logs</button>
+            <button onclick="nav('leave')" class="nav-btn" id="nav-leave"><span>✈️</span>Leave</button>
             <button onclick="nav('bio')" class="nav-btn" id="nav-bio"><span>👤</span>Bio</button>
             <button id="adminNav" onclick="nav('admin')" class="nav-btn hidden"><span>⚙️</span>Admin</button>
         </nav>
@@ -123,19 +133,17 @@
             navigator.geolocation.getCurrentPosition(p => {
                 const dist = getDistance(p.coords.latitude, p.coords.longitude, config.lat, config.lon);
                 const isOut = dist > config.radius;
-                document.getElementById('distDisplay').innerText = `Distance: ${Math.round(dist)}m from center`;
+                document.getElementById('distDisplay').innerText = `Distance: ${Math.round(dist)}m from site`;
                 document.getElementById('btnIn').classList.toggle('btn-disabled', isOut);
                 document.getElementById('btnOut').classList.toggle('btn-disabled', isOut);
                 document.getElementById('rangeMsg').classList.toggle('hidden', !isOut);
-            }, () => { alert("Please enable GPS"); });
+            });
         }
 
         function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; // meters
-            const φ1 = lat1 * Math.PI/180;
-            const φ2 = lat2 * Math.PI/180;
-            const Δφ = (lat2-lat1) * Math.PI/180;
-            const Δλ = (lon2-lon1) * Math.PI/180;
+            const R = 6371e3;
+            const φ1 = lat1 * Math.PI/180; const φ2 = lat2 * Math.PI/180;
+            const Δφ = (lat2-lat1) * Math.PI/180; const Δλ = (lon2-lon1) * Math.PI/180;
             const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
@@ -152,7 +160,7 @@
             if(d.exists && d.savedPass === document.getElementById('pass').value) {
                 localStorage.setItem('lifecare_user', JSON.stringify(d));
                 showApp(d);
-            } else { alert("Login failed. Check your password."); }
+            } else { alert("Authentication Failed"); }
         }
 
         function showApp(d) {
@@ -160,9 +168,6 @@
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             document.getElementById('userNameDisplay').innerText = d.name;
-            document.getElementById('bio-id').innerText = d.id;
-            document.getElementById('bio-dept').innerText = d.dept;
-            document.getElementById('bio-desig').innerText = d.desig;
         }
 
         function clockAction(type) {
@@ -173,15 +178,14 @@
                 document.body.appendChild(s);
             });
         }
-        window.hClock = function(d) { alert("Recorded: " + d.type); location.reload(); }
+        window.hClock = function(d) { alert("Clocked " + d.type); location.reload(); }
 
         function nav(id) {
             document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('page-'+id).classList.remove('hidden');
             document.getElementById('nav-'+id).classList.add('active');
-            document.getElementById('pageTitle').innerText = id.toUpperCase();
-            if(id === 'history') fetchHistory();
+            if(id === 'history') { fetchHistory(); fetchEmployeeCalendar(); }
         }
 
         function fetchHistory() {
@@ -191,27 +195,46 @@
         }
         window.hHist = function(d) {
             document.getElementById('attendanceList').innerHTML = d.history.map(l => 
-                `<div class="p-3 bg-slate-900 rounded-xl flex justify-between text-[11px] border-l-4 ${l.type === 'IN' ? 'border-emerald-500' : 'border-rose-500'}">
-                    <span class="font-bold">${l.type}</span><span>${l.time}</span>
+                `<div class="p-3 bg-slate-900 rounded-xl flex justify-between text-[10px] border-l-4 ${l.type === 'IN' ? 'border-emerald-500' : 'border-rose-500'}">
+                    <span>${l.type}</span><span>${l.time}</span>
                 </div>`).join('');
         }
 
-        function generateReport() {
-            const m = document.getElementById('rptMonth').value;
+        function fetchEmployeeCalendar() {
+            const m = new Date().getMonth();
             const s = document.createElement('script');
-            s.src = `${CLOUD_URL}?action=get_report&month=${m}&year=2026&callback=hRep`;
+            s.src = `${CLOUD_URL}?action=get_report&month=${m}&year=2026&callback=hEmpCal`;
             document.body.appendChild(s);
         }
-        window.hRep = function(d) {
-            let h = `<table><thead><tr><th>Name</th>`;
+
+        window.hEmpCal = function(d) {
+            const myRow = d.report.find(r => r.name === currentUser.name);
+            if(!myRow) return;
+            let h = `<table><tr>`;
+            for(let i=1; i<=d.daysCount; i++) h += `<th class="bg-slate-800">${i}</th>`;
+            h += `</tr><tr>`;
+            myRow.days.forEach(day => h += `<td class="status-${day}">${day}</td>`);
+            h += `</tr></table>`;
+            document.getElementById('empCalendarOutput').innerHTML = h;
+        }
+
+        function generateReport() {
+            const m = new Date().getMonth();
+            const s = document.createElement('script');
+            s.src = `${CLOUD_URL}?action=get_report&month=${m}&year=2026&callback=hAdminRep`;
+            document.body.appendChild(s);
+        }
+
+        window.hAdminRep = function(d) {
+            let h = `<table><tr><th>Staff</th>`;
             for(let i=1; i<=d.daysCount; i++) h += `<th>${i}</th>`;
-            h += `<th>P</th><th>A</th></tr></thead><tbody>`;
+            h += `<th>P</th></tr>`;
             d.report.forEach(r => {
-                h += `<tr><td class="text-left whitespace-nowrap">${r.name}</td>`;
+                h += `<tr><td class="text-left text-[8px] whitespace-nowrap">${r.name}</td>`;
                 r.days.forEach(day => h += `<td class="status-${day}">${day}</td>`);
-                h += `<td class="font-bold">${r.totalP}</td><td class="text-rose-400">${r.totalA}</td></tr>`;
+                h += `<td class="font-bold">${r.totalP}</td></tr>`;
             });
-            document.getElementById('reportOutput').innerHTML = h + `</tbody></table>`;
+            document.getElementById('adminReportOutput').innerHTML = h + `</table>`;
         }
 
         function saveSettings() {
@@ -222,9 +245,9 @@
             s.src = `${CLOUD_URL}?action=update_settings&lat=${lat}&lon=${lon}&rad=${rad}&callback=hSave`;
             document.body.appendChild(s);
         }
-        window.hSave = function() { alert("Settings Saved"); location.reload(); }
+        window.hSave = function() { alert("Hospital location updated"); location.reload(); }
 
-        function openAdminPrompt() { if(prompt("PIN") === "1201") document.getElementById('adminNav').classList.remove('hidden'); }
+        function openAdminPrompt() { if(prompt("ADMIN PIN") === "1201") document.getElementById('adminNav').classList.remove('hidden'); }
         function logout() { localStorage.clear(); location.reload(); }
     </script>
 </body>
