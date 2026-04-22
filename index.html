@@ -12,18 +12,36 @@
         .nav-btn.active { color: #2dd4bf; border-top: 2px solid #2dd4bf; padding-top: 4px; }
         table { border-collapse: collapse; width: 100%; font-size: 8px; }
         th, td { border: 1px solid #334155; padding: 4px; text-align: center; }
-        .status-P { background: #065f46; color: #fff; font-weight: bold; border-radius: 2px; }
+        .status-P { background: #065f46; color: #fff; font-weight: bold; }
+        .input-style { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 12px; color: white; outline: none; }
     </style>
 </head>
 <body>
 
     <div id="authSection" class="min-h-screen flex items-center justify-center p-4">
         <div class="glass max-w-md w-full rounded-3xl p-8">
-            <h1 class="text-3xl font-bold text-teal-500 text-center mb-6 uppercase">LifeCare</h1>
+            <h1 class="text-3xl font-bold text-teal-500 text-center mb-6 uppercase tracking-widest">LifeCare</h1>
+            
             <div id="loginView" class="space-y-4">
-                <input type="email" id="email" placeholder="Email" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-white">
-                <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-white">
-                <button onclick="runAuth()" class="w-full bg-teal-600 p-4 rounded-2xl font-bold">LOG IN</button>
+                <input type="email" id="email" placeholder="Email" class="input-style">
+                <input type="password" id="pass" placeholder="Password" class="input-style">
+                <button onclick="runAuth()" class="w-full bg-teal-600 p-4 rounded-2xl font-bold hover:bg-teal-500 transition">LOG IN</button>
+                <div class="flex justify-between px-2">
+                    <button onclick="toggleAuth(true)" class="text-[10px] text-slate-500 uppercase font-bold">New Staff? Register</button>
+                    <button onclick="openAdmin()" class="text-[10px] text-slate-500 uppercase font-bold">Admin Settings</button>
+                </div>
+            </div>
+
+            <div id="registerView" class="hidden space-y-3">
+                <input type="text" id="regId" placeholder="Staff ID (e.g. LC-001)" class="input-style text-sm">
+                <input type="text" id="regName" placeholder="Full Name" class="input-style text-sm">
+                <input type="email" id="regEmail" placeholder="Email" class="input-style text-sm">
+                <input type="password" id="regPass" placeholder="Choose Password" class="input-style text-sm">
+                <input type="text" id="regDept" placeholder="Department" class="input-style text-sm">
+                <input type="text" id="regDesig" placeholder="Designation" class="input-style text-sm">
+                <input type="text" id="regMan" placeholder="Manager Staff ID" class="input-style text-sm">
+                <button onclick="runRegister()" class="w-full bg-emerald-600 p-4 rounded-xl font-bold uppercase mt-2">Create Account</button>
+                <button onclick="toggleAuth(false)" class="w-full text-slate-500 text-[10px] uppercase text-center mt-2">Back to Login</button>
             </div>
         </div>
     </div>
@@ -37,18 +55,14 @@
         <div id="content" class="p-4 space-y-6">
             <div id="page-home" class="page-view space-y-6 text-center">
                 <div class="glass p-8 rounded-3xl">
-                    <p id="userNameDisplay" class="text-lg font-bold text-white mb-2 uppercase"></p>
-                    <p id="distDisplay" class="text-[10px] text-slate-500 mb-4 italic">Locating...</p>
-                    <button id="btnIn" onclick="clockAction('IN')" class="w-full bg-emerald-600 p-12 rounded-2xl font-bold text-2xl">CLOCK IN</button>
-                    <button id="btnOut" onclick="clockAction('OUT')" class="hidden w-full bg-rose-600 p-12 rounded-2xl font-bold text-2xl">CLOCK OUT</button>
+                    <p id="userNameDisplay" class="text-lg font-bold text-white mb-2 uppercase tracking-tight"></p>
+                    <p id="distDisplay" class="text-[10px] text-slate-500 mb-6 italic font-mono">Calculating distance...</p>
+                    <button id="btnIn" onclick="clockAction('IN')" class="w-full bg-emerald-600 p-12 rounded-2xl font-bold text-2xl shadow-lg active:scale-95 transition">CLOCK IN</button>
+                    <button id="btnOut" onclick="clockAction('OUT')" class="hidden w-full bg-rose-600 p-12 rounded-2xl font-bold text-2xl shadow-lg active:scale-95 transition">CLOCK OUT</button>
                 </div>
             </div>
 
             <div id="page-history" class="page-view hidden space-y-4">
-                <div class="glass p-4 rounded-3xl text-center">
-                    <p class="text-[10px] text-slate-500 uppercase">Total Monthly Hours</p>
-                    <p id="totalHours" class="text-3xl font-bold text-teal-400">0.00</p>
-                </div>
                 <div id="calendarOutput" class="glass p-4 rounded-3xl overflow-x-auto"></div>
                 <div id="logOutput" class="space-y-2"></div>
             </div>
@@ -57,21 +71,32 @@
                 <div id="balanceContainer" class="grid grid-cols-2 gap-2">
                     </div>
                 <div class="glass p-6 rounded-3xl space-y-4">
-                    <select id="reqType" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl text-white">
-                        <option>Annual Leave</option><option>Sick Leave</option>
-                        <option>Maternity/Paternity</option><option>Compassionate Leave</option>
+                    <h3 class="text-teal-400 font-bold text-xs border-b border-slate-800 pb-2 uppercase">Request Leave / Out Duty</h3>
+                    <select id="reqType" class="input-style">
+                        <option>Annual Leave</option>
+                        <option>Sick Leave</option>
+                        <option>Maternity/Paternity</option>
+                        <option>Compassionate Leave</option>
                         <option>Out Duty / WFH</option>
                     </select>
-                    <input type="date" id="reqDate" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl text-white">
-                    <button onclick="submitRequest()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase">Submit Request</button>
+                    <input type="date" id="reqDate" class="input-style">
+                    <button onclick="submitRequest()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase hover:bg-teal-500 transition">Submit to Manager</button>
                 </div>
             </div>
 
             <div id="page-bio" class="page-view hidden glass p-6 rounded-3xl space-y-4">
-                <p class="text-xs uppercase text-slate-500">ID: <span id="bio-id" class="text-white font-bold ml-2"></span></p>
-                <p class="text-xs uppercase text-slate-500">Dept: <span id="bio-dept" class="text-white font-bold ml-2"></span></p>
-                <p class="text-xs uppercase text-slate-500">Title: <span id="bio-desig" class="text-white font-bold ml-2"></span></p>
-                <p class="text-xs uppercase text-slate-500">Manager: <span id="bio-man" class="text-white font-bold ml-2"></span></p>
+                <h3 class="text-teal-400 font-bold text-xs uppercase border-b border-slate-800 pb-2">Staff Profile</h3>
+                <div class="space-y-3">
+                    <p class="text-xs uppercase text-slate-500">ID: <span id="bio-id" class="text-white font-bold ml-2"></span></p>
+                    <p class="text-xs uppercase text-slate-500">Dept: <span id="bio-dept" class="text-white font-bold ml-2"></span></p>
+                    <p class="text-xs uppercase text-slate-500">Title: <span id="bio-desig" class="text-white font-bold ml-2"></span></p>
+                    <p class="text-xs uppercase text-slate-500">Manager: <span id="bio-man" class="text-white font-bold ml-2"></span></p>
+                </div>
+            </div>
+
+            <div id="page-admin" class="page-view hidden space-y-4">
+                <h3 class="text-teal-400 font-bold text-xs uppercase">Monthly Duration Summary (Admin)</h3>
+                <div id="adminReportOutput" class="space-y-2"></div>
             </div>
         </div>
 
@@ -84,8 +109,20 @@
     </div>
 
     <script>
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzu4ZJyeifn_CEIKWJgpl39oxscN1VQbxqAU6a9TDfPLJa0120sJ-IDopfJJQ9N_K-NiA/exec";
+        const CLOUD_URL = "YOUR_WEB_APP_URL_HERE"; // PASTE YOUR DEPLOYED URL HERE
         let currentUser, config = {lat:0, lon:0, radius:0};
+
+        function toggleAuth(isReg) {
+            document.getElementById('loginView').classList.toggle('hidden', isReg);
+            document.getElementById('registerView').classList.toggle('hidden', !isReg);
+        }
+
+        function runRegister() {
+            const s = document.createElement('script');
+            s.src = `${CLOUD_URL}?action=register_staff&id=${document.getElementById('regId').value}&name=${encodeURIComponent(document.getElementById('regName').value)}&email=${document.getElementById('regEmail').value}&pass=${document.getElementById('regPass').value}&dept=${document.getElementById('regDept').value}&desig=${document.getElementById('regDesig').value}&managerId=${document.getElementById('regMan').value}&callback=hReg`;
+            document.body.appendChild(s);
+        }
+        window.hReg = function() { alert("Registration Successful! Please Log In."); toggleAuth(false); }
 
         function runAuth() {
             const s = document.createElement('script');
@@ -96,7 +133,7 @@
             if(d.exists && d.savedPass === document.getElementById('pass').value) {
                 currentUser = d; localStorage.setItem('lifecare_user', JSON.stringify(d));
                 showApp(d);
-            } else { alert("Login failed."); }
+            } else { alert("Error: Invalid Credentials"); }
         }
 
         function showApp(d) {
@@ -108,18 +145,15 @@
             document.getElementById('bio-desig').innerText = d.desig;
             document.getElementById('bio-man').innerText = d.managerId;
             
-            // Build Balances
-            const b = d.bal;
             const labels = {annual:'Annual', sick:'Sick', comp:'Compassionate', mat:'Maternity'};
-            document.getElementById('balanceContainer').innerHTML = Object.keys(b).map(key => `
+            document.getElementById('balanceContainer').innerHTML = Object.keys(d.bal).map(key => `
                 <div class="glass p-3 rounded-2xl text-center">
                     <p class="text-[7px] text-slate-500 uppercase">${labels[key]}</p>
-                    <p class="text-sm font-bold text-teal-400">${b[key][0] - b[key][1]} <span class="text-[8px] text-slate-500">Left</span></p>
+                    <p class="text-sm font-bold text-teal-400">${d.bal[key][0] - d.bal[key][1]} <span class="text-[8px] text-slate-500">Days Left</span></p>
                 </div>
             `).join('');
 
-            const lastStatus = localStorage.getItem('status_' + d.id);
-            if(lastStatus === 'IN') {
+            if(localStorage.getItem('status_' + d.id) === 'IN') {
                 document.getElementById('btnIn').classList.add('hidden');
                 document.getElementById('btnOut').classList.remove('hidden');
             }
@@ -134,17 +168,14 @@
                 document.body.appendChild(s);
             });
         }
-        window.hClock = function(d) {
-            localStorage.setItem('status_' + currentUser.id, d.type);
-            alert("Success: " + d.type); location.reload();
-        }
+        window.hClock = function(d) { localStorage.setItem('status_' + currentUser.id, d.type); location.reload(); }
 
         function submitRequest() {
             const s = document.createElement('script');
             s.src = `${CLOUD_URL}?action=submit_request&id=${currentUser.id}&name=${encodeURIComponent(currentUser.name)}&type=${document.getElementById('reqType').value}&date=${document.getElementById('reqDate').value}&managerId=${currentUser.managerId}&callback=hReq`;
             document.body.appendChild(s);
         }
-        window.hReq = function() { alert("Request Sent"); }
+        window.hReq = function() { alert("Request submitted for approval."); }
 
         function nav(id) {
             document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
@@ -152,6 +183,7 @@
             document.getElementById('page-'+id).classList.remove('hidden');
             document.getElementById('nav-'+id).classList.add('active');
             if(id === 'history') fetchReport();
+            if(id === 'admin') fetchAdminReport();
         }
 
         function fetchReport() {
@@ -160,13 +192,22 @@
             document.body.appendChild(s);
         }
         window.hRep = function(d) {
-            document.getElementById('totalHours').innerText = d.totalHours;
             let h = `<table><tr>` + d.calendar.map((_, i) => `<th>${i+1}</th>`).join('') + `</tr><tr>` + d.calendar.map(s => `<td class="status-${s}">${s}</td>`).join('') + `</tr></table>`;
             document.getElementById('calendarOutput').innerHTML = h;
-            document.getElementById('logOutput').innerHTML = d.logs.map(l => `
-                <div class="p-3 bg-slate-900 rounded-xl flex justify-between text-[9px] uppercase border-l-2 border-teal-500">
-                    <span>${l.date}</span><span>${l.in} - ${l.out} (${l.dur}h)</span>
-                </div>`).join('');
+            document.getElementById('logOutput').innerHTML = d.logs.map(l => `<div class="p-3 bg-slate-900 rounded-xl flex justify-between text-[9px] uppercase border-l-2 border-teal-500"><span>${l.date}</span><span>${l.in} - ${l.out} (${l.dur}h)</span></div>`).join('');
+        }
+
+        function fetchAdminReport() {
+            const s = document.createElement('script');
+            s.src = `${CLOUD_URL}?action=admin_summary_report&callback=hAdminRep`;
+            document.body.appendChild(s);
+        }
+        window.hAdminRep = function(d) {
+            document.getElementById('adminReportOutput').innerHTML = d.summary.map(s => `<div class="p-3 glass rounded-xl flex justify-between text-xs"><span>${s.name} (${s.id})</span><span class="font-bold text-teal-400">${s.total} Hours</span></div>`).join('');
+        }
+
+        function openAdmin() {
+            if(prompt("Enter Admin PIN") === "1201") { nav('admin'); }
         }
 
         function fetchSettings() {
