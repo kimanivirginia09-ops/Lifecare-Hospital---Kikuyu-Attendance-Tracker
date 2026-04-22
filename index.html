@@ -25,23 +25,23 @@
             <div id="loginView" class="space-y-4">
                 <input type="email" id="email" placeholder="Email" class="input-style">
                 <input type="password" id="pass" placeholder="Password" class="input-style">
-                <button onclick="runAuth()" class="w-full bg-teal-600 p-4 rounded-2xl font-bold hover:bg-teal-500 transition">LOG IN</button>
+                <button onclick="runAuth()" class="w-full bg-teal-600 p-4 rounded-2xl font-bold">LOG IN</button>
                 <div class="flex justify-between px-2">
-                    <button onclick="toggleAuth(true)" class="text-[10px] text-slate-500 uppercase font-bold">New Staff? Register</button>
-                    <button onclick="openAdmin()" class="text-[10px] text-slate-500 uppercase font-bold">Admin Settings</button>
+                    <button onclick="toggleAuth(true)" class="text-[10px] text-slate-500 uppercase font-bold">Register</button>
+                    <button onclick="openAdmin()" class="text-[10px] text-slate-500 uppercase font-bold">Admin</button>
                 </div>
             </div>
 
             <div id="registerView" class="hidden space-y-3">
-                <input type="text" id="regId" placeholder="Staff ID (e.g. LC-001)" class="input-style text-sm">
+                <input type="text" id="regId" placeholder="Staff ID" class="input-style text-sm">
                 <input type="text" id="regName" placeholder="Full Name" class="input-style text-sm">
                 <input type="email" id="regEmail" placeholder="Email" class="input-style text-sm">
-                <input type="password" id="regPass" placeholder="Choose Password" class="input-style text-sm">
+                <input type="password" id="regPass" placeholder="Password" class="input-style text-sm">
                 <input type="text" id="regDept" placeholder="Department" class="input-style text-sm">
                 <input type="text" id="regDesig" placeholder="Designation" class="input-style text-sm">
-                <input type="text" id="regMan" placeholder="Manager Staff ID" class="input-style text-sm">
+                <input type="text" id="regMan" placeholder="Manager ID" class="input-style text-sm">
                 <button onclick="runRegister()" class="w-full bg-emerald-600 p-4 rounded-xl font-bold uppercase mt-2">Create Account</button>
-                <button onclick="toggleAuth(false)" class="w-full text-slate-500 text-[10px] uppercase text-center mt-2">Back to Login</button>
+                <button onclick="toggleAuth(false)" class="w-full text-slate-500 text-[10px] uppercase text-center mt-2">Back</button>
             </div>
         </div>
     </div>
@@ -55,10 +55,10 @@
         <div id="content" class="p-4 space-y-6">
             <div id="page-home" class="page-view space-y-6 text-center">
                 <div class="glass p-8 rounded-3xl">
-                    <p id="userNameDisplay" class="text-lg font-bold text-white mb-2 uppercase tracking-tight"></p>
-                    <p id="distDisplay" class="text-[10px] text-slate-500 mb-6 italic font-mono">Calculating distance...</p>
-                    <button id="btnIn" onclick="clockAction('IN')" class="w-full bg-emerald-600 p-12 rounded-2xl font-bold text-2xl shadow-lg active:scale-95 transition">CLOCK IN</button>
-                    <button id="btnOut" onclick="clockAction('OUT')" class="hidden w-full bg-rose-600 p-12 rounded-2xl font-bold text-2xl shadow-lg active:scale-95 transition">CLOCK OUT</button>
+                    <p id="userNameDisplay" class="text-lg font-bold text-white mb-2 uppercase"></p>
+                    <p id="distDisplay" class="text-[10px] text-slate-500 mb-6 italic">Waiting for GPS...</p>
+                    <button id="btnIn" onclick="clockAction('IN')" class="w-full bg-emerald-600 p-12 rounded-2xl font-bold text-2xl active:scale-95 transition">CLOCK IN</button>
+                    <button id="btnOut" onclick="clockAction('OUT')" class="hidden w-full bg-rose-600 p-12 rounded-2xl font-bold text-2xl active:scale-95 transition">CLOCK OUT</button>
                 </div>
             </div>
 
@@ -68,34 +68,27 @@
             </div>
 
             <div id="page-leave" class="page-view hidden space-y-4">
-                <div id="balanceContainer" class="grid grid-cols-2 gap-2">
-                    </div>
+                <div id="balanceContainer" class="grid grid-cols-2 gap-2"></div>
                 <div class="glass p-6 rounded-3xl space-y-4">
-                    <h3 class="text-teal-400 font-bold text-xs border-b border-slate-800 pb-2 uppercase">Request Leave / Out Duty</h3>
                     <select id="reqType" class="input-style">
-                        <option>Annual Leave</option>
-                        <option>Sick Leave</option>
-                        <option>Maternity/Paternity</option>
-                        <option>Compassionate Leave</option>
+                        <option>Annual Leave</option><option>Sick Leave</option>
+                        <option>Maternity/Paternity</option><option>Compassionate Leave</option>
                         <option>Out Duty / WFH</option>
                     </select>
                     <input type="date" id="reqDate" class="input-style">
-                    <button onclick="submitRequest()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase hover:bg-teal-500 transition">Submit to Manager</button>
+                    <button onclick="submitRequest()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase">Submit Request</button>
                 </div>
             </div>
 
-            <div id="page-bio" class="page-view hidden glass p-6 rounded-3xl space-y-4">
-                <h3 class="text-teal-400 font-bold text-xs uppercase border-b border-slate-800 pb-2">Staff Profile</h3>
-                <div class="space-y-3">
-                    <p class="text-xs uppercase text-slate-500">ID: <span id="bio-id" class="text-white font-bold ml-2"></span></p>
-                    <p class="text-xs uppercase text-slate-500">Dept: <span id="bio-dept" class="text-white font-bold ml-2"></span></p>
-                    <p class="text-xs uppercase text-slate-500">Title: <span id="bio-desig" class="text-white font-bold ml-2"></span></p>
-                    <p class="text-xs uppercase text-slate-500">Manager: <span id="bio-man" class="text-white font-bold ml-2"></span></p>
-                </div>
+            <div id="page-bio" class="page-view hidden glass p-6 rounded-3xl space-y-4 text-xs">
+                <p class="uppercase text-slate-500">ID: <span id="bio-id" class="text-white font-bold ml-2"></span></p>
+                <p class="uppercase text-slate-500">Dept: <span id="bio-dept" class="text-white font-bold ml-2"></span></p>
+                <p class="uppercase text-slate-500">Title: <span id="bio-desig" class="text-white font-bold ml-2"></span></p>
+                <p class="uppercase text-slate-500">Manager: <span id="bio-man" class="text-white font-bold ml-2"></span></p>
             </div>
 
             <div id="page-admin" class="page-view hidden space-y-4">
-                <h3 class="text-teal-400 font-bold text-xs uppercase">Monthly Duration Summary (Admin)</h3>
+                <h3 class="text-teal-400 font-bold text-xs uppercase">Monthly Duration Summary</h3>
                 <div id="adminReportOutput" class="space-y-2"></div>
             </div>
         </div>
@@ -109,7 +102,7 @@
     </div>
 
     <script>
-        const CLOUD_URL = "YOUR_WEB_APP_URL_HERE"; // PASTE YOUR DEPLOYED URL HERE
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzu4ZJyeifn_CEIKWJgpl39oxscN1VQbxqAU6a9TDfPLJa0120sJ-IDopfJJQ9N_K-NiA/exec";
         let currentUser, config = {lat:0, lon:0, radius:0};
 
         function toggleAuth(isReg) {
@@ -122,7 +115,7 @@
             s.src = `${CLOUD_URL}?action=register_staff&id=${document.getElementById('regId').value}&name=${encodeURIComponent(document.getElementById('regName').value)}&email=${document.getElementById('regEmail').value}&pass=${document.getElementById('regPass').value}&dept=${document.getElementById('regDept').value}&desig=${document.getElementById('regDesig').value}&managerId=${document.getElementById('regMan').value}&callback=hReg`;
             document.body.appendChild(s);
         }
-        window.hReg = function() { alert("Registration Successful! Please Log In."); toggleAuth(false); }
+        window.hReg = function() { alert("Success! Log In."); toggleAuth(false); }
 
         function runAuth() {
             const s = document.createElement('script');
@@ -133,7 +126,7 @@
             if(d.exists && d.savedPass === document.getElementById('pass').value) {
                 currentUser = d; localStorage.setItem('lifecare_user', JSON.stringify(d));
                 showApp(d);
-            } else { alert("Error: Invalid Credentials"); }
+            } else { alert("Login failed."); }
         }
 
         function showApp(d) {
@@ -149,7 +142,7 @@
             document.getElementById('balanceContainer').innerHTML = Object.keys(d.bal).map(key => `
                 <div class="glass p-3 rounded-2xl text-center">
                     <p class="text-[7px] text-slate-500 uppercase">${labels[key]}</p>
-                    <p class="text-sm font-bold text-teal-400">${d.bal[key][0] - d.bal[key][1]} <span class="text-[8px] text-slate-500">Days Left</span></p>
+                    <p class="text-sm font-bold text-teal-400">${d.bal[key][0] - d.bal[key][1]} <span class="text-[8px] text-slate-500">Left</span></p>
                 </div>
             `).join('');
 
@@ -166,7 +159,7 @@
                 const s = document.createElement('script');
                 s.src = `${CLOUD_URL}?action=clock_action&id=${currentUser.id}&name=${encodeURIComponent(currentUser.name)}&desig=${encodeURIComponent(currentUser.desig)}&dept=${encodeURIComponent(currentUser.dept)}&type=${type}&location=${loc}&callback=hClock`;
                 document.body.appendChild(s);
-            });
+            }, () => alert("Please enable GPS"), {enableHighAccuracy: true});
         }
         window.hClock = function(d) { localStorage.setItem('status_' + currentUser.id, d.type); location.reload(); }
 
@@ -175,7 +168,7 @@
             s.src = `${CLOUD_URL}?action=submit_request&id=${currentUser.id}&name=${encodeURIComponent(currentUser.name)}&type=${document.getElementById('reqType').value}&date=${document.getElementById('reqDate').value}&managerId=${currentUser.managerId}&callback=hReq`;
             document.body.appendChild(s);
         }
-        window.hReq = function() { alert("Request submitted for approval."); }
+        window.hReq = function() { alert("Request Sent"); }
 
         function nav(id) {
             document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
@@ -203,12 +196,10 @@
             document.body.appendChild(s);
         }
         window.hAdminRep = function(d) {
-            document.getElementById('adminReportOutput').innerHTML = d.summary.map(s => `<div class="p-3 glass rounded-xl flex justify-between text-xs"><span>${s.name} (${s.id})</span><span class="font-bold text-teal-400">${s.total} Hours</span></div>`).join('');
+            document.getElementById('adminReportOutput').innerHTML = d.summary.map(s => `<div class="p-3 glass rounded-xl flex justify-between text-xs"><span>${s.name}</span><span class="font-bold text-teal-400">${s.total} hrs</span></div>`).join('');
         }
 
-        function openAdmin() {
-            if(prompt("Enter Admin PIN") === "1201") { nav('admin'); }
-        }
+        function openAdmin() { if(prompt("PIN") === "1201") nav('admin'); }
 
         function fetchSettings() {
             const s = document.createElement('script');
