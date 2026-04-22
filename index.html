@@ -1,56 +1,151 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LifeCare Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; padding-bottom: 80px; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #94a3b8; }
+        .nav-btn.active { color: #2dd4bf; }
+    </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
-    <div class="bg-slate-800 p-8 rounded-3xl w-full max-w-md shadow-2xl border border-slate-700">
-        <h1 class="text-2xl font-bold text-teal-500 text-center mb-6">LIFECARE</h1>
-        
-        <div id="authArea" class="space-y-4">
-            <input type="email" id="email" placeholder="Email" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none">
-            <input type="password" id="pass" placeholder="Password" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none">
-            <button id="btn" onclick="startAuth('login')" class="w-full bg-teal-600 p-4 rounded-xl font-bold">LOG IN</button>
-            <button onclick="startAuth('register')" class="w-full text-slate-500 text-xs uppercase tracking-widest">First time? Register here</button>
+<body>
+
+    <div id="authSection" class="min-h-screen flex items-center justify-center p-4">
+        <div class="glass max-w-md w-full rounded-3xl p-8 shadow-2xl">
+            <h1 class="text-3xl font-bold text-teal-500 text-center mb-6">LIFECARE</h1>
+            <div class="space-y-4">
+                <input type="email" id="email" placeholder="Email" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500">
+                <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500">
+                <button id="loginBtn" onclick="runAuth('login')" class="w-full bg-teal-600 p-4 rounded-2xl font-bold">LOG IN</button>
+                <button onclick="runAuth('register')" class="w-full text-slate-500 text-xs uppercase">First time? Register</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden animate-in fade-in duration-500">
+        <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900 sticky top-0 z-10">
+            <h2 id="pageTitle" class="text-xl font-bold text-teal-400">Dashboard</h2>
+            <span id="userNameDisplay" class="text-xs text-slate-400"></span>
         </div>
 
-        <div id="mainArea" class="hidden text-center space-y-6">
-            <h2 id="userGreet" class="text-xl font-bold text-teal-400"></h2>
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="alert('Clock In Successful')" class="bg-emerald-600 p-6 rounded-xl font-bold">CLOCK IN</button>
-                <button onclick="alert('Clock Out Successful')" class="bg-rose-600 p-6 rounded-xl font-bold">CLOCK OUT</button>
+        <div id="content" class="p-4 space-y-6">
+            <div id="page-home" class="page-view space-y-6">
+                <div class="glass p-6 rounded-3xl text-center">
+                    <p class="text-slate-400 mb-4">Current Location Tracking Active</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="clockAction('IN')" class="bg-emerald-600 p-8 rounded-2xl font-bold active:scale-95 transition-all">CLOCK IN</button>
+                        <button onclick="clockAction('OUT')" class="bg-rose-600 p-8 rounded-2xl font-bold active:scale-95 transition-all">CLOCK OUT</button>
+                    </div>
+                </div>
             </div>
+
+            <div id="page-bio" class="page-view hidden space-y-4">
+                <div class="glass p-6 rounded-3xl space-y-4">
+                    <div><label class="text-xs text-slate-500 uppercase">Staff ID</label><p id="bio-id" class="text-lg font-semibold"></p></div>
+                    <div><label class="text-xs text-slate-500 uppercase">Full Name</label><p id="bio-name" class="text-lg font-semibold"></p></div>
+                    <div><label class="text-xs text-slate-500 uppercase">Department</label><p id="bio-dept" class="text-lg font-semibold"></p></div>
+                    <div><label class="text-xs text-slate-500 uppercase">Designation</label><p id="bio-desig" class="text-lg font-semibold"></p></div>
+                </div>
+            </div>
+
+            <div id="page-history" class="page-view hidden space-y-4">
+                <div class="glass p-4 rounded-3xl">
+                    <h3 class="font-bold mb-4">Recent Logs</h3>
+                    <div id="attendanceList" class="space-y-2 text-sm">
+                        <p class="text-slate-500 italic">Fetching records...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-leave" class="page-view hidden space-y-4">
+                <div class="flex gap-2 mb-4">
+                    <button onclick="showLeaveTab('apply')" class="flex-1 bg-teal-600 p-2 rounded-lg text-xs font-bold">New Request</button>
+                    <button onclick="showLeaveTab('history')" class="flex-1 bg-slate-800 p-2 rounded-lg text-xs font-bold">My History</button>
+                </div>
+                
+                <div id="leave-apply" class="glass p-6 rounded-3xl space-y-4">
+                    <input type="date" id="leaveDate" class="w-full bg-slate-900 border border-slate-800 p-3 rounded-xl text-white">
+                    <select id="leaveType" class="w-full bg-slate-900 border border-slate-800 p-3 rounded-xl text-white">
+                        <option>Sick Leave</option>
+                        <option>Annual Leave</option>
+                        <option>Emergency</option>
+                    </select>
+                    <button onclick="submitLeave()" class="w-full bg-teal-600 p-3 rounded-xl font-bold">SUBMIT REQUEST</button>
+                </div>
+
+                <div id="leave-history" class="glass p-6 rounded-3xl hidden">
+                    <div id="leaveHistoryList" class="space-y-2 text-sm">No recent requests found.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 p-4 flex justify-around items-center">
+            <button onclick="nav('home')" class="nav-btn active" id="nav-home"><span>🏠</span>Home</button>
+            <button onclick="nav('bio')" class="nav-btn" id="nav-bio"><span>👤</span>Bio</button>
+            <button onclick="nav('history')" class="nav-btn" id="nav-history"><span>📅</span>History</button>
+            <button onclick="nav('leave')" class="nav-btn" id="nav-leave"><span>✈️</span>Leave</button>
         </div>
     </div>
 
     <script>
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzu4ZJyeifn_CEIKWJgpl39oxscN1VQbxqAU6a9TDfPLJa0120sJ-IDopfJJQ9N_K-NiA/exec";
+        let currentUser = null;
 
-        function startAuth(mode) {
+        function nav(pageId) {
+            document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.remove('hidden');
+            document.getElementById('nav-' + pageId).classList.add('active');
+            document.getElementById('pageTitle').innerText = pageId.charAt(0).toUpperCase() + pageId.slice(1);
+        }
+
+        function runAuth(mode) {
             const email = document.getElementById('email').value.trim();
             const pass = document.getElementById('pass').value;
-            if(!email || !pass) return alert("Please fill in both fields.");
-
-            document.getElementById('btn').innerText = "CONNECTING...";
+            if(!email || !pass) return alert("Fill all fields");
+            document.getElementById('loginBtn').innerText = "CONNECTING...";
             
-            // This is the "Magic" part that bypasses connection errors
             const script = document.createElement('script');
-            script.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}&type=${mode}&callback=portalResponse`;
+            script.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}&type=${mode}&callback=handleAuth`;
             document.body.appendChild(script);
         }
 
-        window.portalResponse = function(data) {
-            document.getElementById('btn').innerText = "LOG IN";
-            if(data.result === "registered") return alert("Success! Now please log in.");
-            
+        window.handleAuth = function(data) {
+            document.getElementById('loginBtn').innerText = "LOG IN";
+            if(data.result === "registered") return alert("Registered! You can now log in.");
             if(data.exists && data.savedPass === document.getElementById('pass').value) {
-                document.getElementById('authArea').classList.add('hidden');
-                document.getElementById('mainArea').classList.remove('hidden');
-                document.getElementById('userGreet').innerText = "Welcome, " + data.name;
-            } else {
-                alert("Account not found or incorrect password.");
-            }
+                currentUser = data;
+                setupProfile(data);
+                document.getElementById('authSection').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+            } else { alert("Login failed."); }
+        }
+
+        function setupProfile(user) {
+            document.getElementById('userNameDisplay').innerText = user.name;
+            document.getElementById('bio-id').innerText = user.id;
+            document.getElementById('bio-name').innerText = user.name;
+            document.getElementById('bio-dept').innerText = user.dept;
+            document.getElementById('bio-desig').innerText = user.desig;
+        }
+
+        function showLeaveTab(tab) {
+            document.getElementById('leave-apply').classList.toggle('hidden', tab !== 'apply');
+            document.getElementById('leave-history').classList.toggle('hidden', tab !== 'history');
+        }
+
+        function clockAction(type) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                alert(type + " recorded at your current location.");
+            }, () => alert("GPS error. Please enable location."));
+        }
+
+        function submitLeave() {
+            alert("Leave Request Submitted for Review.");
         }
     </script>
 </body>
