@@ -11,7 +11,6 @@
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
-
     <div class="glass max-w-md w-full rounded-3xl p-8 shadow-2xl">
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-teal-500">LIFECARE</h1>
@@ -40,6 +39,7 @@
     </div>
 
     <script>
+        // Verified URL from your Google Deployment
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzu4ZJyeifn_CEIKWJgpl39oxscN1VQbxqAU6a9TDfPLJa0120sJ-IDopfJJQ9N_K-NiA/exec";
         let isRegisterMode = false;
         let currentUser = null;
@@ -50,47 +50,54 @@
             document.getElementById('mainBtn').innerText = isRegisterMode ? "REGISTER" : "LOG IN";
         }
 
-        async function handleAuth() {
+        function handleAuth() {
             const email = document.getElementById('email').value.trim();
             const pass = document.getElementById('pass').value;
             if(!email || !pass) return alert("Enter email and password");
 
             const btn = document.getElementById('mainBtn');
-            btn.innerText = "VERIFYING...";
+            btn.innerText = "CONNECTING...";
             btn.disabled = true;
 
-            try {
-                // Using a more robust fetch method
-                const resp = await fetch(CLOUD_URL + "?action=check_auth&email=" + encodeURIComponent(email) + "&password=" + encodeURIComponent(pass) + "&type=" + (isRegisterMode ? "register" : "login"));
-                const data = await resp.json();
-
-                if (isRegisterMode) {
-                    if (data.result === "registered") {
-                        alert("Success! Now log in.");
-                        toggleRegister();
-                    } else { alert("Email not authorized."); }
-                } else {
-                    if (data.exists && data.savedPass === pass) {
-                        currentUser = data;
-                        document.getElementById('welcomeMsg').innerText = "Hello, " + data.name;
-                        document.getElementById('staffDetails').innerText = data.dept + " | " + data.desig;
-                        document.getElementById('authSection').classList.add('hidden');
-                        document.getElementById('clockSection').classList.remove('hidden');
-                    } else { alert("Invalid login."); }
-                }
-            } catch (e) {
-                alert("Could not connect. Please check your internet and try one more time.");
-            }
-            btn.innerText = isRegisterMode ? "REGISTER" : "LOG IN";
-            btn.disabled = false;
+            const finalUrl = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}&type=${isRegisterMode ? "register" : "login"}`;
+            
+            // Using a script tag injection method to bypass all browser connection blocks
+            const script = document.createElement('script');
+            script.src = finalUrl + "&callback=handleResponse";
+            document.body.appendChild(script);
         }
 
-        async function submitShift(type) {
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                await fetch(CLOUD_URL + "?action=clock&id=" + currentUser.id + "&type=" + type + "&loc=" + pos.coords.latitude + "," + pos.coords.longitude);
-                alert(type + " Recorded!");
+        window.handleResponse = function(data) {
+            const btn = document.getElementById('mainBtn');
+            btn.disabled = false;
+            btn.innerText = isRegisterMode ? "REGISTER" : "LOG IN";
+
+            if (isRegisterMode) {
+                if (data.result === "registered") {
+                    alert("Success! You can now log in.");
+                    toggleRegister();
+                } else { alert("Email not authorized in Staff list."); }
+            } else {
+                if (data.exists && data.savedPass === document.getElementById('pass').value) {
+                    currentUser = data;
+                    document.getElementById('welcomeMsg').innerText = "Hello, " + data.name;
+                    document.getElementById('staffDetails').innerText = data.dept + " | " + data.desig;
+                    document.getElementById('authSection').classList.add('hidden');
+                    document.getElementById('clockSection').classList.remove('hidden');
+                } else { alert("Invalid login credentials."); }
+            }
+        };
+
+        function submitShift(type) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const clockUrl = `${CLOUD_URL}?action=clock&id=${currentUser.id}&type=${type}&loc=${pos.coords.latitude},${pos.coords.longitude}&callback=clockResult`;
+                const script = document.createElement('script');
+                script.src = clockUrl;
+                document.body.appendChild(script);
             });
         }
+
+        window.clockResult = function() { alert("Shift Recorded!"); };
     </script>
 </body>
 </html>
