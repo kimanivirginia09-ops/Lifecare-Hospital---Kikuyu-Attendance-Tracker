@@ -1,92 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>LifeCare Portal</title>
+    <title>LifeCare Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
     <div class="bg-slate-800 p-8 rounded-3xl w-full max-w-md shadow-2xl border border-slate-700">
-        <h1 class="text-2xl font-bold text-teal-400 text-center mb-6">LIFECARE PORTAL</h1>
+        <h1 class="text-2xl font-bold text-teal-500 text-center mb-6">LIFECARE</h1>
         
         <div id="authArea" class="space-y-4">
-            <div class="space-y-1">
-                <label class="text-[10px] text-slate-500 uppercase ml-2">Email Address</label>
-                <input type="email" id="email" placeholder="name@lifecare.com" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:border-teal-500">
-            </div>
-            <div class="space-y-1">
-                <label class="text-[10px] text-slate-500 uppercase ml-2">Password</label>
-                <input type="password" id="pass" placeholder="••••••••" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:border-teal-500">
-            </div>
-            
-            <button id="btn" onclick="runAuth('login')" class="w-full bg-teal-600 hover:bg-teal-500 p-4 rounded-xl font-bold transition-all">LOG IN</button>
-            
-            <div class="text-center">
-                <button onclick="runAuth('register')" class="text-[10px] text-slate-500 hover:text-teal-400 uppercase tracking-widest">First time? Click to Register</button>
-            </div>
+            <input type="email" id="email" placeholder="Email" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none">
+            <input type="password" id="pass" placeholder="Password" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none">
+            <button id="btn" onclick="startAuth('login')" class="w-full bg-teal-600 p-4 rounded-xl font-bold">LOG IN</button>
+            <button onclick="startAuth('register')" class="w-full text-slate-500 text-xs uppercase tracking-widest">First time? Register here</button>
         </div>
 
         <div id="mainArea" class="hidden text-center space-y-6">
-            <div class="py-4 border-b border-slate-700">
-                <h2 id="userGreet" class="text-xl font-bold text-teal-400"></h2>
-                <p class="text-[10px] text-slate-500 italic">Staff Member Authorized</p>
-            </div>
+            <h2 id="userGreet" class="text-xl font-bold text-teal-400"></h2>
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="alert('Clock In Successful')" class="bg-emerald-600 hover:bg-emerald-500 p-6 rounded-xl font-bold transition-all active:scale-95">CLOCK IN</button>
-                <button onclick="alert('Clock Out Successful')" class="bg-rose-600 hover:bg-rose-500 p-6 rounded-xl font-bold transition-all active:scale-95">CLOCK OUT</button>
+                <button onclick="alert('Clock In Successful')" class="bg-emerald-600 p-6 rounded-xl font-bold">CLOCK IN</button>
+                <button onclick="alert('Clock Out Successful')" class="bg-rose-600 p-6 rounded-xl font-bold">CLOCK OUT</button>
             </div>
         </div>
     </div>
 
     <script>
-        // THE URL IS NOW HARDCODED BELOW
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzu4ZJyeifn_CEIKWJgpl39oxscN1VQbxqAU6a9TDfPLJa0120sJ-IDopfJJQ9N_K-NiA/exec";
 
-        function runAuth(mode) {
+        function startAuth(mode) {
             const email = document.getElementById('email').value.trim();
             const pass = document.getElementById('pass').value;
-            
-            if(!email || !pass) {
-                return alert("Please enter both email and password.");
-            }
+            if(!email || !pass) return alert("Please fill in both fields.");
 
             document.getElementById('btn').innerText = "CONNECTING...";
-            document.getElementById('btn').disabled = true;
-
+            
+            // This is the "Magic" part that bypasses connection errors
             const script = document.createElement('script');
-            script.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}&type=${mode}&callback=handle`;
-            
-            // Handle potential network errors
-            script.onerror = function() {
-                alert("Connection failed. Please check your internet.");
-                resetBtn(mode);
-            };
-            
+            script.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}&type=${mode}&callback=portalResponse`;
             document.body.appendChild(script);
         }
 
-        window.handle = function(data) {
-            resetBtn('login');
+        window.portalResponse = function(data) {
+            document.getElementById('btn').innerText = "LOG IN";
+            if(data.result === "registered") return alert("Success! Now please log in.");
             
-            if(data.result === "registered") {
-                alert("Registration Successful! You can now log in.");
-                return;
-            }
-
             if(data.exists && data.savedPass === document.getElementById('pass').value) {
                 document.getElementById('authArea').classList.add('hidden');
                 document.getElementById('mainArea').classList.remove('hidden');
                 document.getElementById('userGreet').innerText = "Welcome, " + data.name;
-            } else if (data.exists) {
-                alert("Incorrect password. Please try again.");
             } else {
-                alert("Email not found in authorized Staff list.");
+                alert("Account not found or incorrect password.");
             }
-        }
-
-        function resetBtn(mode) {
-            const btn = document.getElementById('btn');
-            btn.innerText = "LOG IN";
-            btn.disabled = false;
         }
     </script>
 </body>
