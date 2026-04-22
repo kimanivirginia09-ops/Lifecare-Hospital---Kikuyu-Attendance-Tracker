@@ -6,41 +6,24 @@
     <title>LifeCare Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; padding-bottom: 90px; }
+        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; padding-bottom: 100px; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 9px; color: #94a3b8; width: 20%; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 9px; color: #94a3b8; width: 25%; }
         .nav-btn.active { color: #2dd4bf; border-top: 2px solid #2dd4bf; padding-top: 4px; }
-        .btn-disabled { opacity: 0.2; pointer-events: none; filter: grayscale(1); }
-        table { border-collapse: collapse; width: 100%; font-size: 10px; }
-        th, td { border: 1px solid #334155; padding: 6px; text-align: center; }
-        .status-P { background: #065f46; color: #fff; font-weight: bold; border-radius: 4px; }
+        table { border-collapse: collapse; width: 100%; font-size: 8px; }
+        th, td { border: 1px solid #334155; padding: 4px; text-align: center; }
+        .status-P { background: #065f46; color: #fff; font-weight: bold; border-radius: 2px; }
     </style>
 </head>
 <body>
 
     <div id="authSection" class="min-h-screen flex items-center justify-center p-4">
-        <div class="glass max-w-md w-full rounded-3xl p-8 shadow-2xl">
-            <h1 class="text-3xl font-bold text-teal-500 text-center mb-6">LIFECARE</h1>
-            
+        <div class="glass max-w-md w-full rounded-3xl p-8">
+            <h1 class="text-3xl font-bold text-teal-500 text-center mb-6 uppercase">LifeCare</h1>
             <div id="loginView" class="space-y-4">
-                <input type="email" id="email" placeholder="Email" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-white outline-none">
-                <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-white outline-none">
-                <button onclick="runAuth()" class="w-full bg-teal-600 p-4 rounded-2xl font-bold uppercase">Log In</button>
-                <div class="flex justify-between px-2">
-                    <button onclick="toggleAuth(true)" class="text-[10px] text-slate-500 uppercase">New Staff? Register</button>
-                    <button onclick="openAdminPrompt()" class="text-[10px] text-slate-500 uppercase">Admin</button>
-                </div>
-            </div>
-
-            <div id="registerView" class="hidden space-y-3">
-                <input type="text" id="regId" placeholder="Staff ID (e.g. LC-001)" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white text-sm">
-                <input type="text" id="regName" placeholder="Full Name" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white text-sm">
-                <input type="email" id="regEmail" placeholder="Email" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white text-sm">
-                <input type="password" id="regPass" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white text-sm">
-                <input type="text" id="regDept" placeholder="Department" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white text-sm">
-                <input type="text" id="regDesig" placeholder="Designation" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white text-sm">
-                <button onclick="runRegister()" class="w-full bg-emerald-600 p-4 rounded-xl font-bold uppercase mt-2">Create Account</button>
-                <button onclick="toggleAuth(false)" class="w-full text-slate-500 text-[10px] uppercase text-center mt-2">Back to Login</button>
+                <input type="email" id="email" placeholder="Email" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-white">
+                <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-white">
+                <button onclick="runAuth()" class="w-full bg-teal-600 p-4 rounded-2xl font-bold">LOG IN</button>
             </div>
         </div>
     </div>
@@ -48,40 +31,47 @@
     <div id="mainApp" class="hidden">
         <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900 sticky top-0 z-50">
             <h2 id="pageTitle" class="text-xl font-bold text-teal-400 uppercase">Home</h2>
-            <button onclick="logout()" class="text-rose-500 text-[10px] border border-rose-900/30 px-2 py-1 rounded">LOGOUT</button>
+            <button onclick="logout()" class="text-rose-500 text-[10px] border border-rose-900 px-2 py-1 rounded">LOGOUT</button>
         </div>
 
         <div id="content" class="p-4 space-y-6">
             <div id="page-home" class="page-view space-y-6 text-center">
                 <div class="glass p-8 rounded-3xl">
                     <p id="userNameDisplay" class="text-lg font-bold text-white mb-2 uppercase"></p>
-                    <p id="distDisplay" class="text-[10px] text-slate-500 mb-4 italic">Checking GPS...</p>
-                    <div class="grid grid-cols-2 gap-4">
-                        <button id="btnIn" onclick="clockAction('IN')" class="bg-emerald-600 p-8 rounded-2xl font-bold">CLOCK IN</button>
-                        <button id="btnOut" onclick="clockAction('OUT')" class="bg-rose-600 p-8 rounded-2xl font-bold">CLOCK OUT</button>
-                    </div>
+                    <p id="distDisplay" class="text-[10px] text-slate-500 mb-4 italic">Locating...</p>
+                    <button id="btnIn" onclick="clockAction('IN')" class="w-full bg-emerald-600 p-12 rounded-2xl font-bold text-2xl">CLOCK IN</button>
+                    <button id="btnOut" onclick="clockAction('OUT')" class="hidden w-full bg-rose-600 p-12 rounded-2xl font-bold text-2xl">CLOCK OUT</button>
                 </div>
             </div>
 
-            <div id="page-history" class="page-view hidden space-y-6">
-                <div id="empCalendarOutput" class="glass p-4 rounded-3xl overflow-x-auto"></div>
-                <div id="attendanceList" class="space-y-2"></div>
+            <div id="page-history" class="page-view hidden space-y-4">
+                <div class="glass p-4 rounded-3xl text-center">
+                    <p class="text-[10px] text-slate-500 uppercase">Total Monthly Hours</p>
+                    <p id="totalHours" class="text-3xl font-bold text-teal-400">0.00</p>
+                </div>
+                <div id="calendarOutput" class="glass p-4 rounded-3xl overflow-x-auto"></div>
+                <div id="logOutput" class="space-y-2"></div>
             </div>
 
-            <div id="page-leave" class="page-view hidden glass p-6 rounded-3xl space-y-4">
-                <h3 class="text-teal-400 font-bold text-sm border-b border-slate-800 pb-2">REQUEST LEAVE</h3>
-                <select class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl text-white outline-none">
-                    <option>Annual Leave</option><option>Sick Leave</option><option>Compassionate</option>
-                </select>
-                <input type="date" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl text-white outline-none">
-                <button onclick="alert('Submitted')" class="w-full bg-teal-600 p-4 rounded-xl font-bold">SUBMIT</button>
+            <div id="page-leave" class="page-view hidden space-y-4">
+                <div id="balanceContainer" class="grid grid-cols-2 gap-2">
+                    </div>
+                <div class="glass p-6 rounded-3xl space-y-4">
+                    <select id="reqType" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl text-white">
+                        <option>Annual Leave</option><option>Sick Leave</option>
+                        <option>Maternity/Paternity</option><option>Compassionate Leave</option>
+                        <option>Out Duty / WFH</option>
+                    </select>
+                    <input type="date" id="reqDate" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl text-white">
+                    <button onclick="submitRequest()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase">Submit Request</button>
+                </div>
             </div>
 
             <div id="page-bio" class="page-view hidden glass p-6 rounded-3xl space-y-4">
-                <h3 class="text-teal-400 font-bold text-sm border-b border-slate-800 pb-2">PROFILE</h3>
                 <p class="text-xs uppercase text-slate-500">ID: <span id="bio-id" class="text-white font-bold ml-2"></span></p>
                 <p class="text-xs uppercase text-slate-500">Dept: <span id="bio-dept" class="text-white font-bold ml-2"></span></p>
                 <p class="text-xs uppercase text-slate-500">Title: <span id="bio-desig" class="text-white font-bold ml-2"></span></p>
+                <p class="text-xs uppercase text-slate-500">Manager: <span id="bio-man" class="text-white font-bold ml-2"></span></p>
             </div>
         </div>
 
@@ -90,88 +80,50 @@
             <button onclick="nav('history')" class="nav-btn" id="nav-history"><span>📅</span>Logs</button>
             <button onclick="nav('leave')" class="nav-btn" id="nav-leave"><span>✈️</span>Leave</button>
             <button onclick="nav('bio')" class="nav-btn" id="nav-bio"><span>👤</span>Bio</button>
-            <button id="adminNav" onclick="openAdminPrompt()" class="nav-btn"><span>⚙️</span>Admin</button>
         </nav>
     </div>
 
     <script>
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzu4ZJyeifn_CEIKWJgpl39oxscN1VQbxqAU6a9TDfPLJa0120sJ-IDopfJJQ9N_K-NiA/exec";
-        let currentUser, config = { lat: 0, lon: 0, radius: 0 };
-
-        window.onload = function() {
-            const saved = localStorage.getItem('lifecare_user');
-            if(saved) showApp(JSON.parse(saved));
-            fetchSettings();
-        };
-
-        function toggleAuth(isReg) {
-            document.getElementById('loginView').classList.toggle('hidden', isReg);
-            document.getElementById('registerView').classList.toggle('hidden', !isReg);
-        }
-
-        function runRegister() {
-            const id = document.getElementById('regId').value;
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const pass = document.getElementById('regPass').value;
-            const dept = document.getElementById('regDept').value;
-            const desig = document.getElementById('regDesig').value;
-            const s = document.createElement('script');
-            s.src = `${CLOUD_URL}?action=register_staff&id=${id}&name=${encodeURIComponent(name)}&email=${email}&pass=${pass}&dept=${dept}&desig=${desig}&callback=hReg`;
-            document.body.appendChild(s);
-        }
-        window.hReg = function() { alert("Account Created! Please Login."); toggleAuth(false); }
+        let currentUser, config = {lat:0, lon:0, radius:0};
 
         function runAuth() {
-            const e = document.getElementById('email').value.trim();
-            const p = document.getElementById('pass').value;
             const s = document.createElement('script');
-            s.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(e)}&password=${p}&callback=hAuth`;
+            s.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(document.getElementById('email').value)}&password=${document.getElementById('pass').value}&callback=hAuth`;
             document.body.appendChild(s);
         }
         window.hAuth = function(d) {
             if(d.exists && d.savedPass === document.getElementById('pass').value) {
-                localStorage.setItem('lifecare_user', JSON.stringify(d));
+                currentUser = d; localStorage.setItem('lifecare_user', JSON.stringify(d));
                 showApp(d);
-            } else { alert("Login failed. Check your password."); }
+            } else { alert("Login failed."); }
         }
 
         function showApp(d) {
-            currentUser = d;
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             document.getElementById('userNameDisplay').innerText = d.name;
             document.getElementById('bio-id').innerText = d.id;
             document.getElementById('bio-dept').innerText = d.dept;
             document.getElementById('bio-desig').innerText = d.desig;
-        }
+            document.getElementById('bio-man').innerText = d.managerId;
+            
+            // Build Balances
+            const b = d.bal;
+            const labels = {annual:'Annual', sick:'Sick', comp:'Compassionate', mat:'Maternity'};
+            document.getElementById('balanceContainer').innerHTML = Object.keys(b).map(key => `
+                <div class="glass p-3 rounded-2xl text-center">
+                    <p class="text-[7px] text-slate-500 uppercase">${labels[key]}</p>
+                    <p class="text-sm font-bold text-teal-400">${b[key][0] - b[key][1]} <span class="text-[8px] text-slate-500">Left</span></p>
+                </div>
+            `).join('');
 
-        function fetchSettings() {
-            const s = document.createElement('script');
-            s.src = `${CLOUD_URL}?action=get_settings&callback=hSettings`;
-            document.body.appendChild(s);
-        }
-        window.hSettings = function(d) {
-            config = d;
-            checkRange();
-        }
-
-        function checkRange() {
-            navigator.geolocation.getCurrentPosition(p => {
-                const dist = getDistance(p.coords.latitude, p.coords.longitude, config.lat, config.lon);
-                document.getElementById('distDisplay').innerText = `${Math.round(dist)}m from hospital`;
-                const isOut = dist > config.radius;
-                document.getElementById('btnIn').classList.toggle('btn-disabled', isOut);
-                document.getElementById('btnOut').classList.toggle('btn-disabled', isOut);
-            });
-        }
-
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3;
-            const φ1 = lat1 * Math.PI/180; const φ2 = lat2 * Math.PI/180;
-            const Δφ = (lat2-lat1) * Math.PI/180; const Δλ = (lon2-lon1) * Math.PI/180;
-            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const lastStatus = localStorage.getItem('status_' + d.id);
+            if(lastStatus === 'IN') {
+                document.getElementById('btnIn').classList.add('hidden');
+                document.getElementById('btnOut').classList.remove('hidden');
+            }
+            fetchSettings();
         }
 
         function clockAction(type) {
@@ -182,17 +134,62 @@
                 document.body.appendChild(s);
             });
         }
-        window.hClock = function() { alert("Attendance Recorded!"); location.reload(); }
+        window.hClock = function(d) {
+            localStorage.setItem('status_' + currentUser.id, d.type);
+            alert("Success: " + d.type); location.reload();
+        }
+
+        function submitRequest() {
+            const s = document.createElement('script');
+            s.src = `${CLOUD_URL}?action=submit_request&id=${currentUser.id}&name=${encodeURIComponent(currentUser.name)}&type=${document.getElementById('reqType').value}&date=${document.getElementById('reqDate').value}&managerId=${currentUser.managerId}&callback=hReq`;
+            document.body.appendChild(s);
+        }
+        window.hReq = function() { alert("Request Sent"); }
 
         function nav(id) {
             document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('page-'+id).classList.remove('hidden');
             document.getElementById('nav-'+id).classList.add('active');
+            if(id === 'history') fetchReport();
         }
 
-        function openAdminPrompt() { if(prompt("PIN") === "1201") alert("Admin tools active in Sheets"); }
+        function fetchReport() {
+            const s = document.createElement('script');
+            s.src = `${CLOUD_URL}?action=get_report&id=${currentUser.id}&month=${new Date().getMonth()}&callback=hRep`;
+            document.body.appendChild(s);
+        }
+        window.hRep = function(d) {
+            document.getElementById('totalHours').innerText = d.totalHours;
+            let h = `<table><tr>` + d.calendar.map((_, i) => `<th>${i+1}</th>`).join('') + `</tr><tr>` + d.calendar.map(s => `<td class="status-${s}">${s}</td>`).join('') + `</tr></table>`;
+            document.getElementById('calendarOutput').innerHTML = h;
+            document.getElementById('logOutput').innerHTML = d.logs.map(l => `
+                <div class="p-3 bg-slate-900 rounded-xl flex justify-between text-[9px] uppercase border-l-2 border-teal-500">
+                    <span>${l.date}</span><span>${l.in} - ${l.out} (${l.dur}h)</span>
+                </div>`).join('');
+        }
+
+        function fetchSettings() {
+            const s = document.createElement('script');
+            s.src = `${CLOUD_URL}?action=get_settings&callback=hSet`;
+            document.body.appendChild(s);
+        }
+        window.hSet = function(d) { config = d; checkRange(); }
+        function checkRange() {
+            navigator.geolocation.getCurrentPosition(p => {
+                const dist = getDistance(p.coords.latitude, p.coords.longitude, config.lat, config.lon);
+                document.getElementById('distDisplay').innerText = Math.round(dist) + "m from site";
+            });
+        }
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; const φ1 = lat1 * Math.PI/180; const φ2 = lat2 * Math.PI/180;
+            const Δφ = (lat2-lat1) * Math.PI/180; const Δλ = (lon2-lon1) * Math.PI/180;
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
         function logout() { localStorage.clear(); location.reload(); }
+        window.onload = function() { const s = localStorage.getItem('lifecare_user'); if(s) showApp(JSON.parse(s)); }
     </script>
 </body>
 </html>
