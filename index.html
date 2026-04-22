@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LifeCare Hospital Staff Portal</title>
+    <title>LifeCare Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }
@@ -14,115 +14,82 @@
 
     <div class="glass max-w-md w-full rounded-3xl p-8 shadow-2xl">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold tracking-tight text-teal-500">LIFECARE</h1>
-            <p id="modeText" class="text-slate-400 text-xs uppercase tracking-widest mt-1 font-semibold">Staff Portal</p>
+            <h1 class="text-3xl font-bold text-teal-500">LIFECARE</h1>
+            <p id="modeText" class="text-slate-400 text-[10px] uppercase tracking-widest mt-1">Staff Portal</p>
         </div>
 
         <div id="authSection" class="space-y-4">
-            <input type="email" id="email" placeholder="Email Address" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 transition-all text-white">
-            <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 transition-all text-white">
-            
-            <button id="mainBtn" onclick="handleAuth()" class="w-full bg-teal-600 hover:bg-teal-500 py-4 rounded-2xl font-bold transition-all shadow-lg">LOG IN</button>
-            
+            <input type="email" id="email" placeholder="Email Address" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 text-white">
+            <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 text-white">
+            <button id="mainBtn" onclick="handleAuth()" class="w-full bg-teal-600 hover:bg-teal-500 py-4 rounded-2xl font-bold transition-all">LOG IN</button>
             <div class="text-center">
-                <button onclick="toggleRegister()" id="toggleBtn" class="text-[10px] text-slate-500 hover:text-teal-400 uppercase tracking-widest transition-colors">First time? Register here</button>
+                <button onclick="toggleRegister()" id="toggleBtn" class="text-[10px] text-slate-500 hover:text-teal-400 uppercase tracking-widest">First time? Register here</button>
             </div>
         </div>
 
-        <div id="clockSection" class="hidden space-y-6 text-center animate-in fade-in duration-500">
+        <div id="clockSection" class="hidden space-y-6 text-center">
             <div class="py-4 border-b border-slate-800">
                 <p id="welcomeMsg" class="font-bold text-xl text-teal-400"></p>
                 <p id="staffDetails" class="text-[10px] text-slate-500 italic"></p>
             </div>
-            
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="submitShift('IN')" class="bg-emerald-600 hover:bg-emerald-500 py-6 rounded-2xl font-bold transition-all active:scale-95">CLOCK IN</button>
-                <button onclick="submitShift('OUT')" class="bg-rose-600 hover:bg-rose-500 py-6 rounded-2xl font-bold transition-all active:scale-95">CLOCK OUT</button>
+                <button onclick="submitShift('IN')" class="bg-emerald-600 py-6 rounded-2xl font-bold transition-all">CLOCK IN</button>
+                <button onclick="submitShift('OUT')" class="bg-rose-600 py-6 rounded-2xl font-bold transition-all">CLOCK OUT</button>
             </div>
         </div>
     </div>
 
     <script>
-        // URL copied from your verified deployment in image_36ebea.png
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzu4ZJyeifn_CEIKWJgpl39oxscN1VQbxqAU6a9TDfPLJa0120sJ-IDopfJJQ9N_K-NiA/exec";
-        
-        const HOSPITAL_LOC = { lat: -1.2448, lon: 36.6619, rad: 1000 }; 
         let isRegisterMode = false;
         let currentUser = null;
 
         function toggleRegister() {
             isRegisterMode = !isRegisterMode;
-            document.getElementById('modeText').innerText = isRegisterMode ? "Staff Registration" : "Staff Portal";
-            document.getElementById('mainBtn').innerText = isRegisterMode ? "REGISTER PASSWORD" : "LOG IN";
-            document.getElementById('toggleBtn').innerText = isRegisterMode ? "Back to Login" : "First time? Register here";
+            document.getElementById('modeText').innerText = isRegisterMode ? "Registration" : "Staff Portal";
+            document.getElementById('mainBtn').innerText = isRegisterMode ? "REGISTER" : "LOG IN";
         }
 
         async function handleAuth() {
             const email = document.getElementById('email').value.trim();
             const pass = document.getElementById('pass').value;
-            if(!email || !pass) return alert("Please fill in all fields.");
+            if(!email || !pass) return alert("Enter email and password");
 
             const btn = document.getElementById('mainBtn');
-            btn.innerText = "CONNECTING...";
+            btn.innerText = "VERIFYING...";
             btn.disabled = true;
 
             try {
-                const response = await fetch(CLOUD_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ 
-                        action: "check_auth", 
-                        email: email, 
-                        password: pass, 
-                        type: isRegisterMode ? "register" : "login" 
-                    })
-                });
-
-                const data = await response.json();
+                // Using a more robust fetch method
+                const resp = await fetch(CLOUD_URL + "?action=check_auth&email=" + encodeURIComponent(email) + "&password=" + encodeURIComponent(pass) + "&type=" + (isRegisterMode ? "register" : "login"));
+                const data = await resp.json();
 
                 if (isRegisterMode) {
                     if (data.result === "registered") {
-                        alert("Registration successful! You can now log in.");
+                        alert("Success! Now log in.");
                         toggleRegister();
-                    } else { alert("Email not found in authorized Staff list."); }
+                    } else { alert("Email not authorized."); }
                 } else {
                     if (data.exists && data.savedPass === pass) {
                         currentUser = data;
-                        document.getElementById('welcomeMsg').innerText = `Hello, ${data.name}`;
-                        document.getElementById('staffDetails').innerText = `${data.dept} | ${data.desig}`;
+                        document.getElementById('welcomeMsg').innerText = "Hello, " + data.name;
+                        document.getElementById('staffDetails').innerText = data.dept + " | " + data.desig;
                         document.getElementById('authSection').classList.add('hidden');
                         document.getElementById('clockSection').classList.remove('hidden');
-                    } else { alert("Invalid email or password."); }
+                    } else { alert("Invalid login."); }
                 }
             } catch (e) {
-                alert("Connection Success! Please try again in 30 seconds while the server updates.");
+                alert("Could not connect. Please check your internet and try one more time.");
             }
-            btn.innerText = isRegisterMode ? "REGISTER PASSWORD" : "LOG IN";
+            btn.innerText = isRegisterMode ? "REGISTER" : "LOG IN";
             btn.disabled = false;
         }
 
         async function submitShift(type) {
             navigator.geolocation.getCurrentPosition(async (pos) => {
-                const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, HOSPITAL_LOC.lat, HOSPITAL_LOC.lon);
-                if (dist > HOSPITAL_LOC.rad) return alert("Access Denied: Out of Range.");
-
-                await fetch(CLOUD_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        id: currentUser.id, name: currentUser.name,
-                        dept: currentUser.dept, desig: currentUser.desig,
-                        type: type, loc: `${pos.coords.latitude.toFixed(4)},${pos.coords.longitude.toFixed(4)}`
-                    })
-                });
-                alert(type + " recorded successfully!");
-            }, () => alert("GPS Permission is required to clock in."));
-        }
-
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3;
-            const dLat = (lat2-lat1) * Math.PI/180;
-            const dLon = (lon2-lon1) * Math.PI/180;
-            const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+                await fetch(CLOUD_URL + "?action=clock&id=" + currentUser.id + "&type=" + type + "&loc=" + pos.coords.latitude + "," + pos.coords.longitude);
+                alert(type + " Recorded!");
+            });
         }
     </script>
 </body>
