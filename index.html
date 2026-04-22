@@ -6,10 +6,11 @@
     <title>LifeCare Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; padding-bottom: 80px; }
+        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; padding-bottom: 90px; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #94a3b8; }
-        .nav-btn.active { color: #2dd4bf; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 9px; color: #94a3b8; transition: all 0.3s; }
+        .nav-btn.active { color: #2dd4bf; transform: translateY(-2px); }
+        .nav-btn span { font-size: 18px; margin-bottom: 2px; }
     </style>
 </head>
 <body>
@@ -20,7 +21,7 @@
             <div class="space-y-4">
                 <input type="email" id="email" placeholder="Email" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 text-white">
                 <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 text-white">
-                <button id="loginBtn" onclick="runAuth('login')" class="w-full bg-teal-600 p-4 rounded-2xl font-bold transition-all active:scale-95">LOG IN</button>
+                <button id="loginBtn" onclick="runAuth('login')" class="w-full bg-teal-600 p-4 rounded-2xl font-bold">LOG IN</button>
                 <div class="flex justify-between px-2">
                     <button onclick="runAuth('register')" class="text-slate-500 text-[10px] uppercase">Register</button>
                     <button onclick="openAdminPrompt()" class="text-slate-700 text-[10px] uppercase">Admin Access</button>
@@ -31,37 +32,72 @@
 
     <div id="mainApp" class="hidden">
         <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900 sticky top-0 z-10">
-            <h2 id="pageTitle" class="text-xl font-bold text-teal-400">Dashboard</h2>
-            <span id="userNameDisplay" class="text-xs text-slate-400"></span>
+            <h2 id="pageTitle" class="text-xl font-bold text-teal-400 uppercase tracking-tight">Dashboard</h2>
+            <span id="userNameDisplay" class="text-[10px] text-slate-400 font-medium"></span>
         </div>
 
         <div id="content" class="p-4 space-y-6">
             <div id="page-home" class="page-view space-y-6">
-                <div class="glass p-6 rounded-3xl text-center">
-                    <p class="text-slate-400 text-xs mb-4">Location Services Active</p>
+                <div class="glass p-8 rounded-3xl text-center shadow-xl">
+                    <p class="text-slate-400 text-xs mb-6 italic">Geographic verification active...</p>
                     <div class="grid grid-cols-2 gap-4">
-                        <button onclick="alert('Clocked In')" class="bg-emerald-600 p-8 rounded-2xl font-bold">CLOCK IN</button>
-                        <button onclick="alert('Clocked Out')" class="bg-rose-600 p-8 rounded-2xl font-bold">CLOCK OUT</button>
+                        <button onclick="alert('Clock In Registered')" class="bg-emerald-600 p-8 rounded-2xl font-bold active:scale-95 transition-all">CLOCK IN</button>
+                        <button onclick="alert('Clock Out Registered')" class="bg-rose-600 p-8 rounded-2xl font-bold active:scale-95 transition-all">CLOCK OUT</button>
                     </div>
                 </div>
             </div>
 
-            <div id="page-bio" class="page-view hidden glass p-6 rounded-3xl space-y-4">
-                <h3 class="font-bold border-b border-slate-700 pb-2">Staff Profile</h3>
-                <div id="bioData" class="space-y-2 text-sm"></div>
+            <div id="page-bio" class="page-view hidden space-y-4">
+                <div class="glass p-6 rounded-3xl space-y-5">
+                    <div class="border-b border-slate-800 pb-2"><label class="text-[10px] text-slate-500 uppercase">Employee ID</label><p id="bio-id" class="text-lg font-bold text-teal-100"></p></div>
+                    <div class="border-b border-slate-800 pb-2"><label class="text-[10px] text-slate-500 uppercase">Department</label><p id="bio-dept" class="text-lg font-bold text-teal-100"></p></div>
+                    <div><label class="text-[10px] text-slate-500 uppercase">Designation</label><p id="bio-desig" class="text-lg font-bold text-teal-100"></p></div>
+                </div>
+            </div>
+
+            <div id="page-history" class="page-view hidden space-y-4">
+                <div class="glass p-4 rounded-3xl">
+                    <h3 class="text-sm font-bold mb-4 px-2 text-teal-400">Attendance (Last 60 Days)</h3>
+                    <div id="attendanceList" class="space-y-3">
+                        <p class="text-slate-500 text-xs italic px-2">Loading logs...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-leave" class="page-view hidden space-y-4">
+                <div class="glass p-6 rounded-3xl space-y-4">
+                    <h3 class="font-bold text-teal-400 border-b border-slate-800 pb-2">Request Lawful Leave</h3>
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase mb-1 block ml-1">Leave Category</label>
+                        <select id="leaveType" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl text-white outline-none focus:border-teal-500">
+                            <option value="Annual">Annual Leave (21 Days)</option>
+                            <option value="Sick">Sick Leave</option>
+                            <option value="Maternity">Maternity Leave (90 Days)</option>
+                            <option value="Paternity">Paternity Leave (14 Days)</option>
+                            <option value="Compassionate">Compassionate Leave</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase mb-1 block ml-1">Start Date</label>
+                        <input type="date" id="leaveDate" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl text-white outline-none focus:border-teal-500">
+                    </div>
+                    <button onclick="alert('Leave Request Submitted to HR')" class="w-full bg-teal-600 p-4 rounded-xl font-bold transition-all hover:bg-teal-500">SUBMIT REQUEST</button>
+                </div>
             </div>
 
             <div id="page-admin" class="page-view hidden glass p-6 rounded-3xl space-y-4">
-                <h3 class="font-bold text-teal-400">Hospital Location Settings</h3>
-                <button onclick="captureLoc()" class="w-full bg-slate-800 p-4 rounded-xl border border-teal-500">Capture Current GPS</button>
-                <div class="text-xs text-slate-400" id="coords">Lat: --, Lon: --</div>
-                <button onclick="alert('Location Saved')" class="w-full bg-teal-600 p-3 rounded-xl font-bold">Save Hospital Center</button>
+                <h3 class="font-bold text-teal-400">Hospital Center</h3>
+                <button onclick="captureLoc()" class="w-full bg-slate-800 p-4 rounded-xl border border-teal-500/30 text-xs">Capture Hospital GPS</button>
+                <div class="text-[10px] text-slate-500 font-mono text-center" id="coords">Lat: -- | Lon: --</div>
+                <button onclick="alert('Location Locked')" class="w-full bg-teal-600 p-3 rounded-xl font-bold text-sm">Save Boundary</button>
             </div>
         </div>
 
-        <div class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 p-4 flex justify-around items-center">
+        <div class="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 p-4 flex justify-around items-center">
             <button onclick="nav('home')" class="nav-btn active" id="nav-home"><span>🏠</span>Home</button>
-            <button onclick="nav('bio')" class="nav-btn" id="nav-bio"><span>👤</span>Bio</button>
+            <button onclick="nav('bio')" class="nav-btn" id="nav-bio"><span>👤</span>Profile</button>
+            <button onclick="nav('history')" class="nav-btn" id="nav-history"><span>📅</span>Logs</button>
+            <button onclick="nav('leave')" class="nav-btn" id="nav-leave"><span>✈️</span>Leave</button>
             <button id="adminNav" onclick="nav('admin')" class="nav-btn hidden"><span>⚙️</span>Admin</button>
         </div>
     </div>
@@ -76,15 +112,14 @@
             document.getElementById('page-' + pageId).classList.remove('hidden');
             document.getElementById('nav-' + pageId).classList.add('active');
             document.getElementById('pageTitle').innerText = pageId.toUpperCase();
+            if(pageId === 'history') fetchHistory();
         }
 
         function runAuth(mode) {
             const email = document.getElementById('email').value.trim();
             const pass = document.getElementById('pass').value;
-            if(!email || !pass) return alert("Fill all fields");
-
+            if(!email || !pass) return alert("Fill fields.");
             document.getElementById('loginBtn').innerText = "CONNECTING...";
-            
             const script = document.createElement('script');
             script.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}&type=${mode}&callback=handleAuth`;
             document.body.appendChild(script);
@@ -92,27 +127,49 @@
 
         window.handleAuth = function(data) {
             document.getElementById('loginBtn').innerText = "LOG IN";
-            if(data.result === "registered") return alert("Registered! Now Log In.");
+            if(data.result === "registered") return alert("Registered! Login now.");
             if(data.exists && data.savedPass === document.getElementById('pass').value) {
                 currentUser = data;
                 document.getElementById('userNameDisplay').innerText = data.name;
-                document.getElementById('bioData').innerHTML = `<p>ID: ${data.id}</p><p>Name: ${data.name}</p><p>Dept: ${data.dept}</p>`;
+                document.getElementById('bio-id').innerText = data.id;
+                document.getElementById('bio-dept').innerText = data.dept;
+                document.getElementById('bio-desig').innerText = data.desig;
                 document.getElementById('authSection').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
-            } else { alert("Login failed. Check credentials."); }
+            } else { alert("Login failed."); }
+        }
+
+        function fetchHistory() {
+            const list = document.getElementById('attendanceList');
+            const script = document.createElement('script');
+            script.src = `${CLOUD_URL}?action=get_history&id=${currentUser.id}&callback=handleHistory`;
+            document.body.appendChild(script);
+        }
+
+        window.handleHistory = function(data) {
+            const list = document.getElementById('attendanceList');
+            if(!data.history || data.history.length === 0) {
+                list.innerHTML = "<p class='text-slate-500 text-xs italic p-4'>No logs for 60 days.</p>";
+                return;
+            }
+            list.innerHTML = data.history.map(log => `
+                <div class="flex justify-between items-center p-3 bg-slate-900/50 rounded-2xl border-l-2 ${log.type === 'IN' ? 'border-emerald-500' : 'border-rose-500'}">
+                    <span class="text-xs font-bold">${log.type}</span>
+                    <span class="text-[10px] text-slate-400">${log.time}</span>
+                </div>
+            `).join('');
         }
 
         function openAdminPrompt() {
-            const pin = prompt("Enter Admin PIN:");
-            if(pin === "1201") {
+            if(prompt("Admin PIN:") === "1201") {
                 document.getElementById('adminNav').classList.remove('hidden');
-                alert("Admin Settings Unlocked");
+                alert("Admin Access Unlocked");
             }
         }
 
         function captureLoc() {
             navigator.geolocation.getCurrentPosition(p => {
-                document.getElementById('coords').innerText = `Lat: ${p.coords.latitude}, Lon: ${p.coords.longitude}`;
+                document.getElementById('coords').innerText = `Lat: ${p.coords.latitude.toFixed(5)} | Lon: ${p.coords.longitude.toFixed(5)}`;
             });
         }
     </script>
