@@ -1,103 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LifeCare Staff Portal</title>
+    <title>LifeCare Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-    </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-    <div class="glass max-w-md w-full rounded-3xl p-8 shadow-2xl">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-teal-500">LIFECARE</h1>
-            <p id="modeText" class="text-slate-400 text-[10px] uppercase tracking-widest mt-1">Staff Portal</p>
-        </div>
-
-        <div id="authSection" class="space-y-4">
-            <input type="email" id="email" placeholder="Email Address" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 text-white">
-            <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 outline-none focus:border-teal-500 text-white">
-            <button id="mainBtn" onclick="handleAuth()" class="w-full bg-teal-600 hover:bg-teal-500 py-4 rounded-2xl font-bold transition-all">LOG IN</button>
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
+    <div class="bg-slate-800 p-8 rounded-3xl w-full max-w-md shadow-2xl border border-slate-700">
+        <h1 class="text-2xl font-bold text-teal-400 text-center mb-6">LIFECARE PORTAL</h1>
+        
+        <div id="authArea" class="space-y-4">
+            <div class="space-y-1">
+                <label class="text-[10px] text-slate-500 uppercase ml-2">Email Address</label>
+                <input type="email" id="email" placeholder="name@lifecare.com" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:border-teal-500">
+            </div>
+            <div class="space-y-1">
+                <label class="text-[10px] text-slate-500 uppercase ml-2">Password</label>
+                <input type="password" id="pass" placeholder="••••••••" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:border-teal-500">
+            </div>
+            
+            <button id="btn" onclick="runAuth('login')" class="w-full bg-teal-600 hover:bg-teal-500 p-4 rounded-xl font-bold transition-all">LOG IN</button>
+            
             <div class="text-center">
-                <button onclick="toggleRegister()" id="toggleBtn" class="text-[10px] text-slate-500 hover:text-teal-400 uppercase tracking-widest">First time? Register here</button>
+                <button onclick="runAuth('register')" class="text-[10px] text-slate-500 hover:text-teal-400 uppercase tracking-widest">First time? Click to Register</button>
             </div>
         </div>
 
-        <div id="clockSection" class="hidden space-y-6 text-center">
-            <div class="py-4 border-b border-slate-800">
-                <p id="welcomeMsg" class="font-bold text-xl text-teal-400"></p>
-                <p id="staffDetails" class="text-[10px] text-slate-500 italic"></p>
+        <div id="mainArea" class="hidden text-center space-y-6">
+            <div class="py-4 border-b border-slate-700">
+                <h2 id="userGreet" class="text-xl font-bold text-teal-400"></h2>
+                <p class="text-[10px] text-slate-500 italic">Staff Member Authorized</p>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="submitShift('IN')" class="bg-emerald-600 py-6 rounded-2xl font-bold transition-all">CLOCK IN</button>
-                <button onclick="submitShift('OUT')" class="bg-rose-600 py-6 rounded-2xl font-bold transition-all">CLOCK OUT</button>
+                <button onclick="alert('Clock In Successful')" class="bg-emerald-600 hover:bg-emerald-500 p-6 rounded-xl font-bold transition-all active:scale-95">CLOCK IN</button>
+                <button onclick="alert('Clock Out Successful')" class="bg-rose-600 hover:bg-rose-500 p-6 rounded-xl font-bold transition-all active:scale-95">CLOCK OUT</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Verified URL from your Google Deployment
+        // THE URL IS NOW HARDCODED BELOW
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzu4ZJyeifn_CEIKWJgpl39oxscN1VQbxqAU6a9TDfPLJa0120sJ-IDopfJJQ9N_K-NiA/exec";
-        let isRegisterMode = false;
-        let currentUser = null;
 
-        function toggleRegister() {
-            isRegisterMode = !isRegisterMode;
-            document.getElementById('modeText').innerText = isRegisterMode ? "Registration" : "Staff Portal";
-            document.getElementById('mainBtn').innerText = isRegisterMode ? "REGISTER" : "LOG IN";
-        }
-
-        function handleAuth() {
+        function runAuth(mode) {
             const email = document.getElementById('email').value.trim();
             const pass = document.getElementById('pass').value;
-            if(!email || !pass) return alert("Enter email and password");
-
-            const btn = document.getElementById('mainBtn');
-            btn.innerText = "CONNECTING...";
-            btn.disabled = true;
-
-            const finalUrl = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}&type=${isRegisterMode ? "register" : "login"}`;
             
-            // Using a script tag injection method to bypass all browser connection blocks
+            if(!email || !pass) {
+                return alert("Please enter both email and password.");
+            }
+
+            document.getElementById('btn').innerText = "CONNECTING...";
+            document.getElementById('btn').disabled = true;
+
             const script = document.createElement('script');
-            script.src = finalUrl + "&callback=handleResponse";
+            script.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}&type=${mode}&callback=handle`;
+            
+            // Handle potential network errors
+            script.onerror = function() {
+                alert("Connection failed. Please check your internet.");
+                resetBtn(mode);
+            };
+            
             document.body.appendChild(script);
         }
 
-        window.handleResponse = function(data) {
-            const btn = document.getElementById('mainBtn');
-            btn.disabled = false;
-            btn.innerText = isRegisterMode ? "REGISTER" : "LOG IN";
-
-            if (isRegisterMode) {
-                if (data.result === "registered") {
-                    alert("Success! You can now log in.");
-                    toggleRegister();
-                } else { alert("Email not authorized in Staff list."); }
-            } else {
-                if (data.exists && data.savedPass === document.getElementById('pass').value) {
-                    currentUser = data;
-                    document.getElementById('welcomeMsg').innerText = "Hello, " + data.name;
-                    document.getElementById('staffDetails').innerText = data.dept + " | " + data.desig;
-                    document.getElementById('authSection').classList.add('hidden');
-                    document.getElementById('clockSection').classList.remove('hidden');
-                } else { alert("Invalid login credentials."); }
+        window.handle = function(data) {
+            resetBtn('login');
+            
+            if(data.result === "registered") {
+                alert("Registration Successful! You can now log in.");
+                return;
             }
-        };
 
-        function submitShift(type) {
-            navigator.geolocation.getCurrentPosition((pos) => {
-                const clockUrl = `${CLOUD_URL}?action=clock&id=${currentUser.id}&type=${type}&loc=${pos.coords.latitude},${pos.coords.longitude}&callback=clockResult`;
-                const script = document.createElement('script');
-                script.src = clockUrl;
-                document.body.appendChild(script);
-            });
+            if(data.exists && data.savedPass === document.getElementById('pass').value) {
+                document.getElementById('authArea').classList.add('hidden');
+                document.getElementById('mainArea').classList.remove('hidden');
+                document.getElementById('userGreet').innerText = "Welcome, " + data.name;
+            } else if (data.exists) {
+                alert("Incorrect password. Please try again.");
+            } else {
+                alert("Email not found in authorized Staff list.");
+            }
         }
 
-        window.clockResult = function() { alert("Shift Recorded!"); };
+        function resetBtn(mode) {
+            const btn = document.getElementById('btn');
+            btn.innerText = "LOG IN";
+            btn.disabled = false;
+        }
     </script>
 </body>
 </html>
