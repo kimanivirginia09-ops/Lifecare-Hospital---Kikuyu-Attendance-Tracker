@@ -6,18 +6,17 @@
     <title>LifeCare Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; padding-bottom: 90px; }
+        body { background: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; padding-bottom: 100px; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #94a3b8; width: 20%; cursor: pointer; transition: 0.3s; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 9px; color: #94a3b8; width: 14%; cursor: pointer; transition: 0.3s; }
         .nav-btn.active { color: #2dd4bf; border-top: 2px solid #2dd4bf; padding-top: 5px; }
         .inactive-btn { background-color: #334155 !important; color: #64748b !important; cursor: not-allowed; pointer-events: none; opacity: 0.5; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        table { width: 100%; border-collapse: collapse; font-size: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 10px; min-width: 600px; }
         th, td { border: 1px solid #334155; padding: 8px; text-align: center; }
         th { background: #1e293b; color: #2dd4bf; text-transform: uppercase; }
         .input-style { width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px; color: white; outline: none; }
-        .badge { background: rgba(45, 212, 191, 0.1); color: #2dd4bf; padding: 2px 8px; border-radius: 6px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -33,47 +32,48 @@
             <div class="space-y-4">
                 <input type="email" id="lEmail" placeholder="Work Email" class="input-style">
                 <input type="password" id="lPass" placeholder="Password" class="input-style">
-                <button onclick="doLogin()" class="w-full bg-teal-600 p-4 rounded-xl font-bold shadow-lg hover:bg-teal-500 transition">LOG IN</button>
+                <button onclick="doLogin()" class="w-full bg-teal-600 p-4 rounded-xl font-bold shadow-lg">LOG IN</button>
             </div>
         </div>
 
         <div id="regBox" class="hidden max-w-md mx-auto glass p-8 rounded-3xl">
-            <h2 class="text-teal-400 font-bold mb-4 uppercase">Staff Registration</h2>
-            <div class="grid grid-cols-1 gap-3 overflow-y-auto max-h-[70vh] pr-2">
+            <h2 class="text-teal-400 font-bold mb-4 uppercase">New Registration</h2>
+            <div class="grid grid-cols-1 gap-3 max-h-[60vh] overflow-y-auto pr-2">
                 <input type="text" id="rId" placeholder="Employee ID" class="input-style">
                 <input type="text" id="rName" placeholder="Full Name" class="input-style">
                 <input type="email" id="rEmail" placeholder="Email" class="input-style">
-                <input type="password" id="rPass" placeholder="Create Password" class="input-style">
+                <input type="password" id="rPass" placeholder="Choose Password" class="input-style">
                 <input type="text" id="rDept" placeholder="Department" class="input-style">
                 <input type="text" id="rDesig" placeholder="Designation" class="input-style">
-                <input type="text" id="rPhone" placeholder="Phone Number" class="input-style">
+                <input type="text" id="rPhone" placeholder="Phone" class="input-style">
                 <select id="rGender" class="input-style"><option>Male</option><option>Female</option></select>
-                <input type="date" id="rDob" class="input-style" title="Date of Birth">
+                <input type="date" id="rDob" class="input-style">
                 <select id="rType" class="input-style"><option>Permanent</option><option>Locum</option><option>Expat</option></select>
                 <input type="text" id="rMan" placeholder="Manager Name" class="input-style">
-                <button onclick="doReg()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase mt-2">Register Account</button>
-                <button onclick="toggleAuth('login')" class="w-full text-slate-500 text-[10px] uppercase mt-2">Back to Login</button>
+                <button onclick="doReg()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase mt-2">Register</button>
+                <button onclick="toggleAuth('login')" class="w-full text-slate-500 text-[10px] uppercase mt-2">Back</button>
             </div>
         </div>
     </div>
 
     <div id="mainApp" class="hidden">
         <header class="p-4 glass sticky top-0 flex justify-between items-center z-50">
-            <span class="font-black text-teal-500 text-lg">LIFECARE</span>
+            <span class="font-black text-teal-500 text-lg">LIFECARE STAFF</span>
             <button onclick="logout()" class="text-rose-500 text-[10px] font-bold border border-rose-900/30 px-3 py-1 rounded">LOGOUT</button>
         </header>
 
         <main class="p-4">
             <div id="t-home" class="tab-content active text-center py-10">
-                <div class="glass p-12 rounded-[40px] border-t border-teal-500/20">
-                    <p id="vicLabel" class="text-[10px] text-slate-500 mb-6 uppercase tracking-widest italic">Initializing GPS...</p>
-                    <button id="btnIn" onclick="clock('IN')" class="w-full bg-emerald-600 p-16 rounded-3xl font-black text-3xl uppercase shadow-2xl transition active:scale-95">Clock In</button>
-                    <button id="btnOut" onclick="clock('OUT')" class="hidden w-full bg-rose-600 p-16 rounded-3xl font-black text-3xl uppercase shadow-2xl transition active:scale-95">Clock Out</button>
+                <div class="glass p-12 rounded-[40px]">
+                    <p id="vicLabel" class="text-[10px] text-slate-500 mb-6 uppercase tracking-widest italic">Verifying Vicinity...</p>
+                    <button id="btnIn" onclick="clock('IN')" class="w-full bg-emerald-600 p-16 rounded-3xl font-black text-3xl uppercase shadow-2xl transition">Clock In</button>
+                    <button id="btnOut" onclick="clock('OUT')" class="hidden w-full bg-rose-600 p-16 rounded-3xl font-black text-3xl uppercase shadow-2xl transition">Clock Out</button>
                 </div>
             </div>
 
-            <div id="t-logs" class="tab-content space-y-4">
-                <h3 class="text-teal-400 font-bold uppercase text-xs px-2">Attendance History</h3>
+            <div id="t-logs" class="tab-content space-y-6">
+                <h3 class="text-teal-400 font-bold uppercase text-xs">Monthly Calendar & Logs</h3>
+                <div id="calendar" class="grid grid-cols-7 gap-1 text-[8px] text-center mb-6"></div>
                 <div class="glass rounded-2xl overflow-x-auto">
                     <table>
                         <thead><tr><th>Date</th><th>Status</th><th>In</th><th>Out</th><th>Total Hrs</th></tr></thead>
@@ -83,19 +83,14 @@
             </div>
 
             <div id="t-leave" class="tab-content space-y-6">
-                <div id="leaveBalances" class="grid grid-cols-2 gap-2"></div>
+                <div id="leaveBals" class="grid grid-cols-2 gap-2"></div>
                 <div class="glass p-6 rounded-3xl space-y-4">
-                    <h3 class="text-teal-400 text-xs font-bold uppercase">New Request</h3>
-                    <select id="leaveSelect" class="input-style">
-                        <optgroup label="Leaves">
-                            <option>Annual Leave</option><option>Sick Leave</option><option>Maternity Leave</option><option>Paternity Leave</option><option>Compassionate Leave</option>
-                        </optgroup>
-                        <optgroup label="Work">
-                            <option>Out Duty / WFH</option>
-                        </optgroup>
+                    <h3 class="text-teal-400 text-xs font-bold uppercase">Leave / Out Duty</h3>
+                    <select id="lType" class="input-style">
+                        <option>Annual Leave</option><option>Sick Leave</option><option>Maternity Leave</option><option>Paternity Leave</option><option>Compassionate Leave</option><option>Out Duty / WFH</option>
                     </select>
-                    <input type="date" id="leaveDate" class="input-style">
-                    <button class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase">Submit Application</button>
+                    <input type="date" id="lDate" class="input-style">
+                    <button class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase">Apply</button>
                 </div>
             </div>
 
@@ -105,19 +100,19 @@
                     <div>
                         <p class="text-teal-500 font-bold text-[10px] uppercase tracking-widest mb-4">Personal Details</p>
                         <div class="grid grid-cols-2 gap-4 text-[12px]">
-                            <div><p class="text-slate-500">Employee ID</p><p id="bId" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Email Address</p><p id="bEmail" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">ID</p><p id="bId" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">Email</p><p id="bEmail" class="font-bold"></p></div>
                             <div><p class="text-slate-500">Phone</p><p id="bPhone" class="font-bold"></p></div>
                             <div><p class="text-slate-500">Gender</p><p id="bGender" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Date of Birth</p><p id="bDob" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">DOB</p><p id="bDob" class="font-bold"></p></div>
                         </div>
                     </div>
                     <div class="border-t border-slate-700 pt-6">
                         <p class="text-teal-500 font-bold text-[10px] uppercase tracking-widest mb-4">Employment Details</p>
                         <div class="grid grid-cols-2 gap-4 text-[12px]">
-                            <div><p class="text-slate-500">Manager Name</p><p id="bMan" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Employee Type</p><p id="bType" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Department</p><p id="bDept" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">Manager</p><p id="bMan" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">Type</p><p id="bType" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">Dept</p><p id="bDept" class="font-bold"></p></div>
                             <div><p class="text-slate-500">Designation</p><p id="bDesig" class="font-bold"></p></div>
                         </div>
                     </div>
@@ -125,14 +120,29 @@
             </div>
 
             <div id="t-docs" class="tab-content space-y-3">
-                <h3 class="text-teal-400 font-bold uppercase text-xs mb-4">Employee Documents</h3>
-                <div id="docContainer" class="space-y-2"></div>
+                <h3 class="text-teal-400 font-bold uppercase text-xs mb-4 px-2">Compliance Documents</h3>
+                <div id="docRows" class="space-y-2"></div>
             </div>
 
-            <div id="t-reports" class="tab-content space-y-4">
-                <h3 class="text-teal-400 font-bold uppercase text-xs">Total Work Duration Summary</h3>
-                <div class="glass rounded-2xl overflow-x-auto">
-                    <table class="min-w-[1000px]" id="admReport"></table>
+            <div id="t-reports" class="tab-content space-y-8">
+                <h3 class="text-teal-400 font-bold uppercase text-sm">Reports Dashboard</h3>
+                <div class="space-y-4">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">1. Total Work Duration Summary</p>
+                    <div class="glass rounded-xl overflow-x-auto"><table id="repSumm"></table></div>
+                </div>
+                <div class="space-y-4">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">2. Date-wise Attendance Report</p>
+                    <div class="glass rounded-xl overflow-x-auto"><table id="repDate"></table></div>
+                </div>
+            </div>
+
+            <div id="t-settings" class="tab-content space-y-6">
+                <h3 class="text-teal-400 font-bold uppercase text-sm">Geofencing Settings</h3>
+                <div class="glass p-6 rounded-2xl space-y-4">
+                    <div><label class="text-[10px] text-slate-500 uppercase">Hospital Latitude</label><input type="text" id="sLat" class="input-style"></div>
+                    <div><label class="text-[10px] text-slate-500 uppercase">Hospital Longitude</label><input type="text" id="sLon" class="input-style"></div>
+                    <div><label class="text-[10px] text-slate-500 uppercase">Radius (meters)</label><input type="text" id="sRad" class="input-style"></div>
+                    <button onclick="saveSettings()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase">Update Perimeter</button>
                 </div>
             </div>
         </main>
@@ -143,12 +153,13 @@
             <div onclick="nav('leave')" class="nav-btn" id="n-leave"><span>✈️</span>Leave</div>
             <div onclick="nav('bio')" class="nav-btn" id="n-bio"><span>👤</span>Bio</div>
             <div onclick="nav('docs')" class="nav-btn" id="n-docs"><span>📄</span>Docs</div>
-            <div id="admBtn" onclick="nav('reports')" class="hidden nav-btn text-teal-400"><span>📊</span>Reports</div>
+            <div id="nAdmRep" onclick="nav('reports')" class="hidden nav-btn text-teal-400"><span>📊</span>Reports</div>
+            <div id="nAdmSet" onclick="nav('settings')" class="hidden nav-btn text-teal-400"><span>⚙️</span>Settings</div>
         </nav>
     </div>
 
     <script>
-        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzu4ZJyeifn_CEIKWJgpl39oxscN1VQbxqAU6a9TDfPLJa0120sJ-IDopfJJQ9N_K-NiA/exec";
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbxXlMMAUSDMPR5yg_PFx6PggmDDSNo264zb1r1pMfLuN3ll6I1DsLnhK-TX2IkltwWo3A/exec";
         let user, config = {lat:0, lon:0, rad:0};
 
         function toggleAuth(v) {
@@ -158,34 +169,37 @@
 
         function adminCheck() {
             if(prompt("Enter Admin Access Password") === "1201") {
-                localStorage.setItem('lc_admin', '1'); alert("Admin Mode Enabled");
-                if(user) document.getElementById('admBtn').classList.remove('hidden');
+                localStorage.setItem('lc_adm', '1'); alert("Admin Access Unlocked");
+                if(user) showAdmin();
             }
         }
 
+        function showAdmin() {
+            document.getElementById('nAdmRep').classList.remove('hidden');
+            document.getElementById('nAdmSet').classList.remove('hidden');
+        }
+
         function doLogin() {
-            const email = document.getElementById('lEmail').value;
-            if(!email) return alert("Enter Email");
+            const e = document.getElementById('lEmail').value;
+            if(!e) return alert("Email required");
             const s = document.createElement('script');
-            s.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(email)}&callback=hAuth`;
+            s.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(e)}&callback=hAuth`;
             document.body.appendChild(s);
         }
 
         window.hAuth = (d) => {
             if(d.exists && d.pass === document.getElementById('lPass').value) {
-                user = d; localStorage.setItem('lc_session', JSON.stringify(d));
+                user = d; localStorage.setItem('lc_sess', JSON.stringify(d));
                 startApp(d);
-            } else { alert("Authentication Failed. Check credentials."); }
+            } else { alert("Login failed"); }
         }
 
         function startApp(d) {
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            
-            // Populate Bio
             document.getElementById('bName').innerText = d.name;
             document.getElementById('bId').innerText = d.id;
-            document.getElementById('bEmail').innerText = d.email; // Fixed email reference
+            document.getElementById('bEmail').innerText = d.email;
             document.getElementById('bPhone').innerText = d.phone;
             document.getElementById('bGender').innerText = d.gender;
             document.getElementById('bDob').innerText = d.dob;
@@ -194,55 +208,54 @@
             document.getElementById('bDept').innerText = d.dept;
             document.getElementById('bDesig').innerText = d.desig;
 
-            // Populate Leaves
-            const lTypes = {annual:'Annual', sick:'Sick', mat:'Maternity', pat:'Paternity', comp:'Compassionate'};
-            document.getElementById('leaveBalances').innerHTML = Object.keys(d.bal).map(k => `
-                <div class="glass p-4 rounded-2xl text-center border-b border-teal-500/10">
-                    <p class="text-[9px] text-slate-500 uppercase font-bold">${lTypes[k]}</p>
-                    <p class="text-lg font-black text-teal-400">${d.bal[k][0] - d.bal[k][1]} <span class="text-[10px] text-slate-400">Left</span></p>
+            // Balances
+            const lbl = {annual:'Annual', sick:'Sick', mat:'Maternity', pat:'Paternity', comp:'Compassionate'};
+            document.getElementById('leaveBals').innerHTML = Object.keys(d.bal).map(k => `
+                <div class="glass p-3 rounded-2xl text-center">
+                    <p class="text-[8px] text-slate-500 uppercase font-bold">${lbl[k]}</p>
+                    <p class="text-lg font-black text-teal-400">${d.bal[k][0] - d.bal[k][1]} <span class="text-[8px]">Left</span></p>
                 </div>
             `).join('');
 
-            // Separate Documents
-            const docList = ["Employee Contract", "CV/Resume", "Academic Documents", "License", "National ID/Passport", "KRA", "SHIF", "NSSF", "Bank Form"];
-            document.getElementById('docContainer').innerHTML = docList.map(doc => `
+            // Documents (Separated KRA, SHIF, NSSF)
+            const docs = ["Employee Contract", "CV/Resume", "Academic Documents", "License", "National ID/Passport", "KRA", "SHIF", "NSSF", "Bank Form"];
+            document.getElementById('docRows').innerHTML = docs.map(doc => `
                 <div class="glass p-4 rounded-xl flex justify-between items-center text-[10px] uppercase font-bold">
                     <span>${doc}</span>
-                    <div class="flex gap-2">
-                        <input type="file" id="f_${doc}" class="hidden" onchange="alert('Selected: '+this.files[0].name)">
-                        <button onclick="document.getElementById('f_${doc}').click()" class="text-teal-400 border border-teal-500/30 px-3 py-1 rounded">Upload</button>
-                    </div>
+                    <button class="text-teal-400 border border-teal-500/30 px-3 py-1 rounded">Upload</button>
                 </div>
             `).join('');
 
-            if(localStorage.getItem('lc_admin') === '1') document.getElementById('admBtn').classList.remove('hidden');
-            
-            // Persist Clock State logic
-            const currentStatus = localStorage.getItem('lc_status_' + d.id);
-            if(currentStatus === 'IN') {
+            if(localStorage.getItem('lc_adm') === '1') showAdmin();
+            if(localStorage.getItem('lc_status_' + d.id) === 'IN') {
                 document.getElementById('btnIn').classList.add('hidden');
                 document.getElementById('btnOut').classList.remove('hidden');
             }
-
-            loadConfig();
+            fetchConfig();
         }
 
-        function loadConfig() {
+        function fetchConfig() {
             const s = document.createElement('script');
             s.src = `${CLOUD_URL}?action=get_settings&callback=hSet`;
             document.body.appendChild(s);
         }
-        window.hSet = (d) => { config = d; startGeo(); }
+        window.hSet = (d) => {
+            config = d;
+            document.getElementById('sLat').value = d.lat;
+            document.getElementById('sLon').value = d.lon;
+            document.getElementById('sRad').value = d.rad;
+            startGPS();
+        }
 
-        function startGeo() {
+        function startGPS() {
             navigator.geolocation.watchPosition(p => {
-                const d = getDist(p.coords.latitude, p.coords.longitude, config.lat, config.lon);
-                document.getElementById('vicLabel').innerText = Math.round(d) + "m from hospital";
-                const active = d <= config.rad;
+                const dist = getDist(p.coords.latitude, p.coords.longitude, config.lat, config.lon);
+                document.getElementById('vicLabel').innerText = Math.round(dist) + "m from site";
+                const active = dist <= config.rad;
                 [document.getElementById('btnIn'), document.getElementById('btnOut')].forEach(b => {
                     if(!active) b.classList.add('inactive-btn'); else b.classList.remove('inactive-btn');
                 });
-            }, () => { document.getElementById('vicLabel').innerText = "GPS Error: Please enable location"; }, {enableHighAccuracy: true});
+            }, null, {enableHighAccuracy: true});
         }
 
         function clock(type) {
@@ -253,28 +266,59 @@
                 document.body.appendChild(s);
             });
         }
-        window.hClock = (d) => { 
-            localStorage.setItem('lc_status_' + user.id, d.type); 
-            location.reload(); 
+        window.hClock = (d) => { localStorage.setItem('lc_status_' + user.id, d.type); location.reload(); }
+
+        function saveSettings() {
+            const lat = document.getElementById('sLat').value;
+            const lon = document.getElementById('sLon').value;
+            const rad = document.getElementById('sRad').value;
+            const s = document.createElement('script');
+            s.src = `${CLOUD_URL}?action=update_settings&lat=${lat}&lon=${lon}&rad=${rad}&callback=hSave`;
+            document.body.appendChild(s);
         }
+        window.hSave = () => alert("Perimeter Updated!");
 
         function nav(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
             document.getElementById('t-' + id).classList.add('active');
             document.getElementById('n-' + id).classList.add('active');
-            if(id === 'logs') fetchHistory();
+            if(id === 'logs') fetchLogs();
+            if(id === 'reports') fetchReports();
         }
 
-        function fetchHistory() {
+        function fetchLogs() {
             const s = document.createElement('script');
             s.src = `${CLOUD_URL}?action=get_logs&id=${user.id}&month=${new Date().getMonth()}&callback=hLogs`;
             document.body.appendChild(s);
         }
         window.hLogs = (d) => {
             document.getElementById('logsTable').innerHTML = d.logs.map(l => `
-                <tr><td>${l.date}</td><td><span class="badge">${l.status}</span></td><td>${l.in}</td><td>${l.out}</td><td class="font-black text-teal-400">${l.total}</td></tr>
+                <tr><td>${l.date}</td><td>${l.status}</td><td>${l.in}</td><td>${l.out}</td><td class="font-bold text-teal-400">${l.total}</td></tr>
             `).join('');
+            document.getElementById('calendar').innerHTML = d.logs.map(l => `
+                <div class="p-1 glass rounded ${l.status==='Present'?'bg-emerald-900/30':'bg-rose-900/30'}">${l.date.split('-')[0]}</div>
+            `).join('');
+        }
+
+        function fetchReports() {
+            const s = document.createElement('script');
+            s.src = `${CLOUD_URL}?action=get_admin_reports&callback=hRep`;
+            document.body.appendChild(s);
+        }
+        window.hRep = (d) => {
+            let h = `<tr><th>ID</th><th>Name</th><th>Dept</th><th>Desig</th>`;
+            for(let i=1; i<=d.days; i++) h += `<th>${i}</th>`;
+            h += `<th>Pres</th><th>Abs</th><th>Lev</th><th>Out</th></tr>`;
+            document.getElementById('repSumm').innerHTML = h + d.summary.map(r => `
+                <tr><td>${r.id}</td><td>${r.name}</td><td>${r.dept}</td><td>${r.desig}</td>
+                ${r.dates.map(st => `<td>${st}</td>`).join('')}
+                <td>${r.pres}</td><td>${r.abs}</td><td>${r.leave}</td><td>${r.out}</td></tr>
+            `).join('');
+            document.getElementById('repDate').innerHTML = `
+                <tr><th>ID</th><th>Name</th><th>Dept</th><th>Desig</th><th>Total Hrs</th><th>Avg Hrs</th></tr>
+                ${d.details.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.dept}</td><td>${r.desig}</td><td>${r.total}</td><td>${r.avg}</td></tr>`).join('')}
+            `;
         }
 
         function getDist(lat1, lon1, lat2, lon2) {
@@ -285,7 +329,7 @@
         }
 
         function logout() { localStorage.clear(); location.reload(); }
-        window.onload = () => { const s = localStorage.getItem('lc_session'); if(s) startApp(JSON.parse(s)); }
+        window.onload = () => { const s = localStorage.getItem('lc_sess'); if(s) startApp(JSON.parse(s)); }
     </script>
 </body>
 </html>
