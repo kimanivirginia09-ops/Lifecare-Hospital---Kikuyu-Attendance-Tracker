@@ -13,13 +13,12 @@
         .inactive-btn { background-color: #334155 !important; color: #64748b !important; cursor: not-allowed; pointer-events: none; opacity: 0.5; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        table { width: 100%; border-collapse: collapse; font-size: 10px; min-width: 600px; }
+        table { width: 100%; border-collapse: collapse; font-size: 10px; min-width: 800px; }
         th, td { border: 1px solid #334155; padding: 8px; text-align: center; }
         th { background: #1e293b; color: #2dd4bf; text-transform: uppercase; }
         .input-style { width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px; color: white; outline: none; }
-        
         button:active { transform: scale(0.96); opacity: 0.8; }
-        #loader { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         .spinner { width: 40px; height: 40px; border: 4px solid #1e293b; border-top: 4px solid #2dd4bf; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -28,54 +27,45 @@
 
     <div id="loader">
         <div class="spinner"></div>
-        <p class="mt-4 text-teal-400 font-bold text-xs uppercase tracking-widest">Processing...</p>
+        <p id="loaderText" class="mt-4 text-teal-400 font-bold text-xs uppercase tracking-widest">Loading...</p>
     </div>
 
     <div id="authSection" class="min-h-screen p-4">
         <div class="flex justify-end gap-3 mb-10">
             <button onclick="toggleAuth('reg')" class="text-[10px] font-bold bg-teal-600/20 text-teal-400 border border-teal-500/30 px-3 py-2 rounded uppercase">Register</button>
-            <button onclick="adminCheck()" class="text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 px-3 py-2 rounded uppercase">Admin Access</button>
+            <button onclick="adminCheck()" class="text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 px-3 py-2 rounded uppercase">Admin</button>
         </div>
-
         <div id="loginBox" class="max-w-md mx-auto glass p-8 rounded-3xl mt-10">
             <h1 class="text-3xl font-black text-center text-teal-500 mb-8 tracking-widest">LIFECARE</h1>
-            <div class="space-y-4">
-                <input type="email" id="lEmail" placeholder="Work Email" class="input-style">
-                <input type="password" id="lPass" placeholder="Password" class="input-style">
-                <button onclick="doLogin()" class="w-full bg-teal-600 p-4 rounded-xl font-bold shadow-lg">LOG IN</button>
-            </div>
+            <input type="email" id="lEmail" placeholder="Work Email" class="input-style mb-4">
+            <input type="password" id="lPass" placeholder="Password" class="input-style mb-4">
+            <button onclick="doLogin()" class="w-full bg-teal-600 p-4 rounded-xl font-bold">LOG IN</button>
         </div>
-
         <div id="regBox" class="hidden max-w-md mx-auto glass p-8 rounded-3xl mt-10">
-            <h2 class="text-teal-400 font-bold mb-6 uppercase text-center">New Registration</h2>
-            <div class="space-y-4">
-                <input type="text" id="rId" placeholder="Employee ID" class="input-style">
-                <input type="email" id="rEmail" placeholder="Email Address" class="input-style">
-                <input type="password" id="rPass" placeholder="Password" class="input-style">
-                <button onclick="doReg()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase mt-4">Create Account</button>
-                <button onclick="toggleAuth('login')" class="w-full text-slate-500 text-[10px] uppercase mt-2">Back</button>
-            </div>
+            <input type="text" id="rId" placeholder="Employee ID" class="input-style mb-4">
+            <input type="email" id="rEmail" placeholder="Email" class="input-style mb-4">
+            <input type="password" id="rPass" placeholder="Password" class="input-style mb-4">
+            <button onclick="doReg()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase">Create Account</button>
         </div>
     </div>
 
     <div id="mainApp" class="hidden">
         <header class="p-4 glass sticky top-0 flex justify-between items-center z-50">
-            <span class="font-black text-teal-500 text-lg">LIFECARE STAFF</span>
-            <button onclick="logout()" class="text-rose-500 text-[10px] font-bold border border-rose-900/30 px-3 py-1 rounded">LOGOUT</button>
+            <span class="font-black text-teal-500 text-lg">LIFECARE</span>
+            <button onclick="logout()" class="text-rose-500 text-[10px] font-bold px-3 py-1 rounded">LOGOUT</button>
         </header>
 
         <main class="p-4">
             <div id="t-home" class="tab-content active text-center py-10">
                 <div class="glass p-12 rounded-[40px]">
-                    <p id="vicLabel" class="text-[10px] text-slate-500 mb-6 uppercase tracking-widest italic">Verifying Vicinity...</p>
-                    <button id="btnIn" onclick="clock('IN')" class="w-full bg-emerald-600 p-16 rounded-3xl font-black text-3xl uppercase shadow-2xl transition">Clock In</button>
-                    <button id="btnOut" onclick="clock('OUT')" class="hidden w-full bg-rose-600 p-16 rounded-3xl font-black text-3xl uppercase shadow-2xl transition">Clock Out</button>
+                    <p id="vicLabel" class="text-[10px] text-slate-500 mb-6 uppercase">Syncing GPS...</p>
+                    <button id="btnIn" onclick="clock('IN')" class="w-full bg-emerald-600 p-16 rounded-3xl font-black text-3xl uppercase">Clock In</button>
+                    <button id="btnOut" onclick="clock('OUT')" class="hidden w-full bg-rose-600 p-16 rounded-3xl font-black text-3xl uppercase">Clock Out</button>
                 </div>
             </div>
 
-            <div id="t-logs" class="tab-content space-y-6">
-                <h3 class="text-teal-400 font-bold uppercase text-xs">Attendance History</h3>
-                <div id="calendar" class="grid grid-cols-7 gap-1 text-[8px] text-center mb-4"></div>
+            <div id="t-logs" class="tab-content">
+                <h3 class="text-teal-400 font-bold uppercase text-xs mb-4">My Attendance Logs</h3>
                 <div class="glass rounded-2xl overflow-x-auto">
                     <table>
                         <thead><tr><th>Date</th><th>Status</th><th>In (24h)</th><th>Out (24h)</th><th>Total Hrs</th></tr></thead>
@@ -84,67 +74,45 @@
                 </div>
             </div>
 
-            <div id="t-leave" class="tab-content space-y-6">
-                <div id="leaveBals" class="grid grid-cols-2 gap-2"></div>
-                <div class="glass p-6 rounded-3xl space-y-4">
-                    <h3 class="text-teal-400 text-xs font-bold uppercase">Leave / Out Duty</h3>
-                    <select id="lType" class="input-style">
-                        <option>Annual Leave</option><option>Sick Leave</option><option>Maternity Leave</option><option>Paternity Leave</option><option>Compassionate Leave</option><option>Out Duty / WFH</option>
+            <div id="t-leave" class="tab-content space-y-4">
+                <h3 class="text-teal-400 text-xs font-bold uppercase">Leave Balances</h3>
+                <div id="leaveCards" class="space-y-3"></div>
+                
+                <div class="glass p-6 rounded-3xl mt-6">
+                    <h3 class="text-teal-400 text-xs font-bold uppercase mb-4">Apply Leave</h3>
+                    <select id="lType" class="input-style mb-4">
+                        <option>Annual Leave</option><option>Sick Leave</option><option>Maternity Leave</option><option>Paternity Leave</option><option>Compassionate Leave</option>
                     </select>
-                    <input type="date" id="lDate" class="input-style">
+                    <input type="date" id="lDate" class="input-style mb-4">
                     <button class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase">Apply</button>
                 </div>
-            </div>
 
-            <div id="t-bio" class="tab-content space-y-6">
-                <h1 id="bName" class="text-4xl font-black uppercase text-white px-2 leading-tight"></h1>
-                <div class="glass p-6 rounded-3xl space-y-6">
-                    <div>
-                        <p class="text-teal-500 font-bold text-[10px] uppercase tracking-widest mb-4">Personal Details</p>
-                        <div class="grid grid-cols-2 gap-4 text-[12px]">
-                            <div><p class="text-slate-500">ID</p><p id="bId" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Email</p><p id="bEmail" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Phone</p><p id="bPhone" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Gender</p><p id="bGender" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">DOB</p><p id="bDob" class="font-bold"></p></div>
-                        </div>
-                    </div>
-                    <div class="border-t border-slate-700 pt-6">
-                        <p class="text-teal-500 font-bold text-[10px] uppercase tracking-widest mb-4">Employment Details</p>
-                        <div class="grid grid-cols-2 gap-4 text-[12px]">
-                            <div><p class="text-slate-500">Manager</p><p id="bMan" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Type</p><p id="bType" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Dept</p><p id="bDept" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Designation</p><p id="bDesig" class="font-bold"></p></div>
-                        </div>
-                    </div>
+                <div class="glass p-6 rounded-3xl border-t-2 border-emerald-500/30">
+                    <h3 class="text-emerald-400 text-xs font-bold uppercase mb-4">Out Duty / WFH</h3>
+                    <input type="date" class="input-style mb-4">
+                    <button class="w-full bg-emerald-600 p-4 rounded-xl font-bold uppercase">Submit Out Duty</button>
                 </div>
             </div>
 
-            <div id="t-docs" class="tab-content space-y-3">
-                <h3 class="text-teal-400 font-bold uppercase text-xs mb-4">Compliance Documents</h3>
-                <div id="docRows" class="space-y-2"></div>
-            </div>
-
-            <div id="t-reports" class="tab-content space-y-8">
-                <h3 class="text-teal-400 font-bold uppercase text-sm">Admin Reports</h3>
-                <div class="space-y-4">
-                    <p class="text-[10px] text-slate-500 uppercase font-bold">1. Total Work Duration Summary</p>
-                    <div class="glass rounded-xl overflow-x-auto"><table id="repSumm"></table></div>
-                </div>
-                <div class="space-y-4">
-                    <p class="text-[10px] text-slate-500 uppercase font-bold">2. Date-wise Attendance Report</p>
-                    <div class="glass rounded-xl overflow-x-auto"><table id="repDate"></table></div>
+            <div id="t-bio" class="tab-content">
+                <h1 id="bName" class="text-2xl font-black uppercase mb-4"></h1>
+                <div class="glass p-6 rounded-3xl space-y-4 text-xs">
+                    <p>ID: <span id="bId" class="font-bold"></span></p>
+                    <p>Dept: <span id="bDept" class="font-bold"></span></p>
+                    <p>Role: <span id="bDesig" class="font-bold"></span></p>
                 </div>
             </div>
 
-            <div id="t-settings" class="tab-content space-y-6">
-                <h3 class="text-teal-400 font-bold uppercase text-sm">Geofencing Control</h3>
-                <div class="glass p-6 rounded-2xl space-y-4">
-                    <div><label class="text-[10px] text-slate-500 uppercase">Latitude</label><input type="text" id="sLat" class="input-style"></div>
-                    <div><label class="text-[10px] text-slate-500 uppercase">Longitude</label><input type="text" id="sLon" class="input-style"></div>
-                    <div><label class="text-[10px] text-slate-500 uppercase">Radius (m)</label><input type="text" id="sRad" class="input-style"></div>
-                    <button onclick="saveSettings()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase">Update Perimeter</button>
+            <div id="t-reports" class="tab-content space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-teal-400 font-bold uppercase text-xs">Admin Reports</h3>
+                    <button onclick="exportToExcel()" class="bg-emerald-600 text-[9px] px-3 py-2 rounded font-bold uppercase">Export to Excel</button>
+                </div>
+                <div class="glass rounded-xl overflow-x-auto">
+                    <table id="repSumm"></table>
+                </div>
+                <div class="glass rounded-xl overflow-x-auto">
+                    <table id="repDate"></table>
                 </div>
             </div>
         </main>
@@ -154,9 +122,7 @@
             <div onclick="nav('logs')" class="nav-btn" id="n-logs"><span>📅</span>Logs</div>
             <div onclick="nav('leave')" class="nav-btn" id="n-leave"><span>✈️</span>Leave</div>
             <div onclick="nav('bio')" class="nav-btn" id="n-bio"><span>👤</span>Bio</div>
-            <div onclick="nav('docs')" class="nav-btn" id="n-docs"><span>📄</span>Docs</div>
             <div id="nAdmRep" onclick="nav('reports')" class="hidden nav-btn text-teal-400"><span>📊</span>Reports</div>
-            <div id="nAdmSet" onclick="nav('settings')" class="hidden nav-btn text-teal-400"><span>⚙️</span>Settings</div>
         </nav>
     </div>
 
@@ -164,69 +130,51 @@
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbxXlMMAUSDMPR5yg_PFx6PggmDDSNo264zb1r1pMfLuN3ll6I1DsLnhK-TX2IkltwWo3A/exec";
         let user, config = {lat:0, lon:0, rad:0};
 
-        function setLoading(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
+        function setLoading(s, t="Loading...") { document.getElementById('loaderText').innerText = t; document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
         function toggleAuth(v) { document.getElementById('loginBox').classList.toggle('hidden', v==='reg'); document.getElementById('regBox').classList.toggle('hidden', v!=='reg'); }
+        function adminCheck() { if(prompt("Password") === "1201") { localStorage.setItem('lc_adm', '1'); if(user) location.reload(); } }
         
-        function adminCheck() {
-            if(prompt("Admin Password") === "1201") { localStorage.setItem('lc_adm', '1'); alert("Admin Access Enabled"); if(user) showAdmin(); }
-        }
-
-        function showAdmin() {
-            document.getElementById('nAdmRep').classList.remove('hidden');
-            document.getElementById('nAdmSet').classList.remove('hidden');
-        }
-
         function doLogin() {
-            const e = document.getElementById('lEmail').value;
-            if(!e) return alert("Email required");
-            setLoading(true);
+            setLoading(true, "Verifying...");
             const s = document.createElement('script');
-            s.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(e)}&callback=hAuth`;
+            s.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(document.getElementById('lEmail').value)}&callback=hAuth`;
             document.body.appendChild(s);
         }
-
-        window.hAuth = (d) => {
-            setLoading(false);
-            if(d.exists && d.pass === document.getElementById('lPass').value) {
-                user = d; localStorage.setItem('lc_sess', JSON.stringify(d));
-                startApp(d);
-            } else { alert("Login failed."); }
-        }
+        window.hAuth = (d) => { setLoading(false); if(d.exists && d.pass === document.getElementById('lPass').value) { user=d; localStorage.setItem('lc_sess', JSON.stringify(d)); startApp(d); } else alert("Error"); }
 
         function doReg() {
-            const id = document.getElementById('rId').value, email = document.getElementById('rEmail').value, pass = document.getElementById('rPass').value;
-            if(!id || !email || !pass) return alert("Fill all fields");
-            setLoading(true);
+            setLoading(true, "Registering...");
             const s = document.createElement('script');
-            s.src = `${CLOUD_URL}?action=register_staff&id=${id}&email=${encodeURIComponent(email)}&pass=${pass}&name=NewUser&dept=TBD&desig=TBD&managerId=TBD&phone=-&gender=-&dob=-&empType=Permanent&callback=hReg`;
+            s.src = `${CLOUD_URL}?action=register_staff&id=${document.getElementById('rId').value}&email=${encodeURIComponent(document.getElementById('rEmail').value)}&pass=${document.getElementById('rPass').value}&name=User&dept=PENDING&desig=PENDING&callback=hReg`;
             document.body.appendChild(s);
         }
-        window.hReg = () => { setLoading(false); alert("Success! Log in now."); toggleAuth('login'); }
+        window.hReg = () => { setLoading(false); alert("Success"); toggleAuth('login'); }
 
         function startApp(d) {
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('bName').innerText = d.name || "USER";
-            document.getElementById('bId').innerText = d.id; document.getElementById('bEmail').innerText = d.email;
-            document.getElementById('bPhone').innerText = d.phone || "-"; document.getElementById('bGender').innerText = d.gender || "-";
-            document.getElementById('bDob').innerText = d.dob || "-"; document.getElementById('bMan').innerText = d.manager || "-";
-            document.getElementById('bType').innerText = d.empType || "-"; document.getElementById('bDept').innerText = d.dept || "-";
-            document.getElementById('bDesig').innerText = d.desig || "-";
+            document.getElementById('bName').innerText = d.name;
+            document.getElementById('bId').innerText = d.id;
+            document.getElementById('bDept').innerText = d.dept;
+            document.getElementById('bDesig').innerText = d.desig;
 
-            const lbl = {annual:'Annual', sick:'Sick', mat:'Maternity', pat:'Paternity', comp:'Compassionate'};
-            document.getElementById('leaveBals').innerHTML = Object.keys(d.bal).map(k => `
-                <div class="glass p-3 rounded-2xl text-center">
-                    <p class="text-[8px] text-slate-500 uppercase font-bold">${lbl[k]}</p>
-                    <p class="text-lg font-black text-teal-400">${d.bal[k][0] - d.bal[k][1]}</p>
+            const lbl = {annual:'Annual', sick:'Sick', mat:'Maternity', pat:'Paternity', comp:'Compassion'};
+            document.getElementById('leaveCards').innerHTML = Object.keys(d.bal).map(k => `
+                <div class="glass p-4 rounded-2xl flex justify-between items-center">
+                    <div><p class="text-teal-400 font-bold uppercase text-[10px]">${lbl[k]} Leave</p>
+                    <p class="text-[9px] text-slate-500">Accrued: ${d.bal[k][0]} | Utilized: ${d.bal[k][1]}</p></div>
+                    <div class="text-right"><p class="text-xl font-black">${d.bal[k][0] - d.bal[k][1]}</p><p class="text-[8px] uppercase">Balance</p></div>
                 </div>
             `).join('');
 
-            const docs = ["Employee Contract", "CV/Resume", "Academic Documents", "License", "National ID/Passport", "KRA", "SHIF", "NSSF", "Bank Form"];
-            document.getElementById('docRows').innerHTML = docs.map(doc => `<div class="glass p-4 rounded-xl flex justify-between items-center text-[10px] uppercase font-bold"><span>${doc}</span><button class="text-teal-400">Upload</button></div>`).join('');
-
-            if(localStorage.getItem('lc_adm') === '1') showAdmin();
-            if(localStorage.getItem('lc_status_'+d.id) === 'IN') { document.getElementById('btnIn').classList.add('hidden'); document.getElementById('btnOut').classList.remove('hidden'); }
+            if(localStorage.getItem('lc_adm') === '1') document.getElementById('nAdmRep').classList.remove('hidden');
+            updateClockButtons(localStorage.getItem('lc_status_'+d.id));
             fetchConfig();
+        }
+
+        function updateClockButtons(s) {
+            document.getElementById('btnIn').classList.toggle('hidden', s==='IN');
+            document.getElementById('btnOut').classList.toggle('hidden', s!=='IN');
         }
 
         function fetchConfig() {
@@ -234,39 +182,27 @@
             s.src = `${CLOUD_URL}?action=get_settings&callback=hSet`;
             document.body.appendChild(s);
         }
-        window.hSet = (d) => {
-            config = d; document.getElementById('sLat').value = d.lat; document.getElementById('sLon').value = d.lon; document.getElementById('sRad').value = d.rad;
-            startGPS();
-        }
+        window.hSet = (d) => { config=d; startGPS(); }
 
         function startGPS() {
             navigator.geolocation.watchPosition(p => {
                 const dist = getDist(p.coords.latitude, p.coords.longitude, config.lat, config.lon);
-                document.getElementById('vicLabel').innerText = Math.round(dist) + "m from site";
+                document.getElementById('vicLabel').innerText = Math.round(dist) + "m from Hospital";
                 const active = dist <= config.rad;
                 [document.getElementById('btnIn'), document.getElementById('btnOut')].forEach(b => b.classList.toggle('inactive-btn', !active));
-            }, null, {enableHighAccuracy:true});
+            }, null, {enableHighAccuracy:true, timeout: 5000});
         }
 
         function clock(type) {
-            setLoading(true);
+            setLoading(true, "Syncing...");
             navigator.geolocation.getCurrentPosition(p => {
-                const loc = `${p.coords.latitude.toFixed(4)},${p.coords.longitude.toFixed(4)}`;
                 const s = document.createElement('script');
+                const loc = `${p.coords.latitude.toFixed(4)},${p.coords.longitude.toFixed(4)}`;
                 s.src = `${CLOUD_URL}?action=clock_action&id=${user.id}&name=${encodeURIComponent(user.name)}&type=${type}&location=${loc}&callback=hClock`;
                 document.body.appendChild(s);
-            }, (e) => { setLoading(false); alert("GPS Error: " + e.message); });
+            }, () => { setLoading(false); alert("GPS Required"); }, {enableHighAccuracy: true, timeout: 5000});
         }
-        window.hClock = (d) => { localStorage.setItem('lc_status_'+user.id, d.type); location.reload(); }
-
-        function saveSettings() {
-            setLoading(true);
-            const lat = document.getElementById('sLat').value, lon = document.getElementById('sLon').value, rad = document.getElementById('sRad').value;
-            const s = document.createElement('script');
-            s.src = `${CLOUD_URL}?action=update_settings&lat=${lat}&lon=${lon}&rad=${rad}&callback=hSave`;
-            document.body.appendChild(s);
-        }
-        window.hSave = () => { setLoading(false); alert("Saved!"); }
+        window.hClock = (d) => { setLoading(false); localStorage.setItem('lc_status_'+user.id, d.type); updateClockButtons(d.type); }
 
         function nav(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -278,42 +214,32 @@
         }
 
         function fetchLogs() {
-            setLoading(true);
+            setLoading(true, "Fetching Logs...");
             const s = document.createElement('script');
             s.src = `${CLOUD_URL}?action=get_logs&id=${user.id}&month=${new Date().getMonth()}&callback=hLogs`;
             document.body.appendChild(s);
         }
 
-        // NEW: 24 HOUR TIME PARSER
-        function format24h(str) {
+        function format24(str) {
             if(!str || str === '-') return '-';
-            try {
-                const d = new Date(str);
-                if(isNaN(d.getTime())) {
-                  // Fallback if string is just "14:30" already
-                  if(str.includes(':')) return str.substring(0,5);
-                  return '-';
-                }
-                return d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0');
-            } catch(e) { return '-'; }
+            const d = new Date(str);
+            return isNaN(d) ? (str.includes(':')?str.substring(0,5):'-') : d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0');
         }
 
         window.hLogs = (d) => {
             setLoading(false);
             document.getElementById('logsTable').innerHTML = d.logs.map(l => `
-                <tr><td>${l.date}</td><td>${l.status}</td><td class="text-teal-400 font-bold">${format24h(l.in)}</td><td class="text-rose-400 font-bold">${format24h(l.out)}</td><td>${l.total}</td></tr>
-            `).join('');
-            document.getElementById('calendar').innerHTML = d.logs.map(l => `
-                <div class="p-1 glass rounded ${l.status==='Present'?'bg-emerald-900/40 border-emerald-500':'bg-rose-900/40 border-rose-500'} border">${l.date.split('-')[0]}</div>
+                <tr><td>${l.date}</td><td>${l.status}</td><td class="text-teal-400 font-bold">${format24(l.in)}</td><td class="text-rose-400 font-bold">${format24(l.out)}</td><td>${l.total}</td></tr>
             `).join('');
         }
 
         function fetchReports() {
-            setLoading(true);
+            setLoading(true, "Loading Admin Data...");
             const s = document.createElement('script');
             s.src = `${CLOUD_URL}?action=get_admin_reports&callback=hRep`;
             document.body.appendChild(s);
         }
+
         window.hRep = (d) => {
             setLoading(false);
             let h = `<tr><th>ID</th><th>Name</th><th>Dept</th>`;
@@ -323,6 +249,20 @@
                 <tr><td>${r.id}</td><td>${r.name}</td><td>${r.dept}</td>${r.dates.map(st => `<td>${st}</td>`).join('')}<td>${r.pres}</td><td>${r.abs}</td><td>${r.leave}</td><td>${r.out}</td></tr>
             `).join('');
             document.getElementById('repDate').innerHTML = `<tr><th>ID</th><th>Name</th><th>Total Hrs</th><th>Avg Hrs</th></tr>` + d.details.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.total}</td><td>${r.avg}</td></tr>`).join('');
+        }
+
+        function exportToExcel() {
+            const table = document.getElementById("repSumm");
+            let csv = [];
+            for (let i = 0; i < table.rows.length; i++) {
+                let row = [], cols = table.rows[i].querySelectorAll("td, th");
+                for (let j = 0; j < cols.length; j++) row.push(cols[j].innerText);
+                csv.push(row.join(","));
+            }
+            const blob = new Blob([csv.join("\n")], { type: "text/csv" });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url; a.download = "Attendance_Report.csv"; a.click();
         }
 
         function getDist(lat1, lon1, lat2, lon2) {
