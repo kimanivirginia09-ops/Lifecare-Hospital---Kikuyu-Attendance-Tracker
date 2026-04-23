@@ -36,22 +36,15 @@
             </div>
         </div>
 
-        <div id="regBox" class="hidden max-w-md mx-auto glass p-8 rounded-3xl">
-            <h2 class="text-teal-400 font-bold mb-4 uppercase">New Registration</h2>
-            <div class="grid grid-cols-1 gap-3 max-h-[60vh] overflow-y-auto pr-2">
-                <input type="text" id="rId" placeholder="Employee ID" class="input-style">
-                <input type="text" id="rName" placeholder="Full Name" class="input-style">
-                <input type="email" id="rEmail" placeholder="Email" class="input-style">
-                <input type="password" id="rPass" placeholder="Choose Password" class="input-style">
-                <input type="text" id="rDept" placeholder="Department" class="input-style">
-                <input type="text" id="rDesig" placeholder="Designation" class="input-style">
-                <input type="text" id="rPhone" placeholder="Phone" class="input-style">
-                <select id="rGender" class="input-style"><option>Male</option><option>Female</option></select>
-                <input type="date" id="rDob" class="input-style">
-                <select id="rType" class="input-style"><option>Permanent</option><option>Locum</option><option>Expat</option></select>
-                <input type="text" id="rMan" placeholder="Manager Name" class="input-style">
-                <button onclick="doReg()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase mt-2">Register</button>
-                <button onclick="toggleAuth('login')" class="w-full text-slate-500 text-[10px] uppercase mt-2">Back</button>
+        <div id="regBox" class="hidden max-w-md mx-auto glass p-8 rounded-3xl mt-10">
+            <h2 class="text-teal-400 font-bold mb-6 uppercase text-center">New User Registration</h2>
+            <div class="space-y-4">
+                <input type="text" id="rId" placeholder="Employee ID Number" class="input-style">
+                <input type="email" id="rEmail" placeholder="Official Email Address" class="input-style">
+                <input type="password" id="rPass" placeholder="Set Your Password" class="input-style">
+                
+                <button onclick="doReg()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase mt-4">Create Account</button>
+                <button onclick="toggleAuth('login')" class="w-full text-slate-500 text-[10px] uppercase mt-2">Already have an account? Log In</button>
             </div>
         </div>
     </div>
@@ -72,7 +65,7 @@
             </div>
 
             <div id="t-logs" class="tab-content space-y-6">
-                <h3 class="text-teal-400 font-bold uppercase text-xs">Monthly Calendar & Logs</h3>
+                <h3 class="text-teal-400 font-bold uppercase text-xs">Attendance Logs</h3>
                 <div id="calendar" class="grid grid-cols-7 gap-1 text-[8px] text-center mb-6"></div>
                 <div class="glass rounded-2xl overflow-x-auto">
                     <table>
@@ -85,7 +78,7 @@
             <div id="t-leave" class="tab-content space-y-6">
                 <div id="leaveBals" class="grid grid-cols-2 gap-2"></div>
                 <div class="glass p-6 rounded-3xl space-y-4">
-                    <h3 class="text-teal-400 text-xs font-bold uppercase">Leave / Out Duty</h3>
+                    <h3 class="text-teal-400 text-xs font-bold uppercase">Leave Application</h3>
                     <select id="lType" class="input-style">
                         <option>Annual Leave</option><option>Sick Leave</option><option>Maternity Leave</option><option>Paternity Leave</option><option>Compassionate Leave</option><option>Out Duty / WFH</option>
                     </select>
@@ -95,25 +88,25 @@
             </div>
 
             <div id="t-bio" class="tab-content space-y-6">
-                <h1 id="bName" class="text-4xl font-black uppercase text-white leading-tight px-2"></h1>
+                <h1 id="bName" class="text-4xl font-black uppercase text-white leading-tight px-2">UNIDENTIFIED</h1>
                 <div class="glass p-6 rounded-3xl space-y-6">
                     <div>
                         <p class="text-teal-500 font-bold text-[10px] uppercase tracking-widest mb-4">Personal Details</p>
                         <div class="grid grid-cols-2 gap-4 text-[12px]">
-                            <div><p class="text-slate-500">ID</p><p id="bId" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Email</p><p id="bEmail" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Phone</p><p id="bPhone" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Gender</p><p id="bGender" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">DOB</p><p id="bDob" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">ID</p><p id="bId" class="font-bold">-</p></div>
+                            <div><p class="text-slate-500">Email</p><p id="bEmail" class="font-bold">-</p></div>
+                            <div><p class="text-slate-500">Phone</p><p id="bPhone" class="font-bold">-</p></div>
+                            <div><p class="text-slate-500">Gender</p><p id="bGender" class="font-bold">-</p></div>
+                            <div><p class="text-slate-500">DOB</p><p id="bDob" class="font-bold">-</p></div>
                         </div>
                     </div>
                     <div class="border-t border-slate-700 pt-6">
                         <p class="text-teal-500 font-bold text-[10px] uppercase tracking-widest mb-4">Employment Details</p>
                         <div class="grid grid-cols-2 gap-4 text-[12px]">
-                            <div><p class="text-slate-500">Manager</p><p id="bMan" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Type</p><p id="bType" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Dept</p><p id="bDept" class="font-bold"></p></div>
-                            <div><p class="text-slate-500">Designation</p><p id="bDesig" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">Manager</p><p id="bMan" class="font-bold">-</p></div>
+                            <div><p class="text-slate-500">Type</p><p id="bType" class="font-bold">-</p></div>
+                            <div><p class="text-slate-500">Dept</p><p id="bDept" class="font-bold">-</p></div>
+                            <div><p class="text-slate-500">Designation</p><p id="bDesig" class="font-bold">-</p></div>
                         </div>
                     </div>
                 </div>
@@ -191,24 +184,37 @@
             if(d.exists && d.pass === document.getElementById('lPass').value) {
                 user = d; localStorage.setItem('lc_sess', JSON.stringify(d));
                 startApp(d);
-            } else { alert("Login failed"); }
+            } else { alert("Login failed. Check your email and password."); }
         }
+
+        // SIMPLIFIED REGISTRATION DATA SEND
+        function doReg() {
+            const id = document.getElementById('rId').value;
+            const email = document.getElementById('rEmail').value;
+            const pass = document.getElementById('rPass').value;
+            if(!id || !email || !pass) return alert("Please fill all fields");
+
+            const s = document.createElement('script');
+            // Sending simplified fields, defaults for the rest to prevent sheet errors
+            s.src = `${CLOUD_URL}?action=register_staff&id=${id}&email=${encodeURIComponent(email)}&pass=${pass}&name=NewUser&dept=TBD&desig=TBD&managerId=TBD&phone=-&gender=-&dob=-&empType=Permanent&callback=hReg`;
+            document.body.appendChild(s);
+        }
+        window.hReg = (d) => { alert("Registration successful! You can now log in."); toggleAuth('login'); }
 
         function startApp(d) {
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('bName').innerText = d.name;
+            document.getElementById('bName').innerText = d.name || "NEW USER";
             document.getElementById('bId').innerText = d.id;
             document.getElementById('bEmail').innerText = d.email;
-            document.getElementById('bPhone').innerText = d.phone;
-            document.getElementById('bGender').innerText = d.gender;
-            document.getElementById('bDob').innerText = d.dob;
-            document.getElementById('bMan').innerText = d.manager;
-            document.getElementById('bType').innerText = d.empType;
-            document.getElementById('bDept').innerText = d.dept;
-            document.getElementById('bDesig').innerText = d.desig;
+            document.getElementById('bPhone').innerText = d.phone || "-";
+            document.getElementById('bGender').innerText = d.gender || "-";
+            document.getElementById('bDob').innerText = d.dob || "-";
+            document.getElementById('bMan').innerText = d.manager || "-";
+            document.getElementById('bType').innerText = d.empType || "Permanent";
+            document.getElementById('bDept').innerText = d.dept || "TBD";
+            document.getElementById('bDesig').innerText = d.desig || "TBD";
 
-            // Balances
             const lbl = {annual:'Annual', sick:'Sick', mat:'Maternity', pat:'Paternity', comp:'Compassionate'};
             document.getElementById('leaveBals').innerHTML = Object.keys(d.bal).map(k => `
                 <div class="glass p-3 rounded-2xl text-center">
@@ -217,7 +223,6 @@
                 </div>
             `).join('');
 
-            // Documents (Separated KRA, SHIF, NSSF)
             const docs = ["Employee Contract", "CV/Resume", "Academic Documents", "License", "National ID/Passport", "KRA", "SHIF", "NSSF", "Bank Form"];
             document.getElementById('docRows').innerHTML = docs.map(doc => `
                 <div class="glass p-4 rounded-xl flex justify-between items-center text-[10px] uppercase font-bold">
