@@ -17,9 +17,19 @@
         th, td { border: 1px solid #334155; padding: 8px; text-align: center; }
         th { background: #1e293b; color: #2dd4bf; text-transform: uppercase; }
         .input-style { width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px; color: white; outline: none; }
+        
+        button:active { transform: scale(0.96); opacity: 0.8; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #1e293b; border-top: 4px solid #2dd4bf; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p class="mt-4 text-teal-400 font-bold text-xs uppercase tracking-widest">Processing...</p>
+    </div>
 
     <div id="authSection" class="min-h-screen p-4">
         <div class="flex justify-end gap-3 mb-10">
@@ -37,14 +47,13 @@
         </div>
 
         <div id="regBox" class="hidden max-w-md mx-auto glass p-8 rounded-3xl mt-10">
-            <h2 class="text-teal-400 font-bold mb-6 uppercase text-center">New User Registration</h2>
+            <h2 class="text-teal-400 font-bold mb-6 uppercase text-center">New Registration</h2>
             <div class="space-y-4">
-                <input type="text" id="rId" placeholder="Employee ID Number" class="input-style">
-                <input type="email" id="rEmail" placeholder="Official Email Address" class="input-style">
-                <input type="password" id="rPass" placeholder="Set Your Password" class="input-style">
-                
+                <input type="text" id="rId" placeholder="Employee ID" class="input-style">
+                <input type="email" id="rEmail" placeholder="Email Address" class="input-style">
+                <input type="password" id="rPass" placeholder="Password" class="input-style">
                 <button onclick="doReg()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase mt-4">Create Account</button>
-                <button onclick="toggleAuth('login')" class="w-full text-slate-500 text-[10px] uppercase mt-2">Already have an account? Log In</button>
+                <button onclick="toggleAuth('login')" class="w-full text-slate-500 text-[10px] uppercase mt-2">Back</button>
             </div>
         </div>
     </div>
@@ -65,11 +74,11 @@
             </div>
 
             <div id="t-logs" class="tab-content space-y-6">
-                <h3 class="text-teal-400 font-bold uppercase text-xs">Attendance Logs</h3>
-                <div id="calendar" class="grid grid-cols-7 gap-1 text-[8px] text-center mb-6"></div>
+                <h3 class="text-teal-400 font-bold uppercase text-xs">Attendance History</h3>
+                <div id="calendar" class="grid grid-cols-7 gap-1 text-[8px] text-center mb-4"></div>
                 <div class="glass rounded-2xl overflow-x-auto">
                     <table>
-                        <thead><tr><th>Date</th><th>Status</th><th>In</th><th>Out</th><th>Total Hrs</th></tr></thead>
+                        <thead><tr><th>Date</th><th>Status</th><th>In (24h)</th><th>Out (24h)</th><th>Total Hrs</th></tr></thead>
                         <tbody id="logsTable"></tbody>
                     </table>
                 </div>
@@ -78,7 +87,7 @@
             <div id="t-leave" class="tab-content space-y-6">
                 <div id="leaveBals" class="grid grid-cols-2 gap-2"></div>
                 <div class="glass p-6 rounded-3xl space-y-4">
-                    <h3 class="text-teal-400 text-xs font-bold uppercase">Leave Application</h3>
+                    <h3 class="text-teal-400 text-xs font-bold uppercase">Leave / Out Duty</h3>
                     <select id="lType" class="input-style">
                         <option>Annual Leave</option><option>Sick Leave</option><option>Maternity Leave</option><option>Paternity Leave</option><option>Compassionate Leave</option><option>Out Duty / WFH</option>
                     </select>
@@ -88,37 +97,37 @@
             </div>
 
             <div id="t-bio" class="tab-content space-y-6">
-                <h1 id="bName" class="text-4xl font-black uppercase text-white leading-tight px-2">UNIDENTIFIED</h1>
+                <h1 id="bName" class="text-4xl font-black uppercase text-white px-2 leading-tight"></h1>
                 <div class="glass p-6 rounded-3xl space-y-6">
                     <div>
                         <p class="text-teal-500 font-bold text-[10px] uppercase tracking-widest mb-4">Personal Details</p>
                         <div class="grid grid-cols-2 gap-4 text-[12px]">
-                            <div><p class="text-slate-500">ID</p><p id="bId" class="font-bold">-</p></div>
-                            <div><p class="text-slate-500">Email</p><p id="bEmail" class="font-bold">-</p></div>
-                            <div><p class="text-slate-500">Phone</p><p id="bPhone" class="font-bold">-</p></div>
-                            <div><p class="text-slate-500">Gender</p><p id="bGender" class="font-bold">-</p></div>
-                            <div><p class="text-slate-500">DOB</p><p id="bDob" class="font-bold">-</p></div>
+                            <div><p class="text-slate-500">ID</p><p id="bId" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">Email</p><p id="bEmail" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">Phone</p><p id="bPhone" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">Gender</p><p id="bGender" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">DOB</p><p id="bDob" class="font-bold"></p></div>
                         </div>
                     </div>
                     <div class="border-t border-slate-700 pt-6">
                         <p class="text-teal-500 font-bold text-[10px] uppercase tracking-widest mb-4">Employment Details</p>
                         <div class="grid grid-cols-2 gap-4 text-[12px]">
-                            <div><p class="text-slate-500">Manager</p><p id="bMan" class="font-bold">-</p></div>
-                            <div><p class="text-slate-500">Type</p><p id="bType" class="font-bold">-</p></div>
-                            <div><p class="text-slate-500">Dept</p><p id="bDept" class="font-bold">-</p></div>
-                            <div><p class="text-slate-500">Designation</p><p id="bDesig" class="font-bold">-</p></div>
+                            <div><p class="text-slate-500">Manager</p><p id="bMan" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">Type</p><p id="bType" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">Dept</p><p id="bDept" class="font-bold"></p></div>
+                            <div><p class="text-slate-500">Designation</p><p id="bDesig" class="font-bold"></p></div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div id="t-docs" class="tab-content space-y-3">
-                <h3 class="text-teal-400 font-bold uppercase text-xs mb-4 px-2">Compliance Documents</h3>
+                <h3 class="text-teal-400 font-bold uppercase text-xs mb-4">Compliance Documents</h3>
                 <div id="docRows" class="space-y-2"></div>
             </div>
 
             <div id="t-reports" class="tab-content space-y-8">
-                <h3 class="text-teal-400 font-bold uppercase text-sm">Reports Dashboard</h3>
+                <h3 class="text-teal-400 font-bold uppercase text-sm">Admin Reports</h3>
                 <div class="space-y-4">
                     <p class="text-[10px] text-slate-500 uppercase font-bold">1. Total Work Duration Summary</p>
                     <div class="glass rounded-xl overflow-x-auto"><table id="repSumm"></table></div>
@@ -130,11 +139,11 @@
             </div>
 
             <div id="t-settings" class="tab-content space-y-6">
-                <h3 class="text-teal-400 font-bold uppercase text-sm">Geofencing Settings</h3>
+                <h3 class="text-teal-400 font-bold uppercase text-sm">Geofencing Control</h3>
                 <div class="glass p-6 rounded-2xl space-y-4">
-                    <div><label class="text-[10px] text-slate-500 uppercase">Hospital Latitude</label><input type="text" id="sLat" class="input-style"></div>
-                    <div><label class="text-[10px] text-slate-500 uppercase">Hospital Longitude</label><input type="text" id="sLon" class="input-style"></div>
-                    <div><label class="text-[10px] text-slate-500 uppercase">Radius (meters)</label><input type="text" id="sRad" class="input-style"></div>
+                    <div><label class="text-[10px] text-slate-500 uppercase">Latitude</label><input type="text" id="sLat" class="input-style"></div>
+                    <div><label class="text-[10px] text-slate-500 uppercase">Longitude</label><input type="text" id="sLon" class="input-style"></div>
+                    <div><label class="text-[10px] text-slate-500 uppercase">Radius (m)</label><input type="text" id="sRad" class="input-style"></div>
                     <button onclick="saveSettings()" class="w-full bg-teal-600 p-4 rounded-xl font-bold uppercase">Update Perimeter</button>
                 </div>
             </div>
@@ -155,16 +164,11 @@
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycbxXlMMAUSDMPR5yg_PFx6PggmDDSNo264zb1r1pMfLuN3ll6I1DsLnhK-TX2IkltwWo3A/exec";
         let user, config = {lat:0, lon:0, rad:0};
 
-        function toggleAuth(v) {
-            document.getElementById('loginBox').classList.toggle('hidden', v === 'reg');
-            document.getElementById('regBox').classList.toggle('hidden', v !== 'reg');
-        }
-
+        function setLoading(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
+        function toggleAuth(v) { document.getElementById('loginBox').classList.toggle('hidden', v==='reg'); document.getElementById('regBox').classList.toggle('hidden', v!=='reg'); }
+        
         function adminCheck() {
-            if(prompt("Enter Admin Access Password") === "1201") {
-                localStorage.setItem('lc_adm', '1'); alert("Admin Access Unlocked");
-                if(user) showAdmin();
-            }
+            if(prompt("Admin Password") === "1201") { localStorage.setItem('lc_adm', '1'); alert("Admin Access Enabled"); if(user) showAdmin(); }
         }
 
         function showAdmin() {
@@ -175,67 +179,53 @@
         function doLogin() {
             const e = document.getElementById('lEmail').value;
             if(!e) return alert("Email required");
+            setLoading(true);
             const s = document.createElement('script');
             s.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(e)}&callback=hAuth`;
             document.body.appendChild(s);
         }
 
         window.hAuth = (d) => {
+            setLoading(false);
             if(d.exists && d.pass === document.getElementById('lPass').value) {
                 user = d; localStorage.setItem('lc_sess', JSON.stringify(d));
                 startApp(d);
-            } else { alert("Login failed. Check your email and password."); }
+            } else { alert("Login failed."); }
         }
 
-        // SIMPLIFIED REGISTRATION DATA SEND
         function doReg() {
-            const id = document.getElementById('rId').value;
-            const email = document.getElementById('rEmail').value;
-            const pass = document.getElementById('rPass').value;
-            if(!id || !email || !pass) return alert("Please fill all fields");
-
+            const id = document.getElementById('rId').value, email = document.getElementById('rEmail').value, pass = document.getElementById('rPass').value;
+            if(!id || !email || !pass) return alert("Fill all fields");
+            setLoading(true);
             const s = document.createElement('script');
-            // Sending simplified fields, defaults for the rest to prevent sheet errors
             s.src = `${CLOUD_URL}?action=register_staff&id=${id}&email=${encodeURIComponent(email)}&pass=${pass}&name=NewUser&dept=TBD&desig=TBD&managerId=TBD&phone=-&gender=-&dob=-&empType=Permanent&callback=hReg`;
             document.body.appendChild(s);
         }
-        window.hReg = (d) => { alert("Registration successful! You can now log in."); toggleAuth('login'); }
+        window.hReg = () => { setLoading(false); alert("Success! Log in now."); toggleAuth('login'); }
 
         function startApp(d) {
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('bName').innerText = d.name || "NEW USER";
-            document.getElementById('bId').innerText = d.id;
-            document.getElementById('bEmail').innerText = d.email;
-            document.getElementById('bPhone').innerText = d.phone || "-";
-            document.getElementById('bGender').innerText = d.gender || "-";
-            document.getElementById('bDob').innerText = d.dob || "-";
-            document.getElementById('bMan').innerText = d.manager || "-";
-            document.getElementById('bType').innerText = d.empType || "Permanent";
-            document.getElementById('bDept').innerText = d.dept || "TBD";
-            document.getElementById('bDesig').innerText = d.desig || "TBD";
+            document.getElementById('bName').innerText = d.name || "USER";
+            document.getElementById('bId').innerText = d.id; document.getElementById('bEmail').innerText = d.email;
+            document.getElementById('bPhone').innerText = d.phone || "-"; document.getElementById('bGender').innerText = d.gender || "-";
+            document.getElementById('bDob').innerText = d.dob || "-"; document.getElementById('bMan').innerText = d.manager || "-";
+            document.getElementById('bType').innerText = d.empType || "-"; document.getElementById('bDept').innerText = d.dept || "-";
+            document.getElementById('bDesig').innerText = d.desig || "-";
 
             const lbl = {annual:'Annual', sick:'Sick', mat:'Maternity', pat:'Paternity', comp:'Compassionate'};
             document.getElementById('leaveBals').innerHTML = Object.keys(d.bal).map(k => `
                 <div class="glass p-3 rounded-2xl text-center">
                     <p class="text-[8px] text-slate-500 uppercase font-bold">${lbl[k]}</p>
-                    <p class="text-lg font-black text-teal-400">${d.bal[k][0] - d.bal[k][1]} <span class="text-[8px]">Left</span></p>
+                    <p class="text-lg font-black text-teal-400">${d.bal[k][0] - d.bal[k][1]}</p>
                 </div>
             `).join('');
 
             const docs = ["Employee Contract", "CV/Resume", "Academic Documents", "License", "National ID/Passport", "KRA", "SHIF", "NSSF", "Bank Form"];
-            document.getElementById('docRows').innerHTML = docs.map(doc => `
-                <div class="glass p-4 rounded-xl flex justify-between items-center text-[10px] uppercase font-bold">
-                    <span>${doc}</span>
-                    <button class="text-teal-400 border border-teal-500/30 px-3 py-1 rounded">Upload</button>
-                </div>
-            `).join('');
+            document.getElementById('docRows').innerHTML = docs.map(doc => `<div class="glass p-4 rounded-xl flex justify-between items-center text-[10px] uppercase font-bold"><span>${doc}</span><button class="text-teal-400">Upload</button></div>`).join('');
 
             if(localStorage.getItem('lc_adm') === '1') showAdmin();
-            if(localStorage.getItem('lc_status_' + d.id) === 'IN') {
-                document.getElementById('btnIn').classList.add('hidden');
-                document.getElementById('btnOut').classList.remove('hidden');
-            }
+            if(localStorage.getItem('lc_status_'+d.id) === 'IN') { document.getElementById('btnIn').classList.add('hidden'); document.getElementById('btnOut').classList.remove('hidden'); }
             fetchConfig();
         }
 
@@ -245,10 +235,7 @@
             document.body.appendChild(s);
         }
         window.hSet = (d) => {
-            config = d;
-            document.getElementById('sLat').value = d.lat;
-            document.getElementById('sLon').value = d.lon;
-            document.getElementById('sRad').value = d.rad;
+            config = d; document.getElementById('sLat').value = d.lat; document.getElementById('sLon').value = d.lon; document.getElementById('sRad').value = d.rad;
             startGPS();
         }
 
@@ -257,78 +244,90 @@
                 const dist = getDist(p.coords.latitude, p.coords.longitude, config.lat, config.lon);
                 document.getElementById('vicLabel').innerText = Math.round(dist) + "m from site";
                 const active = dist <= config.rad;
-                [document.getElementById('btnIn'), document.getElementById('btnOut')].forEach(b => {
-                    if(!active) b.classList.add('inactive-btn'); else b.classList.remove('inactive-btn');
-                });
-            }, null, {enableHighAccuracy: true});
+                [document.getElementById('btnIn'), document.getElementById('btnOut')].forEach(b => b.classList.toggle('inactive-btn', !active));
+            }, null, {enableHighAccuracy:true});
         }
 
         function clock(type) {
+            setLoading(true);
             navigator.geolocation.getCurrentPosition(p => {
                 const loc = `${p.coords.latitude.toFixed(4)},${p.coords.longitude.toFixed(4)}`;
                 const s = document.createElement('script');
                 s.src = `${CLOUD_URL}?action=clock_action&id=${user.id}&name=${encodeURIComponent(user.name)}&type=${type}&location=${loc}&callback=hClock`;
                 document.body.appendChild(s);
-            });
+            }, (e) => { setLoading(false); alert("GPS Error: " + e.message); });
         }
-        window.hClock = (d) => { localStorage.setItem('lc_status_' + user.id, d.type); location.reload(); }
+        window.hClock = (d) => { localStorage.setItem('lc_status_'+user.id, d.type); location.reload(); }
 
         function saveSettings() {
-            const lat = document.getElementById('sLat').value;
-            const lon = document.getElementById('sLon').value;
-            const rad = document.getElementById('sRad').value;
+            setLoading(true);
+            const lat = document.getElementById('sLat').value, lon = document.getElementById('sLon').value, rad = document.getElementById('sRad').value;
             const s = document.createElement('script');
             s.src = `${CLOUD_URL}?action=update_settings&lat=${lat}&lon=${lon}&rad=${rad}&callback=hSave`;
             document.body.appendChild(s);
         }
-        window.hSave = () => alert("Perimeter Updated!");
+        window.hSave = () => { setLoading(false); alert("Saved!"); }
 
         function nav(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-            document.getElementById('t-' + id).classList.add('active');
-            document.getElementById('n-' + id).classList.add('active');
+            document.getElementById('t-'+id).classList.add('active');
+            document.getElementById('n-'+id).classList.add('active');
             if(id === 'logs') fetchLogs();
             if(id === 'reports') fetchReports();
         }
 
         function fetchLogs() {
+            setLoading(true);
             const s = document.createElement('script');
             s.src = `${CLOUD_URL}?action=get_logs&id=${user.id}&month=${new Date().getMonth()}&callback=hLogs`;
             document.body.appendChild(s);
         }
+
+        // NEW: 24 HOUR TIME PARSER
+        function format24h(str) {
+            if(!str || str === '-') return '-';
+            try {
+                const d = new Date(str);
+                if(isNaN(d.getTime())) {
+                  // Fallback if string is just "14:30" already
+                  if(str.includes(':')) return str.substring(0,5);
+                  return '-';
+                }
+                return d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0');
+            } catch(e) { return '-'; }
+        }
+
         window.hLogs = (d) => {
+            setLoading(false);
             document.getElementById('logsTable').innerHTML = d.logs.map(l => `
-                <tr><td>${l.date}</td><td>${l.status}</td><td>${l.in}</td><td>${l.out}</td><td class="font-bold text-teal-400">${l.total}</td></tr>
+                <tr><td>${l.date}</td><td>${l.status}</td><td class="text-teal-400 font-bold">${format24h(l.in)}</td><td class="text-rose-400 font-bold">${format24h(l.out)}</td><td>${l.total}</td></tr>
             `).join('');
             document.getElementById('calendar').innerHTML = d.logs.map(l => `
-                <div class="p-1 glass rounded ${l.status==='Present'?'bg-emerald-900/30':'bg-rose-900/30'}">${l.date.split('-')[0]}</div>
+                <div class="p-1 glass rounded ${l.status==='Present'?'bg-emerald-900/40 border-emerald-500':'bg-rose-900/40 border-rose-500'} border">${l.date.split('-')[0]}</div>
             `).join('');
         }
 
         function fetchReports() {
+            setLoading(true);
             const s = document.createElement('script');
             s.src = `${CLOUD_URL}?action=get_admin_reports&callback=hRep`;
             document.body.appendChild(s);
         }
         window.hRep = (d) => {
-            let h = `<tr><th>ID</th><th>Name</th><th>Dept</th><th>Desig</th>`;
+            setLoading(false);
+            let h = `<tr><th>ID</th><th>Name</th><th>Dept</th>`;
             for(let i=1; i<=d.days; i++) h += `<th>${i}</th>`;
-            h += `<th>Pres</th><th>Abs</th><th>Lev</th><th>Out</th></tr>`;
+            h += `<th>P</th><th>A</th><th>L</th><th>O</th></tr>`;
             document.getElementById('repSumm').innerHTML = h + d.summary.map(r => `
-                <tr><td>${r.id}</td><td>${r.name}</td><td>${r.dept}</td><td>${r.desig}</td>
-                ${r.dates.map(st => `<td>${st}</td>`).join('')}
-                <td>${r.pres}</td><td>${r.abs}</td><td>${r.leave}</td><td>${r.out}</td></tr>
+                <tr><td>${r.id}</td><td>${r.name}</td><td>${r.dept}</td>${r.dates.map(st => `<td>${st}</td>`).join('')}<td>${r.pres}</td><td>${r.abs}</td><td>${r.leave}</td><td>${r.out}</td></tr>
             `).join('');
-            document.getElementById('repDate').innerHTML = `
-                <tr><th>ID</th><th>Name</th><th>Dept</th><th>Desig</th><th>Total Hrs</th><th>Avg Hrs</th></tr>
-                ${d.details.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.dept}</td><td>${r.desig}</td><td>${r.total}</td><td>${r.avg}</td></tr>`).join('')}
-            `;
+            document.getElementById('repDate').innerHTML = `<tr><th>ID</th><th>Name</th><th>Total Hrs</th><th>Avg Hrs</th></tr>` + d.details.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.total}</td><td>${r.avg}</td></tr>`).join('');
         }
 
         function getDist(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; const f1 = lat1 * Math.PI/180; const f2 = lat2 * Math.PI/180;
-            const df = (lat2-lat1) * Math.PI/180; const dl = (lon2-lon1) * Math.PI/180;
+            const R = 6371e3; const f1 = lat1 * Math.PI/180, f2 = lat2 * Math.PI/180;
+            const df = (lat2-lat1)*Math.PI/180, dl = (lon2-lon1)*Math.PI/180;
             const a = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
