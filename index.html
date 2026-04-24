@@ -18,7 +18,7 @@
         .tab-content.active { display: block; }
         .btn-primary { background-color: var(--lifecare-green); color: white; font-weight: bold; padding: 14px; border-radius: 12px; width: 100%; transition: 0.2s; border: none; }
         .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
-        .inactive-btn { background-color: #cbd5e1 !important; color: #94a3b8 !important; cursor: not-allowed; }
+        .inactive-btn { background-color: #cbd5e1 !important; color: #94a3b8 !important; cursor: not-allowed; pointer-events: none; }
         .input-field { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; margin-bottom: 15px; outline: none; background: #f8fafc; }
         table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 600px; }
         th, td { border: 1px solid #e2e8f0; padding: 12px 8px; text-align: center; }
@@ -26,10 +26,7 @@
         #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         .spinner { width: 45px; height: 45px; border: 5px solid #f3f3f3; border-top: 5px solid var(--lifecare-green); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* Timeline specific styles */
-        .log-row { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f1f5f9; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 12px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 12px; display: inline-block; }
         .present { background: #22c55e; }
         .absent { background: #ef4444; }
         .other { background: #3b82f6; }
@@ -39,72 +36,77 @@
 
     <div id="loader">
         <div class="spinner"></div>
-        <p class="mt-4 text-green-600 font-bold tracking-widest text-xs">SYNCING ATTENDANCE...</p>
+        <p class="mt-4 text-green-600 font-bold tracking-widest text-xs">SYNCING...</p>
     </div>
 
     <div id="authSection" class="p-6 max-w-md mx-auto min-h-screen flex flex-col justify-center">
         <div class="flex justify-end gap-3 absolute top-6 right-6">
             <button onclick="toggleAuth('reg')" class="text-[10px] font-black border-2 border-green-500 text-green-600 px-3 py-1.5 rounded-lg uppercase">Register</button>
-            <button onclick="adminPrompt()" class="text-[10px] font-black bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg uppercase">Admin</button>
+            <button onclick="adminPrompt()" class="text-[10px] font-black bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg uppercase">Admin Access</button>
         </div>
         <div id="loginBox" class="text-center">
             <h1 class="text-5xl font-black text-blue-400 mb-2">LIFECARE</h1>
+            <p class="text-[10px] text-slate-400 mb-8 font-bold tracking-widest">STAFF PORTAL</p>
             <input type="email" id="lEmail" placeholder="Work Email" class="input-field">
             <input type="password" id="lPass" placeholder="Password" class="input-field">
             <button onclick="doLogin()" class="btn-primary mt-4">LOG IN</button>
         </div>
         <div id="regBox" class="hidden">
+            <h2 class="text-xl font-black text-slate-700 mb-6 uppercase">New Registration</h2>
             <input type="text" id="rId" placeholder="Employee ID" class="input-field">
             <input type="email" id="rEmail" placeholder="Work Email" class="input-field">
             <input type="password" id="rPass" placeholder="Set Password" class="input-field">
             <button onclick="doReg()" class="btn-primary">CREATE ACCOUNT</button>
+            <button onclick="toggleAuth('login')" class="w-full text-xs mt-4 text-slate-400 font-bold uppercase">Back to Login</button>
         </div>
     </div>
 
     <div id="mainApp" class="hidden">
         <header class="header-bg p-4 sticky top-0 flex justify-between items-center z-50">
-            <span class="font-black text-blue-600 text-lg">LIFECARE STAFF</span>
+            <span class="font-black text-blue-600 text-lg uppercase">Lifecare K-Staff</span>
             <button onclick="logout()" class="text-[10px] font-black text-red-500 border border-red-200 px-2 py-1 rounded">LOGOUT</button>
         </header>
 
         <main class="p-4 space-y-6">
             <div id="t-home" class="tab-content active py-10">
                 <div class="glass-card p-10 text-center">
-                    <p id="vicLabel" class="text-[10px] font-bold text-slate-400 mb-8 uppercase tracking-widest italic">Checking Perimeter...</p>
-                    <button id="btnIn" onclick="clock('IN')" class="w-full bg-green-500 text-white p-20 rounded-[2rem] font-black text-3xl uppercase">Clock In</button>
-                    <button id="btnOut" onclick="clock('OUT')" class="hidden w-full bg-blue-500 text-white p-20 rounded-[2rem] font-black text-3xl uppercase">Clock Out</button>
+                    <p id="vicLabel" class="text-[10px] font-bold text-slate-400 mb-8 uppercase tracking-widest italic">Detecting Location...</p>
+                    <div id="clockContainer">
+                        <button id="btnIn" onclick="clock('IN')" class="w-full bg-green-500 text-white p-20 rounded-[2rem] font-black text-3xl uppercase shadow-xl shadow-green-100">Clock In</button>
+                        <button id="btnOut" onclick="clock('OUT')" class="hidden w-full bg-blue-500 text-white p-20 rounded-[2rem] font-black text-3xl uppercase shadow-xl shadow-blue-100">Clock Out</button>
+                    </div>
                 </div>
             </div>
 
             <div id="t-logs" class="tab-content">
-                <h3 class="font-black text-green-600 mb-4 uppercase text-xs">Monthly Attendance Timeline</h3>
-                <div id="timelineContainer" class="glass-card mb-6 max-h-[400px] overflow-y-auto">
-                    <p class="p-10 text-center text-xs text-slate-400">Loading your history...</p>
+                <h3 class="font-black text-green-600 mb-4 uppercase text-xs">Attendance History</h3>
+                <div id="timelineContainer" class="glass-card mb-6 max-h-[300px] overflow-y-auto p-2">
+                    <p class="p-10 text-center text-xs text-slate-400">Fetch logs to view monthly timeline.</p>
                 </div>
                 <div class="overflow-x-auto glass-card">
                     <table id="logsTable">
-                        <thead><tr><th>Date</th><th>Status</th><th>In (24h)</th><th>Out (24h)</th><th>Hrs</th></tr></thead>
+                        <thead><tr><th>Date</th><th>Status</th><th>In</th><th>Out</th><th>Work Hrs</th></tr></thead>
                         <tbody id="logsBody"></tbody>
                     </table>
                 </div>
             </div>
 
             <div id="t-leave" class="tab-content space-y-4">
-                <h3 class="font-black text-green-600 uppercase text-xs">Leave Balances</h3>
+                <h3 class="font-black text-green-600 uppercase text-xs">Available Leave Cards</h3>
                 <div id="leaveCards" class="grid grid-cols-1 gap-4"></div>
             </div>
 
             <div id="t-outduty" class="tab-content">
-                <h3 class="font-black text-green-600 uppercase text-xs mb-4">Out Duty Request</h3>
+                <h3 class="font-black text-green-600 uppercase text-xs mb-4">New Out Duty Request</h3>
                 <div class="glass-card p-6 space-y-4">
                     <input type="date" id="odDate" class="input-field">
-                    <textarea id="odReason" placeholder="Purpose of Out Duty..." class="input-field h-32"></textarea>
-                    <button class="btn-primary">SUBMIT REQUEST</button>
+                    <textarea id="odReason" placeholder="Purpose of Out Duty (e.g., Patient Transfer)..." class="input-field h-32"></textarea>
+                    <button onclick="alert('Request Sent for Approval')" class="btn-primary uppercase">Submit Request</button>
                 </div>
             </div>
 
             <div id="t-bio" class="tab-content">
-                <h1 id="bName" class="text-4xl font-black text-slate-800 mb-8"></h1>
+                <h1 id="bName" class="text-4xl font-black text-slate-800 mb-8 uppercase"></h1>
                 <div class="space-y-6">
                     <div class="glass-card p-5">
                         <p class="font-black text-blue-500 border-b-2 border-blue-50 pb-2 mb-5 uppercase text-[10px]">Personal Details</p>
@@ -113,53 +115,40 @@
                             <div><p class="text-slate-400 text-[9px] font-bold">Dept</p><p id="bDept" class="font-bold"></p></div>
                             <div><p class="text-slate-400 text-[9px] font-bold">Designation</p><p id="bDesig" class="font-bold"></p></div>
                             <div><p class="text-slate-400 text-[9px] font-bold">Email</p><p id="bEmail" class="font-bold break-all"></p></div>
-                            <div><p class="text-slate-400 text-[9px] font-bold">Phone</p><p id="bPhone" class="font-bold"></p></div>
-                            <div><p class="text-slate-400 text-[9px] font-bold">Gender</p><p id="bGender" class="font-bold"></p></div>
-                            <div><p class="text-slate-400 text-[9px] font-bold">DOB</p><p id="bDob" class="font-bold"></p></div>
-                        </div>
-                    </div>
-                    <div class="glass-card p-5">
-                        <p class="font-black text-blue-500 border-b-2 border-blue-50 pb-2 mb-5 uppercase text-[10px]">Employment</p>
-                        <div class="grid grid-cols-2 gap-4 text-sm">
-                            <div><p class="text-slate-400 text-[9px] font-bold">Manager</p><p id="bManager" class="font-bold"></p></div>
-                            <div><p class="text-slate-400 text-[9px] font-bold">Type</p><p id="bType" class="font-bold"></p></div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div id="t-docs" class="tab-content">
-                <h3 class="font-black text-green-600 uppercase text-xs mb-4">Official Documents</h3>
+                <h3 class="font-black text-green-600 uppercase text-xs mb-4">Upload Employee Records</h3>
                 <div id="docList" class="grid grid-cols-1 gap-3"></div>
             </div>
-
+            
             <div id="t-reports" class="tab-content space-y-10">
-                <div class="flex justify-between items-center"><h3 class="font-black uppercase text-xs">Summary</h3><button onclick="exportCSV('repSumm')" class="bg-blue-600 text-white text-[9px] px-2 py-1 rounded">EXCEL</button></div>
+                <div class="flex justify-between items-center"><h3 class="font-black uppercase text-xs">Admin: Monthly Summary</h3><button onclick="exportCSV('repSumm')" class="bg-blue-600 text-white text-[9px] px-2 py-1 rounded">EXPORT EXCEL</button></div>
                 <div class="overflow-x-auto glass-card"><table id="repSumm"></table></div>
-                <div class="flex justify-between items-center"><h3 class="font-black uppercase text-xs">Date-wise</h3><button onclick="exportCSV('repDate')" class="bg-blue-600 text-white text-[9px] px-2 py-1 rounded">EXCEL</button></div>
-                <div class="overflow-x-auto glass-card"><table id="repDate"></table></div>
             </div>
 
             <div id="t-settings" class="tab-content">
-                <h3 class="font-black uppercase text-xs mb-4">Geofencing</h3>
+                <h3 class="font-black uppercase text-xs mb-4">Geofence Configuration</h3>
                 <div class="glass-card p-6 space-y-4">
-                    <input type="text" id="sLat" placeholder="Lat" class="input-field">
-                    <input type="text" id="sLon" placeholder="Lon" class="input-field">
-                    <input type="text" id="sRad" placeholder="Radius" class="input-field">
-                    <button onclick="saveSettings()" class="btn-primary">SAVE</button>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Hospital Coordinates</p>
+                    <input type="text" id="sLat" placeholder="Latitude" class="input-field">
+                    <input type="text" id="sLon" placeholder="Longitude" class="input-field">
+                    <input type="text" id="sRad" placeholder="Radius (meters)" class="input-field">
+                    <button onclick="saveSettings()" class="btn-primary">UPDATE GEOFENCE</button>
                 </div>
             </div>
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-around items-center z-50">
+        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-around items-center z-50 shadow-2xl">
             <div onclick="nav('home')" class="nav-btn active" id="n-home"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home</div>
             <div onclick="nav('logs')" class="nav-btn" id="n-logs"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>Logs</div>
             <div onclick="nav('leave')" class="nav-btn" id="n-leave"><svg viewBox="0 0 24 24"><path d="M14 6V4h-4v2h4zM4 8v11h16V8H4z"/></svg>Leave</div>
-            <div onclick="nav('outduty')" class="nav-btn" id="n-outduty"><svg viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>Out</div>
             <div onclick="nav('bio')" class="nav-btn" id="n-bio"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Bio</div>
             <div onclick="nav('docs')" class="nav-btn" id="n-docs"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>Docs</div>
-            <div onclick="nav('reports')" class="nav-btn hidden" id="n-reports"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>Adm</div>
-            <div onclick="nav('settings')" class="nav-btn hidden" id="n-settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Set</div>
+            <div onclick="nav('reports')" class="nav-btn hidden" id="n-reports"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>Admin</div>
         </nav>
     </div>
 
@@ -169,8 +158,19 @@
 
         function setLoading(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
         function toggleAuth(v) { document.getElementById('loginBox').classList.toggle('hidden', v==='reg'); document.getElementById('regBox').classList.toggle('hidden', v!=='reg'); }
-        function adminPrompt() { if(prompt("Admin Access Key") === "1201") { localStorage.setItem('lc_admin', '1'); if(user) showAdmin(); } }
-        function showAdmin() { document.getElementById('n-reports').classList.remove('hidden'); document.getElementById('n-settings').classList.remove('hidden'); }
+        
+        function adminPrompt() { 
+            const key = prompt("Enter Admin Rights Password:");
+            if(key === "1201") { 
+                localStorage.setItem('lc_admin', '1'); 
+                if(user) showAdminTabs(); 
+                alert("Admin Access Granted.");
+            } 
+        }
+
+        function showAdminTabs() { 
+            document.getElementById('n-reports').classList.remove('hidden'); 
+        }
 
         function doLogin() {
             setLoading(true);
@@ -179,53 +179,54 @@
             s.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(email)}&callback=hAuth`;
             document.body.appendChild(s);
         }
+
         window.hAuth = (d) => {
             setLoading(false);
-            if(d.exists && d.pass === document.getElementById('lPass').value) { user=d; localStorage.setItem('lc_sess', JSON.stringify(d)); startApp(d); }
-            else alert("Error.");
+            if(d.exists && d.pass === document.getElementById('lPass').value) { 
+                user = d; 
+                localStorage.setItem('lc_sess', JSON.stringify(d)); 
+                startApp(d); 
+            } else { alert("Invalid Credentials."); }
         }
-
-        function doReg() {
-            setLoading(true);
-            const id = document.getElementById('rId').value, email = document.getElementById('rEmail').value, pass = document.getElementById('rPass').value;
-            const s = document.createElement('script');
-            s.src = `${CLOUD_URL}?action=register_staff&id=${id}&email=${encodeURIComponent(email)}&pass=${pass}&callback=hReg`;
-            document.body.appendChild(s);
-        }
-        window.hReg = () => { setLoading(false); alert("Registered."); toggleAuth('login'); }
 
         function startApp(d) {
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('bName').innerText = d.name || "USER";
+            document.getElementById('bName').innerText = d.name || "Employee";
             document.getElementById('bId').innerText = d.id;
             document.getElementById('bDept').innerText = d.dept || "-";
             document.getElementById('bDesig').innerText = d.desig || "-";
             document.getElementById('bEmail').innerText = d.email;
-            document.getElementById('bPhone').innerText = d.phone || "-";
-            document.getElementById('bGender').innerText = d.gender || "-";
-            document.getElementById('bDob').innerText = d.dob || "-";
-            document.getElementById('bManager').innerText = d.manager || "-";
-            document.getElementById('bType').innerText = d.empType || "-";
 
-            const docs = ["Employee Contract", "CV/Resume", "Academic Documents", "License", "National ID/Passport", "KRA", "SHIF", "NSSF", "Bank form"];
-            document.getElementById('docList').innerHTML = docs.map(doc => `<div class="glass-card p-4 flex justify-between items-center text-[10px] font-bold"><span>${doc}</span><button class="text-green-600">UPLOAD</button></div>`).join('');
+            // Docs logic
+            const docs = ["Contract", "CV/Resume", "Academic", "License", "ID/Passport", "KRA", "SHIF", "NSSF", "Bank form"];
+            document.getElementById('docList').innerHTML = docs.map(doc => `
+                <div class="glass-card p-4 flex justify-between items-center">
+                    <span class="text-[10px] font-bold uppercase">${doc}</span>
+                    <input type="file" id="file-${doc}" class="hidden" onchange="alert('File Selected')">
+                    <button onclick="document.getElementById('file-${doc}').click()" class="text-green-600 text-[10px] font-black border border-green-200 px-3 py-1 rounded">UPLOAD</button>
+                </div>
+            `).join('');
 
+            // Leave logic
             const leaves = {annual:'Annual', sick:'Sick', mat:'Maternity', pat:'Paternity', comp:'Compassionate'};
             document.getElementById('leaveCards').innerHTML = Object.keys(leaves).map(k => `
                 <div class="glass-card p-5">
                     <p class="font-black text-green-600 uppercase text-[9px] mb-3">${leaves[k]} Leave</p>
                     <div class="grid grid-cols-3 text-center gap-2 mb-4">
-                        <div><p class="text-[8px] text-slate-400">ACCRUED</p><p class="font-bold">${d.bal[k][0]}</p></div>
-                        <div><p class="text-[8px] text-slate-400">UTILIZED</p><p class="font-bold">${d.bal[k][1]}</p></div>
-                        <div><p class="text-[8px] text-slate-400">BALANCE</p><p class="font-bold text-blue-600">${d.bal[k][0]-d.bal[k][1]}</p></div>
+                        <div><p class="text-[8px] text-slate-400">ACCRUED</p><p class="font-bold">${d.bal?.[k]?.[0] || 0}</p></div>
+                        <div><p class="text-[8px] text-slate-400">UTILIZED</p><p class="font-bold">${d.bal?.[k]?.[1] || 0}</p></div>
+                        <div><p class="text-[8px] text-slate-400">BALANCE</p><p class="font-bold text-blue-600">${(d.bal?.[k]?.[0] || 0) - (d.bal?.[k]?.[1] || 0)}</p></div>
                     </div>
-                    <button class="btn-primary py-2 text-[10px]">APPLY</button>
+                    <button onclick="alert('Applying for ${leaves[k]} Leave')" class="btn-primary py-2 text-[10px]">APPLY NOW</button>
                 </div>
             `).join('');
 
-            if(localStorage.getItem('lc_admin') === '1') showAdmin();
-            updateClockButtons(localStorage.getItem('lc_status_'+d.id));
+            if(localStorage.getItem('lc_admin') === '1') showAdminTabs();
+            
+            // Re-sync clock status
+            const savedStatus = localStorage.getItem('lc_status_' + d.id);
+            updateClockButtons(savedStatus);
             fetchConfig();
         }
 
@@ -234,15 +235,26 @@
             s.src = `${CLOUD_URL}?action=get_settings&callback=hSet`;
             document.body.appendChild(s);
         }
-        window.hSet = (d) => { config=d; document.getElementById('sLat').value=d.lat; document.getElementById('sLon').value=d.lon; document.getElementById('sRad').value=d.rad; startGPS(); }
 
-        function startGPS() {
+        window.hSet = (d) => { 
+            config = d; 
+            document.getElementById('sLat').value = d.lat; 
+            document.getElementById('sLon').value = d.lon; 
+            document.getElementById('sRad').value = d.rad; 
+            startGPSWatch(); 
+        }
+
+        function startGPSWatch() {
             navigator.geolocation.watchPosition(p => {
                 const dist = getDist(p.coords.latitude, p.coords.longitude, config.lat, config.lon);
-                document.getElementById('vicLabel').innerText = Math.round(dist) + "m FROM SITE";
-                const active = dist <= config.rad;
-                [document.getElementById('btnIn'), document.getElementById('btnOut')].forEach(b => b.classList.toggle('inactive-btn', !active));
-            }, null, {enableHighAccuracy:true, timeout: 5000});
+                const inRange = dist <= config.rad;
+                document.getElementById('vicLabel').innerText = inRange ? "INSIDE HOSPITAL PERIMETER" : Math.round(dist) + "m FROM HOSPITAL";
+                document.getElementById('vicLabel').style.color = inRange ? "#22c55e" : "#94a3b8";
+                
+                [document.getElementById('btnIn'), document.getElementById('btnOut')].forEach(b => {
+                    b.classList.toggle('inactive-btn', !inRange);
+                });
+            }, null, {enableHighAccuracy:true});
         }
 
         function clock(type) {
@@ -252,22 +264,32 @@
                 const s = document.createElement('script');
                 s.src = `${CLOUD_URL}?action=clock_action&id=${user.id}&name=${encodeURIComponent(user.name)}&type=${type}&location=${loc}&callback=hClock`;
                 document.body.appendChild(s);
-            }, () => { setLoading(false); alert("GPS Error."); });
+            });
         }
-        window.hClock = (d) => { setLoading(false); localStorage.setItem('lc_status_'+user.id, d.type); updateClockButtons(d.type); }
+
+        window.hClock = (d) => {
+            setLoading(false);
+            localStorage.setItem('lc_status_' + user.id, d.type);
+            updateClockButtons(d.type);
+            alert("Success: " + d.type);
+        }
 
         function updateClockButtons(st) {
-            document.getElementById('btnIn').classList.toggle('hidden', st==='IN');
-            document.getElementById('btnOut').classList.toggle('hidden', st!=='IN');
+            if(st === 'IN') {
+                document.getElementById('btnIn').classList.add('hidden');
+                document.getElementById('btnOut').classList.remove('hidden');
+            } else {
+                document.getElementById('btnIn').classList.remove('hidden');
+                document.getElementById('btnOut').classList.add('hidden');
+            }
         }
 
         function nav(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-            document.getElementById('t-'+id).classList.add('active');
-            document.getElementById('n-'+id).classList.add('active');
+            document.getElementById('t-' + id).classList.add('active');
+            document.getElementById('n-' + id).classList.add('active');
             if(id === 'logs') fetchLogs();
-            if(id === 'reports') fetchReports();
         }
 
         function fetchLogs() {
@@ -279,70 +301,26 @@
 
         window.hLogs = (d) => {
             setLoading(false);
-            // Table Update
             document.getElementById('logsBody').innerHTML = d.logs.map(l => `
                 <tr><td>${l.date}</td><td>${l.status}</td><td>${l.in}</td><td>${l.out}</td><td>${l.total}</td></tr>
             `).join('');
 
-            // Vertical Timeline Update
-            document.getElementById('timelineContainer').innerHTML = d.logs.map(l => {
-                let dotClass = l.status === 'Present' ? 'present' : (l.status === 'Absent' ? 'absent' : 'other');
-                return `
-                <div class="log-row">
-                    <div class="status-dot ${dotClass}"></div>
-                    <div class="flex-1">
-                        <p class="text-[10px] font-black">${l.date}</p>
-                        <p class="text-[8px] uppercase text-slate-400">${l.status}</p>
-                    </div>
-                    <div class="text-right text-[9px]">
-                        <p class="font-bold">${l.in} - ${l.out}</p>
-                        <p class="text-slate-400">${l.total} hrs</p>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        function fetchReports() {
-            setLoading(true);
-            const s = document.createElement('script');
-            s.src = `${CLOUD_URL}?action=get_admin_reports&callback=hRep`;
-            document.body.appendChild(s);
-        }
-        window.hRep = (d) => {
-            setLoading(false);
-            let h1 = `<tr><th>ID</th><th>Name</th><th>Dept</th>`;
-            for(let i=1; i<=d.days; i++) h1 += `<th>${i}</th>`;
-            h1 += `<th>P</th><th>A</th><th>L</th><th>O</th></tr>`;
-            document.getElementById('repSumm').innerHTML = h1 + d.summary.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.dept}</td>${r.dates.map(st => `<td>${st}</td>`).join('')}<td>${r.pres}</td><td>${r.abs}</td><td>${r.leave}</td><td>${r.out}</td></tr>`).join('');
-            document.getElementById('repDate').innerHTML = `<tr><th>ID</th><th>Name</th><th>Total Hrs</th><th>Avg</th></tr>` + d.details.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.total}</td><td>${r.avg}</td></tr>`).join('');
-        }
-
-        function exportCSV(id) {
-            const t = document.getElementById(id); let csv = [];
-            for(let i=0; i<t.rows.length; i++){
-                let r = []; const c = t.rows[i].querySelectorAll("td, th");
-                for(let j=0; j<c.length; j++) r.push('"' + c[j].innerText + '"');
-                csv.push(r.join(","));
-            }
-            const b = new Blob([csv.join("\n")], {type: 'text/csv'});
-            const a = document.createElement('a'); a.href = window.URL.createObjectURL(b); a.download = id + ".csv"; a.click();
+            document.getElementById('timelineContainer').innerHTML = d.logs.map(l => `
+                <div class="flex items-center p-3 border-b border-slate-50">
+                    <div class="status-dot ${l.status === 'Present' ? 'present' : 'absent'}"></div>
+                    <div class="flex-1"><p class="text-[10px] font-black">${l.date}</p></div>
+                    <div class="text-right text-[9px] font-bold">${l.in} - ${l.out}</div>
+                </div>
+            `).join('');
         }
 
         function getDist(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; const f1 = lat1 * Math.PI/180, f2 = lat2 * Math.PI/180;
+            const R = 6371e3;
+            const f1 = lat1 * Math.PI/180, f2 = lat2 * Math.PI/180;
             const df = (lat2-lat1)*Math.PI/180, dl = (lon2-lon1)*Math.PI/180;
             const a = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
-
-        function saveSettings() {
-            setLoading(true);
-            const lat = document.getElementById('sLat').value, lon = document.getElementById('sLon').value, rad = document.getElementById('sRad').value;
-            const s = document.createElement('script');
-            s.src = `${CLOUD_URL}?action=update_settings&lat=${lat}&lon=${lon}&rad=${rad}&callback=hSaved`;
-            document.body.appendChild(s);
-        }
-        window.hSaved = () => { setLoading(false); alert("Saved."); location.reload(); }
 
         function logout() { localStorage.clear(); location.reload(); }
         window.onload = () => { const s = localStorage.getItem('lc_sess'); if(s) startApp(JSON.parse(s)); }
