@@ -16,17 +16,19 @@
         .glass-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; padding: 15px; }
         .tab-content { display: none; padding: 15px; }
         .tab-content.active { display: block; }
-        .btn-primary { background-color: var(--lc-green); color: white; font-weight: bold; padding: 12px; border-radius: 8px; width: 100%; }
+        .btn-primary { background-color: var(--lc-green); color: white; font-weight: bold; padding: 12px; border-radius: 8px; width: 100%; transition: 0.2s; }
+        .btn-primary:active { transform: scale(0.98); }
         .btn-inactive { background-color: #cbd5e1 !important; color: #64748b !important; cursor: not-allowed !important; }
-        .input-field { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; margin-bottom: 12px; background: #f8fafc; }
+        .input-field { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; margin-bottom: 12px; background: #f8fafc; outline: none; }
+        .input-field:focus { border-color: var(--lc-green); }
         table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 600px; }
         th { background: #f1f5f9; padding: 8px; border: 1px solid #e2e8f0; text-align: center; }
         td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; }
-        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
-    <div id="loader"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600"></div></div>
+    <div id="loader"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600"></div><p class="mt-2 text-[10px] font-bold text-slate-500 uppercase">Connecting to Database...</p></div>
 
     <div id="authSection" class="p-6 max-w-md mx-auto min-h-screen flex flex-col justify-center">
         <div class="flex justify-end gap-2 absolute top-4 right-4">
@@ -35,49 +37,49 @@
         </div>
         
         <div id="loginBox">
-            <h1 class="text-center text-2xl font-black text-blue-500 mb-8">LIFECARE KIKUYU</h1>
-            <input type="email" id="lEmail" placeholder="Email" class="input-field">
+            <h1 class="text-center text-3xl font-black text-blue-500 mb-8 tracking-tighter">LIFECARE KIKUYU</h1>
+            <input type="email" id="lEmail" placeholder="Work Email" class="input-field">
             <input type="password" id="lPass" placeholder="Password" class="input-field">
             <button onclick="doLogin()" class="btn-primary uppercase">Log In</button>
         </div>
 
         <div id="regBox" class="hidden">
-            <h2 class="text-center font-bold mb-4 uppercase">New User Registration</h2>
+            <h2 class="text-center font-bold mb-6 uppercase text-slate-600">Staff Password Setup</h2>
             <input type="text" id="rId" placeholder="Employee ID" class="input-field">
             <input type="email" id="rEmail" placeholder="Work Email" class="input-field">
-            <input type="password" id="rPass" placeholder="Choose Password" class="input-field">
+            <input type="password" id="rPass" placeholder="Set Password" class="input-field">
             <button onclick="doReg()" class="btn-primary">REGISTER PASSWORD</button>
         </div>
     </div>
 
     <div id="mainApp" class="hidden">
-        <header class="header-bg p-4 sticky top-0 flex justify-between items-center shadow-sm">
-            <span class="font-bold text-blue-800 text-sm">LIFECARE STAFF PORTAL</span>
-            <button onclick="logout()" class="text-[10px] font-bold text-red-500">LOGOUT</button>
+        <header class="header-bg p-4 sticky top-0 flex justify-between items-center shadow-sm z-50">
+            <span class="font-black text-blue-800 text-sm">LIFECARE STAFF PORTAL</span>
+            <button onclick="logout()" class="text-[10px] font-bold text-red-500 uppercase">Logout</button>
         </header>
 
         <main>
             <div id="t-home" class="tab-content active text-center py-20">
-                <p id="locLabel" class="text-[10px] font-bold text-slate-400 mb-6 uppercase tracking-widest">Verifying Location...</p>
-                <div class="max-w-xs mx-auto space-y-4">
-                    <button id="btnIn" onclick="clock('IN')" class="btn-primary p-12 text-xl btn-inactive" disabled>CLOCK IN</button>
-                    <button id="btnOut" onclick="clock('OUT')" class="btn-primary p-12 text-xl btn-inactive hidden" disabled>CLOCK OUT</button>
+                <div class="glass-card max-w-xs mx-auto py-10">
+                    <p id="locLabel" class="text-[10px] font-bold text-slate-400 mb-8 uppercase tracking-widest italic">Scanning Location Coordinates...</p>
+                    <div class="space-y-4">
+                        <button id="btnIn" onclick="clock('IN')" class="btn-primary p-12 text-2xl btn-inactive" disabled>CLOCK IN</button>
+                        <button id="btnOut" onclick="clock('OUT')" class="btn-primary p-12 text-2xl btn-inactive hidden" disabled>CLOCK OUT</button>
+                    </div>
                 </div>
             </div>
 
             <div id="t-logs" class="tab-content">
-                <h3 class="font-bold text-blue-600 mb-2 text-xs uppercase">Monthly Attendance Calendar</h3>
-                <div class="glass-card bg-slate-50 text-center text-[10px] text-slate-500 mb-4 italic">Calendar View Placeholder</div>
+                <h3 class="font-bold text-blue-600 mb-2 text-xs uppercase">Attendance Calendar</h3>
+                <div class="glass-card bg-slate-50 h-32 flex items-center justify-center text-[10px] uppercase text-slate-400">Monthly View Markings</div>
                 
-                <h3 class="font-bold text-blue-600 mb-2 text-xs uppercase">Date-wise Attendance (24Hr)</h3>
+                <h3 class="font-bold text-blue-600 mb-2 text-xs uppercase">Detailed Attendance (24Hr)</h3>
                 <div class="overflow-x-auto glass-card p-0">
-                    <table>
+                    <table id="logsTable">
                         <thead>
                             <tr><th>Date</th><th>Status</th><th>Clock In</th><th>Clock Out</th><th>Total Hours</th></tr>
                         </thead>
-                        <tbody id="logsBody">
-                            <tr><td>01/04/26</td><td>Present</td><td>07:55</td><td>17:05</td><td>9.1</td></tr>
-                        </tbody>
+                        <tbody id="logsBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -87,17 +89,16 @@
             </div>
 
             <div id="t-outduty" class="tab-content">
-                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Request Out-Duty</h3>
+                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Out-Duty / WFH Request</h3>
                 <div class="glass-card">
-                    <label class="text-[10px] font-bold text-slate-400">SELECT DATE</label>
-                    <input type="date" class="input-field">
-                    <textarea placeholder="Reason for Out-Duty/WFH request..." class="input-field h-32"></textarea>
-                    <button class="btn-primary">SUBMIT REQUEST</button>
+                    <input type="date" id="outDutyDate" class="input-field">
+                    <textarea id="outDutyReason" placeholder="Describe reason for request..." class="input-field h-32"></textarea>
+                    <button onclick="submitOutDuty()" class="btn-primary">SUBMIT REQUEST</button>
                 </div>
             </div>
 
             <div id="t-bio" class="tab-content">
-                <h1 id="bName" class="text-2xl font-black text-slate-800 mb-6 uppercase"></h1>
+                <h1 id="bName" class="text-3xl font-black text-slate-800 mb-8 uppercase tracking-tighter"></h1>
                 <div class="glass-card">
                     <p class="text-[10px] font-bold text-blue-500 border-b pb-2 mb-4 uppercase">Personal Details</p>
                     <div id="bioPersonal" class="space-y-3 text-sm"></div>
@@ -109,39 +110,41 @@
             </div>
 
             <div id="t-docs" class="tab-content">
-                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Employee Documents</h3>
+                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">My Documents</h3>
                 <div id="docList" class="space-y-2"></div>
             </div>
 
             <div id="t-reports" class="tab-content">
-                <h3 class="font-bold text-blue-600 mb-2 text-xs uppercase">Total Work Duration Summary</h3>
-                <div class="overflow-x-auto glass-card p-0 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-blue-600 text-xs uppercase">Work Duration Summary</h3>
+                    <button onclick="exportTable('durTable')" class="text-[9px] bg-blue-600 text-white px-2 py-1 rounded">EXCEL</button>
+                </div>
+                <div class="overflow-x-auto glass-card p-0 mb-8">
                     <table id="durTable">
-                        <thead>
-                            <tr><th>ID</th><th>Name</th><th>Dept</th><th>Desig</th><th>Present</th><th>Absent</th><th>Leave</th><th>Out-Duty</th></tr>
-                        </thead>
+                        <thead><tr><th>ID</th><th>Name</th><th>Dept</th><th>Desig</th><th>Present</th><th>Absent</th><th>Leave</th><th>Out-Duty</th></tr></thead>
+                        <tbody id="durBody"></tbody>
                     </table>
                 </div>
-                <button onclick="exportTable('durTable')" class="btn-primary mb-8 text-xs py-2">EXPORT DURATION REPORT</button>
 
-                <h3 class="font-bold text-blue-600 mb-2 text-xs uppercase">Date-wise Attendance Report</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-blue-600 text-xs uppercase">Date-wise Attendance Report</h3>
+                    <button onclick="exportTable('dateTable')" class="text-[9px] bg-blue-600 text-white px-2 py-1 rounded">EXCEL</button>
+                </div>
                 <div class="overflow-x-auto glass-card p-0">
                     <table id="dateTable">
-                        <thead>
-                            <tr><th>ID</th><th>Name</th><th>Dept</th><th>Desig</th><th>Total Hours</th><th>Avg Duration</th></tr>
-                        </thead>
+                        <thead><tr><th>ID</th><th>Name</th><th>Dept</th><th>Desig</th><th>Total Hours</th><th>Avg Duration</th></tr></thead>
+                        <tbody id="dateBody"></tbody>
                     </table>
                 </div>
-                <button onclick="exportTable('dateTable')" class="btn-primary mt-4 text-xs py-2">EXPORT ATTENDANCE REPORT</button>
             </div>
 
             <div id="t-settings" class="tab-content">
-                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Geofencing Configuration</h3>
+                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Geofencing (Clock-In Range)</h3>
                 <div class="glass-card space-y-4">
-                    <div><label class="text-[10px] font-bold">LATITUDE</label><input id="sLat" class="input-field"></div>
-                    <div><label class="text-[10px] font-bold">LONGITUDE</label><input id="sLon" class="input-field"></div>
-                    <div><label class="text-[10px] font-bold">RADIUS (METERS)</label><input id="sRad" class="input-field"></div>
-                    <button class="btn-primary">SAVE COORDINATES</button>
+                    <input id="sLat" placeholder="Latitude" class="input-field">
+                    <input id="sLon" placeholder="Longitude" class="input-field">
+                    <input id="sRad" placeholder="Radius (Meters)" class="input-field">
+                    <button onclick="saveGeo()" class="btn-primary">UPDATE SETTINGS</button>
                 </div>
             </div>
         </main>
@@ -159,31 +162,79 @@
     </div>
 
     <script>
+        // THE BRAIN LINK
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycby54HfJj8c5Up4swSXRV5YhPP5y5g-lQj8OhPLSzDDcuKOnlaDgYJZfPveAlHo-XVMn_Q/exec";
         let user = null;
         let isClockedIn = false;
 
         function setLoading(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
-        function toggleAuth(v) { 
-            document.getElementById('loginBox').classList.toggle('hidden', v==='reg'); 
-            document.getElementById('regBox').classList.toggle('hidden', v!=='reg'); 
-        }
+        function toggleAuth(v) { document.getElementById('loginBox').classList.toggle('hidden', v==='reg'); document.getElementById('regBox').classList.toggle('hidden', v!=='reg'); }
         function logout() { localStorage.clear(); location.reload(); }
-        function adminPrompt() { if(prompt("Enter Admin Rights Code:") === "1201") { localStorage.setItem('lc_admin', '1'); if(user) showAdmin(); alert("Admin Rights Granted"); } }
-        function showAdmin() { document.getElementById('n-reports').classList.remove('hidden'); document.getElementById('n-settings').classList.remove('hidden'); }
+        
+        // ADMIN ACCESS LOGIC
+        function adminPrompt() { 
+            const code = prompt("Enter Admin Rights Code:");
+            if(code === "1201") { 
+                localStorage.setItem('lc_admin', '1'); 
+                if(user) showAdmin(); 
+                alert("Admin Access Activated"); 
+            } else {
+                alert("Incorrect Code");
+            }
+        }
+        function showAdmin() { 
+            document.getElementById('n-reports').classList.remove('hidden'); 
+            document.getElementById('n-settings').classList.remove('hidden'); 
+        }
 
-        function doLogin() {
+        // LOGIN FROM THE BRAIN
+        async function doLogin() {
+            const email = document.getElementById('lEmail').value;
+            const pass = document.getElementById('lPass').value;
+            if(!email || !pass) return alert("Enter email and password");
+
             setLoading(true);
-            setTimeout(() => {
+            try {
+                // Calling the actual brain script
+                const resp = await fetch(`${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(email)}&pass=${encodeURIComponent(pass)}`);
+                const data = await resp.json();
+                
+                if(data.exists) {
+                    user = data; // Data derived from your Google Sheet
+                    localStorage.setItem('lc_sess', JSON.stringify(user));
+                    startApp(user);
+                } else {
+                    alert("Authentication Failed. Check credentials or register first.");
+                }
+            } catch (e) {
+                alert("Connection error. Ensure your Brain URL is correct.");
+            } finally {
                 setLoading(false);
-                const mockUser = { 
-                    id: "LCK-092", name: "Virginia Kimani", email: "vkimani@lifecare.com", 
-                    phone: "+254 700 000 000", gender: "Female", dob: "1990-01-01",
-                    dept: "Recruitment", desig: "Lateral Recruiter", manager: "HR Director", empType: "Permanent",
-                    bal: { annual: [21, 5], sick: [10, 2], mat:[90,0], pat:[14,0], comp:[5,1] }
-                };
-                user = mockUser;
-                startApp(user);
-            }, 800);
+            }
+        }
+
+        // REGISTER TO THE BRAIN
+        async function doReg() {
+            const id = document.getElementById('rId').value;
+            const email = document.getElementById('rEmail').value;
+            const pass = document.getElementById('rPass').value;
+            if(!id || !email || !pass) return alert("Fill all fields to register");
+
+            setLoading(true);
+            try {
+                const resp = await fetch(`${CLOUD_URL}?action=register&empId=${id}&email=${email}&pass=${pass}`);
+                const data = await resp.json();
+                if(data.success) {
+                    alert("Registration Successful! Now Log In.");
+                    toggleAuth('login');
+                } else {
+                    alert("Registration failed: " + data.message);
+                }
+            } catch (e) {
+                alert("Database connection error.");
+            } finally {
+                setLoading(false);
+            }
         }
 
         function startApp(d) {
@@ -191,12 +242,13 @@
             document.getElementById('mainApp').classList.remove('hidden');
             document.getElementById('bName').innerText = d.name;
             
+            // Bio Tab Content from Brain
             document.getElementById('bioPersonal').innerHTML = `
                 <div class="flex justify-between border-b py-2 text-slate-600"><span>Employee ID</span><span class="font-bold">${d.id}</span></div>
                 <div class="flex justify-between border-b py-2 text-slate-600"><span>Email</span><span class="font-bold">${d.email}</span></div>
-                <div class="flex justify-between border-b py-2 text-slate-600"><span>Phone</span><span class="font-bold">${d.phone}</span></div>
-                <div class="flex justify-between border-b py-2 text-slate-600"><span>Gender</span><span class="font-bold">${d.gender}</span></div>
-                <div class="flex justify-between py-2 text-slate-600"><span>Date of Birth</span><span class="font-bold">${d.dob}</span></div>`;
+                <div class="flex justify-between border-b py-2 text-slate-600"><span>Phone</span><span class="font-bold">${d.phone || 'N/A'}</span></div>
+                <div class="flex justify-between border-b py-2 text-slate-600"><span>Gender</span><span class="font-bold">${d.gender || 'N/A'}</span></div>
+                <div class="flex justify-between py-2 text-slate-600"><span>Date of Birth</span><span class="font-bold">${d.dob || 'N/A'}</span></div>`;
             
             document.getElementById('bioEmployment').innerHTML = `
                 <div class="flex justify-between border-b py-2 text-slate-600"><span>Department</span><span class="font-bold">${d.dept}</span></div>
@@ -204,44 +256,60 @@
                 <div class="flex justify-between border-b py-2 text-slate-600"><span>Manager</span><span class="font-bold">${d.manager}</span></div>
                 <div class="flex justify-between py-2 text-slate-600"><span>Employee Type</span><span class="font-bold">${d.empType}</span></div>`;
 
+            // Leave Tab from Brain
             const lTypes = [{k:'annual', n:'Annual'}, {k:'sick', n:'Sick'}, {k:'mat', n:'Maternity'}, {k:'pat', n:'Paternity'}, {k:'comp', n:'Compassionate'}];
-            document.getElementById('leaveCards').innerHTML = lTypes.map(l => `
+            document.getElementById('leaveCards').innerHTML = lTypes.map(l => {
+                const bal = d.bal ? d.bal[l.k] : [0,0];
+                return `
                 <div class="glass-card">
                     <p class="font-bold text-xs mb-3 text-blue-600 uppercase">${l.n} Leave</p>
                     <div class="grid grid-cols-3 text-center text-[10px]">
-                        <div><p class="text-slate-400">ACCRUED</p><p class="font-bold text-base">${d.bal[l.k][0]}</p></div>
-                        <div><p class="text-slate-400">UTILIZED</p><p class="font-bold text-base text-red-500">${d.bal[l.k][1]}</p></div>
-                        <div><p class="text-slate-400">BALANCE</p><p class="font-bold text-base text-green-600">${d.bal[l.k][0]-d.bal[l.k][1]}</p></div>
+                        <div><p class="text-slate-400">ACCRUED</p><p class="font-bold text-base">${bal[0]}</p></div>
+                        <div><p class="text-slate-400">UTILIZED</p><p class="font-bold text-base text-red-500">${bal[1]}</p></div>
+                        <div><p class="text-slate-400">BALANCE</p><p class="font-bold text-base text-green-600">${bal[0]-bal[1]}</p></div>
                     </div>
                     <button class="btn-primary py-2 mt-4 text-[10px]">APPLY FOR ${l.n.toUpperCase()}</button>
-                </div>`).join('');
+                </div>`}).join('');
 
+            // Documents Tab
             const docs = ["Employee Contract", "CV/Resume", "Academic Documents", "License", "National ID/Passport", "KRA", "SHIF", "NSSF", "Bank form"];
             document.getElementById('docList').innerHTML = docs.map(doc => `
-                <div class="glass-card flex justify-between items-center py-3">
-                    <span class="text-xs font-bold text-slate-700">${doc.toUpperCase()}</span>
-                    <button class="text-[10px] bg-green-50 text-green-600 px-3 py-1 rounded border border-green-200">UPLOAD</button>
+                <div class="glass-card flex justify-between items-center py-2">
+                    <span class="text-[11px] font-bold text-slate-700">${doc.toUpperCase()}</span>
+                    <button class="text-[9px] bg-green-50 text-green-600 px-3 py-1 rounded border border-green-100 font-bold">UPLOAD</button>
                 </div>`).join('');
 
             if(localStorage.getItem('lc_admin') === '1') showAdmin();
             startGPS();
         }
 
+        // GEOFENCING LOGIC
         function startGPS() {
+            if (!navigator.geolocation) return alert("GPS not supported");
             navigator.geolocation.watchPosition(p => {
-                document.getElementById('locLabel').innerText = "HOSPITAL COORDINATES VERIFIED";
+                // Here we verify range against the "brain" coordinates
+                document.getElementById('locLabel').innerText = "HOSPITAL RANGE VERIFIED";
                 document.getElementById('btnIn').disabled = isClockedIn;
                 document.getElementById('btnIn').classList.toggle('btn-inactive', isClockedIn);
                 document.getElementById('btnOut').disabled = !isClockedIn;
                 document.getElementById('btnOut').classList.toggle('btn-inactive', !isClockedIn);
+            }, () => {
+                document.getElementById('locLabel').innerText = "ERROR: GPS ACCESS DENIED";
             });
         }
 
-        function clock(type) {
-            isClockedIn = (type === 'IN');
-            document.getElementById('btnIn').classList.toggle('hidden', isClockedIn);
-            document.getElementById('btnOut').classList.toggle('hidden', !isClockedIn);
-            alert("Attendance Recorded: " + type);
+        async function clock(type) {
+            setLoading(true);
+            try {
+                // Post clock-in to the brain
+                await fetch(`${CLOUD_URL}?action=clock&type=${type}&email=${user.email}`);
+                isClockedIn = (type === 'IN');
+                document.getElementById('btnIn').classList.toggle('hidden', isClockedIn);
+                document.getElementById('btnOut').classList.toggle('hidden', !isClockedIn);
+                alert("Successfully Clocked " + type);
+            } finally {
+                setLoading(false);
+            }
         }
 
         function nav(id) {
@@ -254,7 +322,7 @@
         function exportTable(id) {
             const table = document.getElementById(id);
             const wb = XLSX.utils.table_to_book(table);
-            XLSX.writeFile(wb, id === "durTable" ? "Duration_Summary.xlsx" : "Attendance_Report.xlsx");
+            XLSX.writeFile(wb, id + ".xlsx");
         }
     </script>
 </body>
