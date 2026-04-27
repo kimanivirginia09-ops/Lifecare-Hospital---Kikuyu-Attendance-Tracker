@@ -8,43 +8,55 @@
     <style>
         :root { --lc-blue: #e0f2fe; --lc-green: #22c55e; }
         body { background: #ffffff; color: #1e293b; font-family: 'Segoe UI', sans-serif; padding-bottom: 90px; }
+        
+        /* Headers are Light Blue per description */
         .header-bg { background-color: var(--lc-blue); border-bottom: 1px solid #bae6fd; }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #94a3b8; width: 12%; cursor: pointer; }
+        
+        /* Navigation icons are Green per description */
+        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #94a3b8; width: 14%; cursor: pointer; }
         .nav-btn.active { color: var(--lc-green); font-weight: bold; }
         .nav-btn svg { fill: currentColor; width: 22px; height: 22px; margin-bottom: 4px; }
-        .glass-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; overflow: hidden; }
+        
+        .glass-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; }
         .tab-content { display: none; padding: 15px; }
         .tab-content.active { display: block; }
         .btn-primary { background-color: var(--lc-green); color: white; font-weight: bold; padding: 12px; border-radius: 8px; width: 100%; }
         .btn-inactive { background-color: #cbd5e1 !important; color: #64748b !important; cursor: not-allowed; }
         .input-field { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; margin-bottom: 12px; background: #f8fafc; }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 600px; }
-        th { background: var(--lc-blue); color: #0369a1; padding: 10px; border: 1px solid #bae6fd; text-transform: uppercase; }
+        
+        /* Table Styles for Logs and Reports */
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th { background: var(--lc-blue); color: #0369a1; padding: 8px; border: 1px solid #bae6fd; text-transform: uppercase; }
         td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; }
-        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        
+        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        
+        /* Status Colors for Logs */
         .status-present { color: #166534; font-weight: bold; }
         .status-absent { color: #991b1b; font-weight: bold; }
+        .status-leave { color: #854d0e; font-weight: bold; }
+        .status-outduty { color: #075985; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div id="loader"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600"></div><p class="mt-2 text-xs font-bold text-slate-500">Syncing Brain...</p></div>
+    <div id="loader"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600"></div></div>
 
     <div id="authSection" class="p-6 max-w-md mx-auto min-h-screen flex flex-col justify-center">
         <div class="flex justify-end gap-3 absolute top-6 right-6">
-            <button onclick="toggleAuth('reg')" class="text-[10px] font-bold text-blue-600 border border-blue-100 px-3 py-1 rounded tracking-tighter">REGISTER</button>
-            <button onclick="adminPrompt()" class="text-[10px] font-bold text-slate-400 border border-slate-100 px-3 py-1 rounded tracking-tighter">ADMIN ACCESS</button>
+            <button onclick="toggleAuth('reg')" class="text-[10px] font-bold text-blue-600 border border-blue-100 px-3 py-1 rounded">REGISTER</button>
+            <button onclick="adminPrompt()" class="text-[10px] font-bold text-slate-400 border border-slate-100 px-3 py-1 rounded">ADMIN ACCESS</button>
         </div>
         <div id="loginBox">
             <h1 class="text-center text-3xl font-black text-blue-500 mb-8">LIFECARE HOSPITAL</h1>
-            <input type="email" id="lEmail" placeholder="Email Address" class="input-field">
+            <input type="email" id="lEmail" placeholder="Email" class="input-field">
             <input type="password" id="lPass" placeholder="Password" class="input-field">
-            <button onclick="doLogin()" class="btn-primary mt-2 uppercase">Log In</button>
+            <button onclick="doLogin()" class="btn-primary mt-2">LOGIN</button>
         </div>
         <div id="regBox" class="hidden">
-            <h2 class="text-center font-bold mb-6 uppercase text-slate-600">Register Staff Password</h2>
+            <h2 class="text-center font-bold mb-6">NEW USER REGISTRATION</h2>
             <input type="text" id="rId" placeholder="Employee ID" class="input-field">
-            <input type="email" id="rEmail" placeholder="Work Email" class="input-field">
-            <input type="password" id="rPass" placeholder="Set New Password" class="input-field">
+            <input type="email" id="rEmail" placeholder="Email" class="input-field">
+            <input type="password" id="rPass" placeholder="Choose Password" class="input-field">
             <button onclick="doReg()" class="btn-primary">REGISTER</button>
         </div>
     </div>
@@ -52,102 +64,110 @@
     <div id="mainApp" class="hidden">
         <header class="header-bg p-4 sticky top-0 flex justify-between items-center z-50">
             <span class="font-black text-blue-700">KIKUYU STAFF PORTAL</span>
-            <button onclick="logout()" class="text-[10px] font-bold text-red-500 uppercase">Logout</button>
+            <button onclick="logout()" class="text-[10px] font-bold text-red-500">LOGOUT</button>
         </header>
 
         <main>
             <div id="t-home" class="tab-content active text-center py-20">
                 <div class="glass-card p-10">
-                    <p id="locLabel" class="text-[10px] font-bold text-slate-400 mb-8 uppercase tracking-widest">Reading Location...</p>
+                    <p id="locLabel" class="text-[10px] font-bold text-slate-400 mb-8">VERIFYING LOCATION...</p>
                     <button id="btnIn" onclick="clock('IN')" class="btn-primary p-12 text-2xl btn-inactive" disabled>CLOCK IN</button>
-                    <button id="btnOut" onclick="clock('OUT')" class="hidden btn-primary p-12 text-2xl bg-blue-500 uppercase">Clock Out</button>
+                    <button id="btnOut" onclick="clock('OUT')" class="hidden btn-primary p-12 text-2xl bg-blue-500">CLOCK OUT</button>
                 </div>
             </div>
 
             <div id="t-logs" class="tab-content">
-                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Attendance Logs (24Hr)</h3>
-                <div class="overflow-x-auto glass-card"><table id="logsTable"><thead><tr><th>Date</th><th>Status</th><th>In</th><th>Out</th><th>Total</th></tr></thead><tbody id="logsBody"></tbody></table></div>
+                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Attendance Logs (24Hr System)</h3>
+                <div class="overflow-x-auto glass-card">
+                    <table>
+                        <thead>
+                            <tr><th>Date</th><th>Status</th><th>Clock In</th><th>Clock Out</th><th>Total Hours</th></tr>
+                        </thead>
+                        <tbody id="logsBody"></tbody>
+                    </table>
+                </div>
             </div>
 
             <div id="t-leave" class="tab-content">
-                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase text-center">Leave Management</h3>
-                <div id="leaveCards" class="space-y-4"></div>
+                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Leave Management</h3>
+                <div id="leaveCards" class="grid grid-cols-1 gap-4"></div>
             </div>
 
             <div id="t-outduty" class="tab-content">
-                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Apply for Out-Duty</h3>
+                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Out-Duty Request</h3>
                 <div class="glass-card p-6">
                     <input type="date" class="input-field">
-                    <textarea placeholder="Reason for request..." class="input-field h-32"></textarea>
-                    <button class="btn-primary">SUBMIT REQUEST</button>
+                    <textarea placeholder="Reason for Out-Duty..." class="input-field h-32"></textarea>
+                    <button class="btn-primary">SUBMIT APPLICATION</button>
                 </div>
             </div>
 
             <div id="t-bio" class="tab-content">
-                <h1 id="bName" class="text-3xl font-black text-slate-800 mb-8 uppercase"></h1>
+                <h1 id="bName" class="text-3xl font-black text-slate-800 mb-8 uppercase leading-tight"></h1>
                 <div class="glass-card p-5 mb-4">
-                    <p class="text-[10px] font-bold text-blue-500 border-b pb-2 mb-4 uppercase">Personal Details</p>
-                    <div id="bioPersonal" class="space-y-3 text-sm"></div>
+                    <p class="text-[10px] font-bold text-blue-500 border-b pb-2 mb-4">PERSONAL DETAILS</p>
+                    <div id="personalData" class="space-y-3 text-sm"></div>
                 </div>
                 <div class="glass-card p-5">
-                    <p class="text-[10px] font-bold text-blue-500 border-b pb-2 mb-4 uppercase">Employment Details</p>
-                    <div id="bioEmployment" class="space-y-3 text-sm"></div>
+                    <p class="text-[10px] font-bold text-blue-500 border-b pb-2 mb-4">EMPLOYMENT DETAILS</p>
+                    <div id="employmentData" class="space-y-3 text-sm"></div>
                 </div>
             </div>
 
             <div id="t-docs" class="tab-content">
-                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Document Center</h3>
+                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Document Upload Center</h3>
                 <div id="docList" class="space-y-3"></div>
             </div>
 
             <div id="t-reports" class="tab-content">
-                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase text-xs">Total Work Duration Summary</h3>
-                <div class="overflow-x-auto glass-card mb-6"><table id="repSumm"></table></div>
-                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase text-xs">Date-wise Attendance Report</h3>
-                <div class="overflow-x-auto glass-card"><table id="repDate"></table></div>
+                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Total Work Duration Summary</h3>
+                <div class="overflow-x-auto glass-card mb-6"><table id="repSummary"></table></div>
+                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Date-wise Attendance Report</h3>
+                <div class="overflow-x-auto glass-card"><table id="repDatewise"></table></div>
             </div>
 
             <div id="t-settings" class="tab-content">
-                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Geofencing</h3>
+                <h3 class="font-bold text-blue-600 mb-4 text-xs uppercase">Geofencing Setup</h3>
                 <div class="glass-card p-6 space-y-4">
-                    <input id="sLat" placeholder="Latitude" class="input-field">
-                    <input id="sLon" placeholder="Longitude" class="input-field">
-                    <input id="sRad" placeholder="Radius (Meters)" class="input-field">
+                    <input id="sLat" placeholder="Hospital Latitude" class="input-field">
+                    <input id="sLon" placeholder="Hospital Longitude" class="input-field">
+                    <input id="sRad" placeholder="Allowed Radius (Meters)" class="input-field">
                     <button onclick="saveSettings()" class="btn-primary">SAVE SETTINGS</button>
                 </div>
             </div>
         </main>
 
         <nav class="fixed bottom-0 left-0 right-0 bg-white border-t p-2 flex justify-around items-center z-50">
-            <div onclick="nav('home')" class="nav-btn active" id="n-home"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home</div>
-            <div onclick="nav('logs')" class="nav-btn" id="n-logs"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>Logs</div>
-            <div onclick="nav('leave')" class="nav-btn" id="n-leave"><svg viewBox="0 0 24 24"><path d="M10 16v-1H3.01L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-4h-7v1h-4zm10-9h-8V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v7h18V7z"/></svg>Leave</div>
-            <div onclick="nav('outduty')" class="nav-btn" id="n-outduty"><svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z"/></svg>Out</div>
-            <div onclick="nav('bio')" class="nav-btn" id="n-bio"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Bio</div>
-            <div onclick="nav('docs')" class="nav-btn" id="n-docs"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>Docs</div>
-            <div onclick="nav('reports')" class="nav-btn hidden" id="n-reports"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>Reports</div>
-            <div onclick="nav('settings')" class="nav-btn hidden" id="n-settings"><svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38-2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65z"/></svg>Settings</div>
+            <div onclick="nav('home')" class="nav-btn active" id="n-home">
+                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home</div>
+            <div onclick="nav('logs')" class="nav-btn" id="n-logs">
+                <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>Logs</div>
+            <div onclick="nav('leave')" class="nav-btn" id="n-leave">
+                <svg viewBox="0 0 24 24"><path d="M10 16v-1H3.01L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-4h-7v1h-4zm10-9h-8V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v7h18V7z"/></svg>Leave</div>
+            <div onclick="nav('outduty')" class="nav-btn" id="n-outduty">
+                <svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>Out</div>
+            <div onclick="nav('bio')" class="nav-btn" id="n-bio">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Bio</div>
+            <div onclick="nav('docs')" class="nav-btn" id="n-docs">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM13 9V3.5L18.5 9H13z"/></svg>Docs</div>
+            <div onclick="nav('reports')" class="nav-btn hidden" id="n-reports">
+                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>Reports</div>
+            <div onclick="nav('settings')" class="nav-btn hidden" id="n-settings">
+                <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>Settings</div>
         </nav>
     </div>
 
     <script>
         const CLOUD_URL = "https://script.google.com/macros/s/AKfycby54HfJj8c5Up4swSXRV5YhPP5y5g-lQj8OhPLSzDDcuKOnlaDgYJZfPveAlHo-XVMn_Q/exec";
-        let user = null;
+        let user, config = {lat: 0, lon: 0, rad: 0};
 
         function setLoading(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
         function toggleAuth(v) { document.getElementById('loginBox').classList.toggle('hidden', v==='reg'); document.getElementById('regBox').classList.toggle('hidden', v!=='reg'); }
         function logout() { localStorage.clear(); location.reload(); }
-        function adminPrompt() { if(prompt("Enter Admin Access Code") === "1201") { localStorage.setItem('lc_admin', '1'); if(user) showAdmin(); } }
+        function adminPrompt() { if(prompt("Enter Admin Access Password") === "1201") { localStorage.setItem('lc_admin', '1'); if(user) showAdmin(); } }
         function showAdmin() { document.getElementById('n-reports').classList.remove('hidden'); document.getElementById('n-settings').classList.remove('hidden'); }
 
-        window.onload = function() {
-            const saved = localStorage.getItem('lc_sess');
-            if (saved) {
-                user = JSON.parse(saved);
-                startApp(user);
-            }
-        };
-
+        // AUTHENTICATION
         function doLogin() {
             setLoading(true);
             const email = document.getElementById('lEmail').value;
@@ -156,78 +176,72 @@
             document.body.appendChild(s);
         }
 
-        window.hAuth = function(d) {
+        window.hAuth = (d) => {
             setLoading(false);
-            const pass = document.getElementById('lPass').value;
-            if (d.exists && String(d.pass) === String(pass)) {
-                user = d;
-                localStorage.setItem('lc_sess', JSON.stringify(d));
-                startApp(d);
-            } else { alert("Invalid Credentials."); }
+            if (d.exists && d.pass == document.getElementById('lPass').value) {
+                user = d; localStorage.setItem('lc_sess', JSON.stringify(d)); startApp(d);
+            } else alert("Invalid Login Credentials.");
         };
 
-        // FIXED BIO MAPPING (Matches ShiftGuard_Database exactly)
         function startApp(d) {
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             document.getElementById('bName').innerText = d.name;
             
-            document.getElementById('bioPersonal').innerHTML = `
-                <div class="flex justify-between border-b py-2"><b>Employee ID:</b> <span>${d.id}</span></div>
-                <div class="flex justify-between border-b py-2"><b>Department:</b> <span>${d.dept}</span></div>
-                <div class="flex justify-between border-b py-2"><b>Designation:</b> <span>${d.desig}</span></div>
-                <div class="flex justify-between border-b py-2"><b>Email:</b> <span>${d.email}</span></div>
-                <div class="flex justify-between border-b py-2"><b>Phone Number:</b> <span>${d.phone || 'N/A'}</span></div>
-                <div class="flex justify-between border-b py-2"><b>Gender:</b> <span>${d.gender || 'N/A'}</span></div>
-                <div class="flex justify-between py-2"><b>Date of Birth:</b> <span>${d.dob || 'N/A'}</span></div>`;
-            
-            document.getElementById('bioEmployment').innerHTML = `
-                <div class="flex justify-between border-b py-2"><b>Manager ID:</b> <span>${d.managerId || 'N/A'}</span></div>
-                <div class="flex justify-between py-2"><b>Staff Type:</b> <span>${d.empType || 'Permanent'}</span></div>`;
+            // Bio Tab Details
+            document.getElementById('personalData').innerHTML = `
+                <div class="flex justify-between"><b>Employee ID:</b> <span>${d.id}</span></div>
+                <div class="flex justify-between"><b>Department:</b> <span>${d.dept}</span></div>
+                <div class="flex justify-between"><b>Designation:</b> <span>${d.desig}</span></div>
+                <div class="flex justify-between"><b>Email:</b> <span>${d.email}</span></div>
+                <div class="flex justify-between"><b>Phone Number:</b> <span>${d.phone}</span></div>
+                <div class="flex justify-between"><b>Gender:</b> <span>${d.gender}</span></div>
+                <div class="flex justify-between"><b>Date of Birth:</b> <span>${d.dob}</span></div>`;
+            document.getElementById('employmentData').innerHTML = `
+                <div class="flex justify-between"><b>Manager Name:</b> <span>${d.manager}</span></div>
+                <div class="flex justify-between"><b>Employee Type:</b> <span>${d.empType}</span></div>`;
 
-            // Leave Management
-            const lts = [{k:'annual', n:'Annual'}, {k:'sick', n:'Sick'}, {k:'mat', n:'Maternity'}, {k:'pat', n:'Paternity'}, {k:'comp', n:'Compassionate'}];
-            document.getElementById('leaveCards').innerHTML = lts.map(l => `
+            // Leave Cards
+            const leaves = [
+                {k:'annual', n:'Annual Leave'}, {k:'sick', n:'Sick Leave'}, 
+                {k:'mat', n:'Maternity Leave'}, {k:'pat', n:'Paternity Leave'}, {k:'comp', n:'Compassionate Leave'}
+            ];
+            document.getElementById('leaveCards').innerHTML = leaves.map(l => `
                 <div class="glass-card p-4">
-                    <p class="font-bold text-xs mb-3 text-blue-600">${l.n.toUpperCase()} LEAVE</p>
+                    <p class="font-bold text-xs mb-3 text-blue-600">${l.n.toUpperCase()}</p>
                     <div class="grid grid-cols-3 text-center text-[10px]">
-                        <div><p class="text-slate-400">ACCRUED</p><p class="font-bold text-base">${d.bal[l.k][0]}</p></div>
-                        <div><p class="text-slate-400">USED</p><p class="font-bold text-base text-red-500">${d.bal[l.k][1]}</p></div>
-                        <div><p class="text-slate-400">BALANCE</p><p class="font-bold text-base text-green-600">${d.bal[l.k][0]-d.bal[l.k][1]}</p></div>
+                        <div><p class="text-slate-400">ACCRUED</p><p class="font-bold">${d.bal[l.k][0]}</p></div>
+                        <div><p class="text-slate-400">UTILIZED</p><p class="font-bold text-red-500">${d.bal[l.k][1]}</p></div>
+                        <div><p class="text-slate-400">BALANCE</p><p class="font-bold text-green-600">${d.bal[l.k][0]-d.bal[l.k][1]}</p></div>
                     </div>
                     <button class="btn-primary py-2 mt-4 text-[10px]">APPLY</button>
                 </div>`).join('');
 
-            // Documents Center
-            const docs = ["Contract", "CV/Resume", "Academic", "License", "ID/Passport", "KRA", "SHIF", "NSSF", "Bank form"];
+            // Documents List
+            const docs = ["Employee Contract", "CV/Resume", "Academic Documents", "License", "National ID/Passport", "KRA", "SHIF", "NSSF", "Bank form"];
             document.getElementById('docList').innerHTML = docs.map(doc => `
                 <div class="glass-card p-4 flex justify-between items-center text-xs font-bold">
-                    <span>${doc.toUpperCase()}</span>
-                    <button onclick="handleDocUpload('${doc}')" class="bg-green-50 text-green-600 px-3 py-1 rounded border border-green-200 uppercase">Upload</button>
+                    <span>${doc}</span>
+                    <button onclick="handleDocUpload('${doc}')" class="bg-green-50 text-green-600 px-3 py-1 rounded border border-green-200">UPLOAD</button>
                 </div>`).join('');
 
             if(localStorage.getItem('lc_admin') === '1') showAdmin();
-            fetchSettings();
+            fetchConfig();
         }
 
-        function fetchSettings() {
+        // GEOFENCING & CLOCKING
+        function fetchConfig() {
             const s = document.createElement('script');
-            s.src = `${CLOUD_URL}?action=get_settings&callback=hSet&t=${Date.now()}`;
+            s.src = `${CLOUD_URL}?action=get_settings&callback=hSet`;
             document.body.appendChild(s);
         }
+        window.hSet = (d) => { config = d; startGPS(); };
 
-        window.hSet = function(d) {
-            document.getElementById('sLat').value = d.lat || "";
-            document.getElementById('sLon').value = d.lon || "";
-            document.getElementById('sRad').value = d.rad || "";
-            startGPS(d);
-        };
-
-        function startGPS(conf) {
+        function startGPS() {
             navigator.geolocation.watchPosition(p => {
-                const dist = getDist(p.coords.latitude, p.coords.longitude, conf.lat, conf.lon);
-                const active = dist <= conf.rad;
-                document.getElementById('locLabel').innerText = active ? `Hospital Range Verified (${Math.round(dist)}m)` : `Out of Range (${Math.round(dist)}m)`;
+                const dist = getDist(p.coords.latitude, p.coords.longitude, config.lat, config.lon);
+                const active = dist <= config.rad;
+                document.getElementById('locLabel').innerText = active ? `WITHIN RANGE (${Math.round(dist)}m)` : `OUTSIDE RANGE (${Math.round(dist)}m)`;
                 [document.getElementById('btnIn'), document.getElementById('btnOut')].forEach(b => {
                     b.disabled = !active; b.classList.toggle('btn-inactive', !active);
                 });
@@ -239,12 +253,18 @@
             navigator.geolocation.getCurrentPosition(p => {
                 const loc = `${p.coords.latitude.toFixed(4)},${p.coords.longitude.toFixed(4)}`;
                 const s = document.createElement('script');
-                s.src = `${CLOUD_URL}?action=clock_action&id=${user.id}&name=${encodeURIComponent(user.name)}&type=${type}&location=${loc}&callback=hClock`;
+                s.src = `${CLOUD_URL}?action=clock_action&id=${user.id}&name=${encodeURIComponent(user.name)}&desig=${encodeURIComponent(user.desig)}&dept=${encodeURIComponent(user.dept)}&type=${type}&location=${loc}&callback=hClock`;
                 document.body.appendChild(s);
             });
         }
-        window.hClock = (d) => { setLoading(false); alert("Recorded: " + d.type); };
+        window.hClock = (d) => { 
+            setLoading(false); 
+            document.getElementById('btnIn').classList.toggle('hidden', d.type==='IN');
+            document.getElementById('btnOut').classList.toggle('hidden', d.type!=='IN');
+            alert("Clocked " + d.type + " Successfully"); 
+        };
 
+        // NAV & TAB LOGIC
         function nav(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
@@ -263,8 +283,13 @@
         window.hLogs = (d) => {
             setLoading(false);
             document.getElementById('logsBody').innerHTML = d.logs.map(l => `
-                <tr><td>${l.date}</td><td class="font-bold text-green-600">${l.status}</td><td>${l.in}</td><td>${l.out}</td><td>${l.total || '0'}h</td></tr>
-            `).join('');
+                <tr>
+                    <td>${l.date}</td>
+                    <td class="status-${l.status.toLowerCase().replace(' ','')}">${l.status}</td>
+                    <td>${l.in}</td>
+                    <td>${l.out}</td>
+                    <td>${l.total}</td>
+                </tr>`).join('');
         };
 
         function fetchReports() {
@@ -275,36 +300,37 @@
         }
         window.hRep = (d) => {
             setLoading(false);
-            if(!d || !d.summary) return;
-            let h = `<tr><th>ID</th><th>Name</th><th>Dept</th>`;
-            for(let i=1; i<=d.days; i++) h += `<th>${i}</th>`;
-            h += `<th>P</th><th>A</th><th>L</th></tr>`;
-            document.getElementById('repSumm').innerHTML = h + d.summary.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.dept}</td>${r.dates.map(x=>`<td>${x}</td>`).join('')}<td>${r.pres}</td><td>${r.abs}</td><td>${r.leave}</td></tr>`).join('');
-            document.getElementById('repDate').innerHTML = `<tr><th>ID</th><th>Name</th><th>Total Hrs</th></tr>` + d.summary.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.pres*8}</td></tr>`).join('');
+            // Summary Report Headers
+            let h1 = `<tr><th>ID</th><th>Name</th><th>Dept</th><th>Desig</th>`;
+            for(let i=1; i<=d.days; i++) h1 += `<th>${i}</th>`;
+            h1 += `<th>P</th><th>A</th><th>L</th><th>O</th></tr>`;
+            document.getElementById('repSummary').innerHTML = h1 + d.summary.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.dept}</td><td>${r.desig}</td>${r.dates.map(x=>`<td>${x}</td>`).join('')}<td>${r.pres}</td><td>${r.abs}</td><td>${r.leave}</td><td>${r.out}</td></tr>`).join('');
+            
+            // Datewise Report Headers
+            document.getElementById('repDatewise').innerHTML = `<tr><th>Employee ID</th><th>Name</th><th>Dept</th><th>Designation</th><th>Total Hours</th><th>Avg Work Duration</th></tr>` + d.summary.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.dept}</td><td>${r.desig}</td><td>${r.pres * 8}h</td><td>8.0h</td></tr>`).join('');
         };
 
         async function handleDocUpload(type) {
-            const fi = document.createElement('input'); fi.type = 'file';
-            fi.onchange = async (e) => {
-                const file = e.target.files[0]; if(!file) return;
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.onchange = async (e) => {
+                const file = e.target.files[0];
+                if(!file) return;
                 setLoading(true);
                 const reader = new FileReader();
                 reader.onload = async (f) => {
                     const base64 = f.target.result.split(',')[1];
-                    try {
-                        const res = await fetch(CLOUD_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                            body: JSON.stringify({ base64, mimeType: file.type, fileName: file.name, docType: type, empName: user.name })
-                        });
-                        const result = await res.json();
-                        setLoading(false);
-                        alert(result.success ? "Uploaded Successfully" : "Error Uploading");
-                    } catch (err) { setLoading(false); alert("Cloud Error"); }
+                    const res = await fetch(CLOUD_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ base64: base64, mimeType: file.type, fileName: file.name, docType: type, empName: user.name })
+                    });
+                    const result = await res.json();
+                    setLoading(false);
+                    alert(result.success ? "Document uploaded and saved to Drive." : "Upload Failed");
                 };
                 reader.readAsDataURL(file);
             };
-            fi.click();
+            fileInput.click();
         }
 
         function getDist(lat1, lon1, lat2, lon2) {
@@ -313,6 +339,8 @@
             const a = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
+
+        window.onload = () => { const s = localStorage.getItem('lc_sess'); if(s) { user=JSON.parse(s); startApp(user); } };
     </script>
 </body>
 </html>
