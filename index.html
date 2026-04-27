@@ -3,134 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lifecare Staff Portal</title>
+    <title>Lifecare Hospital Kikuyu - Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --lifecare-blue: #e0f2fe; --lifecare-green: #22c55e; }
-        body { background: #ffffff; color: #1e293b; font-family: 'Inter', sans-serif; padding-bottom: 100px; min-height: 100vh; }
+        body { background: #ffffff; color: #1e293b; font-family: 'Inter', sans-serif; padding-bottom: 100px; }
         .header-bg { background-color: var(--lifecare-blue); border-bottom: 2px solid #bae6fd; }
         .glass-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 8px; color: #64748b; width: 13%; cursor: pointer; transition: 0.2s; }
+        
+        /* Bottom Navigation Styling */
+        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 9px; color: #64748b; width: 14%; transition: 0.2s; cursor: pointer; }
+        .nav-btn svg { fill: #94a3b8; width: 22px; height: 22px; margin-bottom: 4px; }
         .nav-btn.active { color: var(--lifecare-green); font-weight: 800; }
+        .nav-btn.active svg { fill: var(--lifecare-green); }
+        
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .btn-primary { background-color: var(--lifecare-green); color: white; font-weight: bold; padding: 12px; border-radius: 10px; width: 100%; border: none; }
-        .inactive-btn { background-color: #cbd5e1 !important; color: #94a3b8 !important; cursor: not-allowed; pointer-events: none; opacity: 0.6; }
+        
+        .btn-primary { background-color: var(--lifecare-green); color: white; font-weight: bold; padding: 14px; border-radius: 12px; width: 100%; transition: 0.2s; border: none; }
+        .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+        .inactive-btn { background-color: #e2e8f0 !important; color: #94a3b8 !important; cursor: not-allowed; border: 1px solid #cbd5e1; }
+        
         .input-field { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; margin-bottom: 15px; outline: none; background: #f8fafc; }
-        table { width: 100%; border-collapse: collapse; font-size: 10px; min-width: 500px; }
-        th, td { border: 1px solid #e2e8f0; padding: 10px 5px; text-align: center; }
-        th { background-color: var(--lifecare-blue); color: #0369a1; text-transform: uppercase; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 10px; min-width: 800px; }
+        th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; }
+        th { background-color: var(--lifecare-blue); color: #0369a1; font-weight: 700; }
+        
         #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--lifecare-green); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .timeline-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 12px; }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="spinner"></div>
-        <p class="mt-4 text-green-600 font-bold text-xs">SYNCING...</p>
-    </div>
+    <div id="loader"><div class="spinner"></div><p class="mt-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Processing...</p></div>
 
     <div id="authSection" class="p-6 max-w-md mx-auto min-h-screen flex flex-col justify-center">
-        <div class="flex justify-end gap-3 absolute top-6 right-6">
-            <button onclick="toggleAuth('reg')" class="text-[10px] font-black border-2 border-green-500 text-green-600 px-3 py-1.5 rounded-lg">REGISTER</button>
-            <button onclick="adminPrompt()" class="text-[10px] font-black bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg">ADMIN</button>
+        <div class="flex justify-end gap-2 absolute top-6 right-6">
+            <button onclick="toggleAuth('reg')" class="text-[10px] font-bold text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg uppercase">Register</button>
+            <button onclick="adminPrompt()" class="text-[10px] font-bold text-slate-400 border border-slate-100 px-3 py-1.5 rounded-lg uppercase">Admin Access</button>
         </div>
+
         <div id="loginBox" class="text-center">
-            <h1 class="text-5xl font-black text-blue-400 mb-2">LIFECARE</h1>
-            <p class="text-[10px] text-slate-400 mb-8 font-bold tracking-widest">STAFF PORTAL</p>
+            <h1 class="text-4xl font-black text-blue-500 mb-2">LIFECARE</h1>
+            <p class="text-[10px] text-slate-400 mb-10 tracking-[0.3em] uppercase">Staff Portal - Kikuyu</p>
             <input type="email" id="lEmail" placeholder="Work Email" class="input-field">
             <input type="password" id="lPass" placeholder="Password" class="input-field">
             <button onclick="doLogin()" class="btn-primary mt-4">LOG IN</button>
         </div>
-        <div id="regBox" class="hidden text-center">
-            <h2 class="text-xl font-black text-slate-700 mb-6 uppercase">Register</h2>
+
+        <div id="regBox" class="hidden">
+            <h2 class="font-black text-slate-700 text-center mb-6 uppercase tracking-widest text-sm">New User Registration</h2>
             <input type="text" id="rId" placeholder="Employee ID" class="input-field">
-            <input type="email" id="rEmail" placeholder="Work Email" class="input-field">
-            <input type="password" id="rPass" placeholder="Set Password" class="input-field">
-            <button onclick="doReg()" class="btn-primary">CREATE ACCOUNT</button>
-            <button onclick="toggleAuth('login')" class="w-full text-xs mt-4 text-slate-400 font-bold uppercase">Back to Login</button>
+            <input type="email" id="rEmail" placeholder="Email Address" class="input-field">
+            <input type="password" id="rPass" placeholder="Choose Password" class="input-field">
+            <button onclick="doReg()" class="btn-primary">REGISTER</button>
+            <button onclick="toggleAuth('login')" class="w-full text-[10px] font-bold text-slate-400 mt-6 uppercase">Back to Login</button>
         </div>
     </div>
 
     <div id="mainApp" class="hidden">
         <header class="header-bg p-4 sticky top-0 flex justify-between items-center z-50">
-            <span class="font-black text-blue-600 text-lg uppercase">Lifecare K-Staff</span>
-            <button onclick="logout()" class="text-[10px] font-black text-red-500 border border-red-200 px-2 py-1 rounded">LOGOUT</button>
+            <span class="font-black text-blue-600 tracking-tighter">LIFECARE HOSPITAL</span>
+            <button onclick="logout()" class="text-[10px] font-bold text-red-500 bg-white border border-red-100 px-3 py-1 rounded-lg">LOGOUT</button>
         </header>
 
         <main class="p-4 space-y-6">
             <div id="t-home" class="tab-content active py-10">
                 <div class="glass-card p-10 text-center">
-                    <p id="vicLabel" class="text-[10px] font-bold text-slate-400 mb-8 uppercase italic">Detecting Location...</p>
-                    <button id="btnIn" onclick="clock('IN')" class="w-full bg-green-500 text-white p-20 rounded-[2rem] font-black text-3xl uppercase inactive-btn">Clock In</button>
-                    <button id="btnOut" onclick="clock('OUT')" class="hidden w-full bg-blue-500 text-white p-20 rounded-[2rem] font-black text-3xl uppercase inactive-btn">Clock Out</button>
+                    <p id="vicLabel" class="text-[10px] font-bold text-slate-400 mb-8 uppercase tracking-widest italic">Acquiring GPS...</p>
+                    <div class="space-y-4">
+                        <button id="btnIn" onclick="clock('IN')" class="w-full bg-green-500 text-white p-16 rounded-[2rem] font-black text-2xl uppercase shadow-lg">Clock In</button>
+                        <button id="btnOut" onclick="clock('OUT')" class="hidden w-full bg-blue-500 text-white p-16 rounded-[2rem] font-black text-2xl uppercase shadow-lg">Clock Out</button>
+                    </div>
                 </div>
             </div>
 
             <div id="t-logs" class="tab-content">
-                <h3 class="font-black text-green-600 mb-4 uppercase text-xs">Attendance History</h3>
-                <div id="timelineContainer" class="glass-card mb-6 p-4 text-center text-xs text-slate-400">Loading Calendar...</div>
+                <h3 class="font-black text-blue-600 mb-4 uppercase text-xs">Monthly Attendance Status</h3>
+                <div id="verticalTimeline" class="glass-card mb-6 max-h-60 overflow-y-auto">
+                    </div>
+                <h3 class="font-black text-blue-600 mb-4 uppercase text-xs">Date-wise Details (24Hr)</h3>
                 <div class="overflow-x-auto glass-card">
                     <table id="logsTable">
-                        <thead><tr><th>Date</th><th>Status</th><th>In</th><th>Out</th><th>Work Hrs</th></tr></thead>
+                        <thead><tr><th>Date</th><th>Status</th><th>Clock In</th><th>Clock Out</th><th>Total Hrs</th></tr></thead>
                         <tbody id="logsBody"></tbody>
                     </table>
                 </div>
             </div>
 
             <div id="t-leave" class="tab-content space-y-4">
-                <h3 class="font-black text-green-600 uppercase text-xs">Leave Balances</h3>
+                <h3 class="font-black text-blue-600 uppercase text-xs">Leave Management</h3>
                 <div id="leaveCards" class="grid grid-cols-1 gap-4"></div>
             </div>
 
             <div id="t-outduty" class="tab-content">
-                <h3 class="font-black text-green-600 uppercase text-xs mb-4">New Out Duty Request</h3>
+                <h3 class="font-black text-blue-600 uppercase text-xs mb-4">Out Duty Request</h3>
                 <div class="glass-card p-6 space-y-4">
                     <input type="date" id="odDate" class="input-field">
                     <textarea id="odReason" placeholder="Purpose of Out Duty..." class="input-field h-32"></textarea>
-                    <button onclick="alert('Request Sent')" class="btn-primary">SUBMIT REQUEST</button>
+                    <button class="btn-primary">SUBMIT REQUEST</button>
                 </div>
             </div>
 
             <div id="t-bio" class="tab-content">
-                <h1 id="bName" class="text-3xl font-black text-slate-800 mb-6 uppercase"></h1>
-                <div class="glass-card p-5 space-y-4">
-                    <p class="font-black text-blue-500 border-b pb-2 uppercase text-[10px]">Personal Details</p>
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div><p class="text-slate-400 text-[9px] font-bold">ID</p><p id="bId" class="font-bold"></p></div>
-                        <div><p class="text-slate-400 text-[9px] font-bold">Dept</p><p id="bDept" class="font-bold"></p></div>
-                        <div><p class="text-slate-400 text-[9px] font-bold">Role</p><p id="bDesig" class="font-bold"></p></div>
-                        <div><p class="text-slate-400 text-[9px] font-bold">Email</p><p id="bEmail" class="font-bold break-all"></p></div>
+                <h1 id="bName" class="text-4xl font-black text-slate-800 mb-8 leading-tight"></h1>
+                <div class="space-y-6">
+                    <div class="glass-card p-5">
+                        <p class="font-black text-blue-500 border-b border-blue-50 pb-2 mb-5 uppercase text-[10px]">Personal Details</p>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div><p class="text-slate-400 text-[9px] font-bold">EMP ID</p><p id="bId" class="font-bold"></p></div>
+                            <div><p class="text-slate-400 text-[9px] font-bold">DEPT</p><p id="bDept" class="font-bold"></p></div>
+                            <div><p class="text-slate-400 text-[9px] font-bold">DESIGNATION</p><p id="bDesig" class="font-bold"></p></div>
+                            <div><p class="text-slate-400 text-[9px] font-bold">EMAIL</p><p id="bEmail" class="font-bold break-all"></p></div>
+                            <div><p class="text-slate-400 text-[9px] font-bold">PHONE</p><p id="bPhone" class="font-bold"></p></div>
+                            <div><p class="text-slate-400 text-[9px] font-bold">GENDER</p><p id="bGender" class="font-bold"></p></div>
+                            <div><p class="text-slate-400 text-[9px] font-bold">DOB</p><p id="bDob" class="font-bold"></p></div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-5">
+                        <p class="font-black text-blue-500 border-b border-blue-50 pb-2 mb-5 uppercase text-[10px]">Employment Details</p>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div><p class="text-slate-400 text-[9px] font-bold">MANAGER</p><p id="bManager" class="font-bold"></p></div>
+                            <div><p class="text-slate-400 text-[9px] font-bold">TYPE</p><p id="bType" class="font-bold"></p></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div id="t-docs" class="tab-content">
-                <h3 class="font-black text-green-600 uppercase text-xs mb-4">Upload Documents</h3>
+                <h3 class="font-black text-blue-600 uppercase text-xs mb-4">Employee Documents</h3>
                 <div id="docList" class="grid grid-cols-1 gap-3"></div>
             </div>
 
+            <div id="t-reports" class="tab-content space-y-10">
+                <div>
+                    <div class="flex justify-between items-end mb-4">
+                        <h3 class="font-black text-blue-700 text-xs uppercase">Total Work Duration Summary</h3>
+                        <button onclick="exportCSV('repSumm')" class="bg-blue-600 text-white text-[9px] px-3 py-1 rounded">EXPORT EXCEL</button>
+                    </div>
+                    <div class="overflow-x-auto glass-card"><table id="repSumm"></table></div>
+                </div>
+                <div>
+                    <div class="flex justify-between items-end mb-4">
+                        <h3 class="font-black text-blue-700 text-xs uppercase">Date-wise Attendance Report</h3>
+                        <button onclick="exportCSV('repDate')" class="bg-blue-600 text-white text-[9px] px-3 py-1 rounded">EXPORT EXCEL</button>
+                    </div>
+                    <div class="overflow-x-auto glass-card"><table id="repDate"></table></div>
+                </div>
+            </div>
+
             <div id="t-settings" class="tab-content">
-                <h3 class="font-black uppercase text-xs mb-4">Geofence Settings</h3>
+                <h3 class="font-black text-blue-600 text-xs uppercase mb-4">Geofencing Configuration</h3>
                 <div class="glass-card p-6 space-y-4">
-                    <input type="text" id="sLat" placeholder="Hospital Latitude" class="input-field">
-                    <input type="text" id="sLon" placeholder="Hospital Longitude" class="input-field">
-                    <input type="text" id="sRad" placeholder="Radius (meters)" class="input-field">
-                    <button onclick="saveSettings()" class="btn-primary">UPDATE SETTINGS</button>
+                    <label class="text-[10px] font-bold text-slate-400">Hospital Latitude</label>
+                    <input type="text" id="sLat" class="input-field">
+                    <label class="text-[10px] font-bold text-slate-400">Hospital Longitude</label>
+                    <input type="text" id="sLon" class="input-field">
+                    <label class="text-[10px] font-bold text-slate-400">Radius (Meters)</label>
+                    <input type="text" id="sRad" class="input-field">
+                    <button onclick="saveSettings()" class="btn-primary">SAVE SETTINGS</button>
                 </div>
             </div>
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t p-2 flex justify-around items-center z-50">
-            <div onclick="nav('home')" class="nav-btn active" id="n-home">Home</div>
-            <div onclick="nav('logs')" class="nav-btn" id="n-logs">Logs</div>
-            <div onclick="nav('leave')" class="nav-btn" id="n-leave">Leave</div>
-            <div onclick="nav('outduty')" class="nav-btn" id="n-outduty">Duty</div>
-            <div onclick="nav('bio')" class="nav-btn" id="n-bio">Bio</div>
-            <div onclick="nav('docs')" class="nav-btn" id="n-docs">Docs</div>
-            <div onclick="nav('settings')" class="nav-btn hidden" id="n-settings">Admin</div>
+        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-around items-center z-50">
+            <div onclick="nav('home')" class="nav-btn active" id="n-home"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home</div>
+            <div onclick="nav('logs')" class="nav-btn" id="n-logs"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>Logs</div>
+            <div onclick="nav('leave')" class="nav-btn" id="n-leave"><svg viewBox="0 0 24 24"><path d="M14 6V4h-4v2h4zM4 8v11h16V8H4z"/></svg>Leave</div>
+            <div onclick="nav('outduty')" class="nav-btn" id="n-outduty"><svg viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>Out</div>
+            <div onclick="nav('bio')" class="nav-btn" id="n-bio"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Bio</div>
+            <div onclick="nav('docs')" class="nav-btn" id="n-docs"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>Docs</div>
+            <div onclick="nav('reports')" class="nav-btn hidden" id="n-reports"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>Admin</div>
+            <div onclick="nav('settings')" class="nav-btn hidden" id="n-settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Set</div>
         </nav>
     </div>
 
@@ -139,65 +188,64 @@
         let user, config = {lat:0, lon:0, rad:0};
 
         function setLoading(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
-        function toggleAuth(v) {
-            document.getElementById('loginBox').classList.toggle('hidden', v==='reg');
-            document.getElementById('regBox').classList.toggle('hidden', v!=='reg');
-        }
+        function toggleAuth(v) { document.getElementById('loginBox').classList.toggle('hidden', v==='reg'); document.getElementById('regBox').classList.toggle('hidden', v!=='reg'); }
+        function adminPrompt() { if(prompt("Enter Admin Access Password") === "1201") { localStorage.setItem('lc_admin', '1'); if(user) showAdmin(); } }
+        function showAdmin() { document.getElementById('n-reports').classList.remove('hidden'); document.getElementById('n-settings').classList.remove('hidden'); }
 
         function doLogin() {
-            const email = document.getElementById('lEmail').value;
-            if(!email) return alert("Enter Email");
             setLoading(true);
+            const email = document.getElementById('lEmail').value;
             const s = document.createElement('script');
             s.src = `${CLOUD_URL}?action=check_auth&email=${encodeURIComponent(email)}&callback=hAuth`;
             document.body.appendChild(s);
         }
-
         window.hAuth = (d) => {
             setLoading(false);
-            const passInput = document.getElementById('lPass').value;
-            if(d.exists && String(d.pass) === String(passInput)) {
-                localStorage.setItem('lc_sess', JSON.stringify(d));
-                startApp(d);
-            } else { alert("Login Failed."); }
+            if(d.exists && d.pass === document.getElementById('lPass').value) { user=d; localStorage.setItem('lc_sess', JSON.stringify(d)); startApp(d); }
+            else alert("Invalid Credentials.");
         }
 
+        function doReg() {
+            setLoading(true);
+            const id = document.getElementById('rId').value, email = document.getElementById('rEmail').value, pass = document.getElementById('rPass').value;
+            const s = document.createElement('script');
+            s.src = `${CLOUD_URL}?action=register_staff&id=${id}&email=${encodeURIComponent(email)}&pass=${pass}&callback=hReg`;
+            document.body.appendChild(s);
+        }
+        window.hReg = () => { setLoading(false); alert("Registration Complete. You can now log in."); toggleAuth('login'); }
+
         function startApp(d) {
-            user = d;
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            
-            // Bio Info
-            document.getElementById('bName').innerText = d.name || "Employee";
+            document.getElementById('bName').innerText = d.name || "STAFF MEMBER";
             document.getElementById('bId').innerText = d.id;
             document.getElementById('bDept').innerText = d.dept || "-";
             document.getElementById('bDesig').innerText = d.desig || "-";
             document.getElementById('bEmail').innerText = d.email;
+            document.getElementById('bPhone').innerText = d.phone || "-";
+            document.getElementById('bGender').innerText = d.gender || "-";
+            document.getElementById('bDob').innerText = d.dob || "-";
+            document.getElementById('bManager').innerText = d.manager || "-";
+            document.getElementById('bType').innerText = d.empType || "-";
 
-            // Docs Building
-            const docs = ["Contract", "CV/Resume", "Academic", "License", "ID/Passport", "KRA", "SHIF", "NSSF", "Bank form"];
-            document.getElementById('docList').innerHTML = docs.map(doc => `
-                <div class="glass-card p-4 flex justify-between items-center">
-                    <span class="text-[10px] font-bold uppercase">${doc}</span>
-                    <input type="file" id="f-${doc.replace(/[^a-z0-9]/gi,'')}" class="hidden" onchange="alert('File Ready')">
-                    <button onclick="document.getElementById('f-${doc.replace(/[^a-z0-9]/gi,'')}').click()" class="text-green-600 text-[10px] font-black border border-green-200 px-3 py-1 rounded">UPLOAD</button>
-                </div>
-            `).join('');
+            const docs = ["Employee Contract", "CV/Resume", "Academic Documents", "License", "National ID/Passport", "KRA", "SHIF", "NSSF", "Bank form"];
+            document.getElementById('docList').innerHTML = docs.map(doc => `<div class="glass-card p-4 flex justify-between items-center text-[10px] font-bold"><span>${doc}</span><button class="text-green-600 border border-green-50 px-3 py-1 rounded">UPLOAD</button></div>`).join('');
 
-            // Leave Building
-            const leaves = ["Annual", "Sick", "Maternity", "Paternity", "Compassionate"];
-            document.getElementById('leaveCards').innerHTML = leaves.map(l => `
-                <div class="glass-card p-4">
-                    <p class="font-black text-green-600 uppercase text-[10px] mb-2">${l} Leave</p>
-                    <div class="grid grid-cols-3 text-[9px] font-bold text-center">
-                        <div><p class="text-slate-400">ACCRUED</p><p>0</p></div>
-                        <div><p class="text-slate-400">USED</p><p>0</p></div>
-                        <div><p class="text-blue-600">BAL</p><p>0</p></div>
+            const leaves = {annual:'Annual', sick:'Sick', mat:'Maternity', pat:'Paternity', comp:'Compassionate'};
+            document.getElementById('leaveCards').innerHTML = Object.keys(leaves).map(k => `
+                <div class="glass-card p-5">
+                    <p class="font-black text-blue-600 uppercase text-[9px] mb-3">${leaves[k]} Leave</p>
+                    <div class="grid grid-cols-3 text-center gap-2 mb-4">
+                        <div><p class="text-[8px] text-slate-400 uppercase">Accrued</p><p class="font-bold">${d.bal[k][0]}</p></div>
+                        <div><p class="text-[8px] text-slate-400 uppercase">Utilized</p><p class="font-bold text-red-400">${d.bal[k][1]}</p></div>
+                        <div><p class="text-[8px] text-slate-400 uppercase">Balance</p><p class="font-bold text-green-600">${d.bal[k][0]-d.bal[k][1]}</p></div>
                     </div>
+                    <button class="btn-primary py-2 text-[10px]">APPLY FOR ${leaves[k].toUpperCase()}</button>
                 </div>
             `).join('');
 
-            if(localStorage.getItem('lc_admin') === '1') document.getElementById('n-settings').classList.remove('hidden');
+            if(localStorage.getItem('lc_admin') === '1') showAdmin();
+            updateClockButtons(localStorage.getItem('lc_status_'+d.id));
             fetchConfig();
         }
 
@@ -206,32 +254,18 @@
             s.src = `${CLOUD_URL}?action=get_settings&callback=hSet`;
             document.body.appendChild(s);
         }
+        window.hSet = (d) => { config=d; document.getElementById('sLat').value=d.lat; document.getElementById('sLon').value=d.lon; document.getElementById('sRad').value=d.rad; startGPS(); }
 
-        window.hSet = (d) => {
-            config = d;
-            document.getElementById('sLat').value = d.lat;
-            document.getElementById('sLon').value = d.lon;
-            document.getElementById('sRad').value = d.rad;
-            startGPSWatch();
-        }
-
-        function startGPSWatch() {
+        function startGPS() {
             navigator.geolocation.watchPosition(p => {
                 const dist = getDist(p.coords.latitude, p.coords.longitude, config.lat, config.lon);
-                const inRange = dist <= config.rad;
-                document.getElementById('vicLabel').innerText = inRange ? "INSIDE HOSPITAL" : Math.round(dist) + "m FROM HOSPITAL";
-                document.getElementById('vicLabel').style.color = inRange ? "#22c55e" : "#ef4444";
-                document.getElementById('btnIn').classList.toggle('inactive-btn', !inRange);
-                document.getElementById('btnOut').classList.toggle('inactive-btn', !inRange);
-            }, null, {enableHighAccuracy: true});
-        }
-
-        function getDist(lat1, lon1, lat2, lon2) {
-            const R = 6371e3;
-            const f1 = lat1 * Math.PI/180, f2 = lat2 * Math.PI/180;
-            const df = (lat2-lat1)*Math.PI/180, dl = (lon2-lon1)*Math.PI/180;
-            const a = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                document.getElementById('vicLabel').innerText = Math.round(dist) + "m FROM HOSPITAL SITE";
+                const active = dist <= config.rad;
+                [document.getElementById('btnIn'), document.getElementById('btnOut')].forEach(b => {
+                    b.classList.toggle('inactive-btn', !active);
+                    b.disabled = !active;
+                });
+            }, null, {enableHighAccuracy:true});
         }
 
         function clock(type) {
@@ -239,38 +273,93 @@
             navigator.geolocation.getCurrentPosition(p => {
                 const loc = `${p.coords.latitude.toFixed(4)},${p.coords.longitude.toFixed(4)}`;
                 const s = document.createElement('script');
-                s.src = `${CLOUD_URL}?action=clock_action&id=${user.id}&type=${type}&location=${loc}&callback=hClock`;
+                s.src = `${CLOUD_URL}?action=clock_action&id=${user.id}&name=${encodeURIComponent(user.name)}&type=${type}&location=${loc}&callback=hClock`;
                 document.body.appendChild(s);
-            });
+            }, () => { setLoading(false); alert("Enable GPS."); });
         }
+        window.hClock = (d) => { setLoading(false); localStorage.setItem('lc_status_'+user.id, d.type); updateClockButtons(d.type); }
 
-        window.hClock = (d) => {
-            setLoading(false);
-            if(d.type === 'IN') {
-                document.getElementById('btnIn').classList.add('hidden');
-                document.getElementById('btnOut').classList.remove('hidden');
-            } else {
-                document.getElementById('btnIn').classList.remove('hidden');
-                document.getElementById('btnOut').classList.add('hidden');
-            }
-            alert("Success: " + d.type);
+        function updateClockButtons(st) {
+            document.getElementById('btnIn').classList.toggle('hidden', st==='IN');
+            document.getElementById('btnOut').classList.toggle('hidden', st!=='IN');
         }
 
         function nav(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-            document.getElementById('t-' + id).classList.add('active');
-            document.getElementById('n-' + id).classList.add('active');
+            document.getElementById('t-'+id).classList.add('active');
+            document.getElementById('n-'+id).classList.add('active');
+            if(id === 'logs') fetchLogs();
+            if(id === 'reports') fetchReports();
         }
 
-        function adminPrompt() { if(prompt("Admin Password:") === "1201") { localStorage.setItem('lc_admin', '1'); location.reload(); } }
-        function logout() { localStorage.clear(); location.reload(); }
+        function fetchLogs() {
+            setLoading(true);
+            const s = document.createElement('script');
+            s.src = `${CLOUD_URL}?action=get_logs&id=${user.id}&callback=hLogs`;
+            document.body.appendChild(s);
+        }
 
-        window.onload = () => {
-            const sess = localStorage.getItem('lc_sess');
-            if(sess) startApp(JSON.parse(sess));
-            else document.getElementById('authSection').classList.remove('hidden');
-        };
+        window.hLogs = (d) => {
+            setLoading(false);
+            // 1. Table View (24Hr)
+            document.getElementById('logsBody').innerHTML = d.logs.map(l => `
+                <tr><td>${l.date}</td><td>${l.status}</td><td>${l.in}</td><td>${l.out}</td><td>${l.total}</td></tr>
+            `).join('');
+            // 2. Vertical Calendar
+            document.getElementById('verticalTimeline').innerHTML = d.logs.map(l => {
+                let color = l.status === 'Present' ? 'bg-green-500' : (l.status === 'Absent' ? 'bg-red-500' : 'bg-blue-400');
+                return `<div class="timeline-item"><div class="status-dot ${color}"></div><span class="text-[10px] font-bold flex-1">${l.date}</span><span class="text-[9px] uppercase font-black">${l.status}</span></div>`;
+            }).join('');
+        }
+
+        function fetchReports() {
+            setLoading(true);
+            const s = document.createElement('script');
+            s.src = `${CLOUD_URL}?action=get_admin_reports&callback=hRep`;
+            document.body.appendChild(s);
+        }
+        window.hRep = (d) => {
+            setLoading(false);
+            // Summary Report
+            let h1 = `<tr><th>ID</th><th>Name</th><th>Dept</th><th>Desig</th>`;
+            for(let i=1; i<=d.days; i++) h1 += `<th>${i}</th>`;
+            h1 += `<th>P</th><th>A</th><th>L</th><th>O</th></tr>`;
+            document.getElementById('repSumm').innerHTML = h1 + d.summary.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.dept}</td><td>${r.desig}</td>${r.dates.map(st => `<td>${st}</td>`).join('')}<td>${r.pres}</td><td>${r.abs}</td><td>${r.leave}</td><td>${r.out}</td></tr>`).join('');
+            
+            // Date-wise/Work Hours Report
+            document.getElementById('repDate').innerHTML = `<tr><th>ID</th><th>Name</th><th>Dept</th><th>Desig</th><th>Total Month Hrs</th><th>Avg Duration</th></tr>` + d.details.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.dept}</td><td>${r.desig}</td><td>${r.total}</td><td>${r.avg}</td></tr>`).join('');
+        }
+
+        function exportCSV(id) {
+            const t = document.getElementById(id); let csv = [];
+            for(let i=0; i<t.rows.length; i++){
+                let r = []; const c = t.rows[i].querySelectorAll("td, th");
+                for(let j=0; j<c.length; j++) r.push('"' + c[j].innerText + '"');
+                csv.push(r.join(","));
+            }
+            const b = new Blob([csv.join("\n")], {type: 'text/csv'});
+            const a = document.createElement('a'); a.href = window.URL.createObjectURL(b); a.download = id + ".csv"; a.click();
+        }
+
+        function getDist(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; const f1 = lat1 * Math.PI/180, f2 = lat2 * Math.PI/180;
+            const df = (lat2-lat1)*Math.PI/180, dl = (lon2-lon1)*Math.PI/180;
+            const a = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
+        function saveSettings() {
+            setLoading(true);
+            const lat = document.getElementById('sLat').value, lon = document.getElementById('sLon').value, rad = document.getElementById('sRad').value;
+            const s = document.createElement('script');
+            s.src = `${CLOUD_URL}?action=update_settings&lat=${lat}&lon=${lon}&rad=${rad}&callback=hSaved`;
+            document.body.appendChild(s);
+        }
+        window.hSaved = () => { setLoading(false); alert("Settings Updated."); location.reload(); }
+
+        function logout() { localStorage.clear(); location.reload(); }
+        window.onload = () => { const s = localStorage.getItem('lc_sess'); if(s) startApp(JSON.parse(s)); }
     </script>
 </body>
 </html>
