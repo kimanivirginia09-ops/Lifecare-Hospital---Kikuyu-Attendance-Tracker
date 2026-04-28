@@ -23,24 +23,21 @@
 
 <div id="loader">
     <div class="w-12 h-12 border-4 border-t-green-500 rounded-full animate-spin"></div>
-    <p class="mt-4 text-green-600 font-bold text-[10px] uppercase">Authenticating...</p>
+    <p class="mt-4 text-green-600 font-bold text-[10px] uppercase">Processing...</p>
 </div>
 
 <div id="authPage" class="max-w-md mx-auto min-h-screen flex flex-col justify-center px-8 relative">
     <button onclick="checkAdmin()" class="absolute top-6 right-6 text-[10px] bg-slate-50 text-slate-500 px-3 py-1 rounded border font-bold uppercase">Admin Access</button>
-    
     <div class="text-center mb-10">
         <h1 class="text-4xl font-black text-slate-800">LIFECARE</h1>
         <p class="text-[10px] tracking-widest text-slate-400 uppercase">Hospital Kikuyu Portal</p>
     </div>
-
     <div id="loginView">
         <input type="email" id="lEmail" placeholder="Work Email" class="w-full border p-4 rounded-xl mb-3 outline-none focus:border-green-500 bg-slate-50">
         <input type="password" id="lPass" placeholder="Password" class="w-full border p-4 rounded-xl mb-6 outline-none focus:border-green-500 bg-slate-50">
         <button onclick="handleAuth()" class="btn-green uppercase">Log In</button>
         <button onclick="toggleAuth(true)" class="w-full text-[10px] text-blue-500 mt-6 font-bold uppercase">Register New Staff</button>
     </div>
-
     <div id="regView" class="hidden">
         <input type="text" id="rId" placeholder="Employee ID" class="w-full border p-4 rounded-xl mb-3 outline-none bg-slate-50">
         <input type="email" id="rEmail" placeholder="Work Email" class="w-full border p-4 rounded-xl mb-3 outline-none bg-slate-50">
@@ -58,24 +55,20 @@
             <button onclick="location.reload()" class="text-red-500 font-bold text-[10px] uppercase">Logout</button>
         </div>
     </header>
-
     <main>
         <div id="t-home" class="tab-content active text-center py-12">
             <p id="gpsLabel" class="text-[9px] font-bold text-red-500 mb-8 uppercase italic tracking-widest">Verifying GPS...</p>
             <button id="btnIn" onclick="clock('IN')" class="btn-green py-20 text-4xl inactive-btn" disabled>CLOCK IN</button>
             <button id="btnOut" onclick="clock('OUT')" class="btn-green py-20 text-4xl hidden">CLOCK OUT</button>
         </div>
-        
         <div id="t-logs" class="tab-content">
             <h3 class="font-black text-[10px] text-blue-900 uppercase mb-4">My Logs</h3>
             <div class="overflow-x-auto glass-card p-0"><table id="logsTable"><thead><tr><th>Date</th><th>In</th><th>Out</th></tr></thead><tbody id="logsBody"></tbody></table></div>
         </div>
-
         <div id="t-leave" class="tab-content">
             <h3 class="font-black text-[10px] text-blue-900 uppercase mb-4">Leave Balances</h3>
             <div id="leaveArea" class="space-y-3"></div>
         </div>
-
         <div id="t-bio" class="tab-content">
             <h1 id="bioName" class="text-3xl font-black text-slate-800 uppercase mb-6 leading-none"></h1>
             <div class="glass-card text-xs space-y-4">
@@ -84,7 +77,6 @@
             </div>
         </div>
     </main>
-
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-4 shadow-lg">
         <div onclick="nav('home')" id="n-home" class="nav-btn active">Home</div>
         <div onclick="nav('logs')" id="n-logs" class="nav-btn">Logs</div>
@@ -102,34 +94,37 @@
     function toggleAuth(reg) { document.getElementById('loginView').classList.toggle('hidden', reg); document.getElementById('regView').classList.toggle('hidden', !reg); }
     function checkAdmin() { if(prompt("PIN:") === "1234") { document.getElementById('n-admin').classList.remove('hidden'); document.getElementById('adminBadge').classList.remove('hidden'); } }
 
-    function handleAuth() {
+    async function handleAuth() {
         setLoading(true);
         const email = document.getElementById('lEmail').value.trim().toLowerCase();
-        const s = document.createElement('script');
-        s.src = `${SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&callback=onAuth`;
-        document.body.appendChild(s);
-    }
-
-    window.onAuth = (d) => {
-        setLoading(false);
         const pass = document.getElementById('lPass').value.trim();
-        // Force both to strings and trim to prevent hidden space errors
-        if(d.exists && String(d.pass).trim() === String(pass)) {
-            user = d;
-            document.getElementById('authPage').classList.add('hidden');
-            document.getElementById('portalApp').classList.remove('hidden');
-            initApp();
-        } else {
-            alert("Login Failed: Check your work email and password.");
-        }
+        try {
+            const response = await fetch(`${SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}`);
+            const d = await response.json();
+            setLoading(false);
+            if(d.exists && String(d.pass).trim() === String(pass)) {
+                user = d;
+                document.getElementById('authPage').classList.add('hidden');
+                document.getElementById('portalApp').classList.remove('hidden');
+                initApp();
+            } else {
+                alert("Login Failed: Check credentials.");
+            }
+        } catch (e) { setLoading(false); alert("Connection Error"); }
     }
 
-    function handleReg() {
+    async function handleReg() {
         setLoading(true);
-        const q = `action=register&id=${document.getElementById('rId').value}&email=${encodeURIComponent(document.getElementById('rEmail').value)}&pass=${document.getElementById('rPass').value}`;
-        const s = document.createElement('script'); s.src = `${SCRIPT_URL}?${q}&callback=onReg`; document.body.appendChild(s);
+        const id = document.getElementById('rId').value;
+        const email = encodeURIComponent(document.getElementById('rEmail').value);
+        const pass = document.getElementById('rPass').value;
+        try {
+            await fetch(`${SCRIPT_URL}?action=register&id=${id}&email=${email}&pass=${pass}`);
+            setLoading(false);
+            alert("Saved! Please Login.");
+            toggleAuth(false);
+        } catch (e) { setLoading(false); alert("Reg Error"); }
     }
-    window.onReg = () => { setLoading(false); alert("Saved! Please Login."); toggleAuth(false); }
 
     function initApp() {
         document.getElementById('bioName').innerText = user.name;
@@ -140,8 +135,13 @@
         fetchSettings();
     }
 
-    function fetchSettings() { const s=document.createElement('script'); s.src=`${SCRIPT_URL}?action=get_settings&callback=onSet`; document.body.appendChild(s); }
-    window.onSet = (d) => { config = d; trackGPS(); }
+    async function fetchSettings() {
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=get_settings`);
+            config = await res.json();
+            trackGPS();
+        } catch(e) { console.log("Settings Error"); }
+    }
 
     function trackGPS() {
         navigator.geolocation.watchPosition(p => {
@@ -161,15 +161,16 @@
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    function clock(t) {
+    async function clock(t) {
         setLoading(true);
-        navigator.geolocation.getCurrentPosition(p => {
-            const s = document.createElement('script');
-            s.src = `${SCRIPT_URL}?action=clock_action&id=${user.id}&name=${encodeURIComponent(user.name)}&type=${t}&callback=onClock`;
-            document.body.appendChild(s);
+        navigator.geolocation.getCurrentPosition(async p => {
+            try {
+                await fetch(`${SCRIPT_URL}?action=clock_action&id=${user.id}&name=${encodeURIComponent(user.name)}&type=${t}`);
+                setLoading(false);
+                alert("Success!");
+            } catch(e) { setLoading(false); alert("Clock Error"); }
         });
     }
-    window.onClock = () => { setLoading(false); alert("Success!"); }
 
     function nav(id) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
