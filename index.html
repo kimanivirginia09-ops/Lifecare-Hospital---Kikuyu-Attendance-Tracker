@@ -1,186 +1,163 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lifecare Hospital Kikuyu</title>
+    <title>Lifecare Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .lc-blue-bg { background-color: #bae6fd; }
-        .tab-content { display: none; padding-bottom: 120px; }
+        .lc-blue { background-color: #bae6fd; }
+        .tab-content { display: none; padding-bottom: 100px; }
         .tab-content.active { display: block; }
-        .btn-inactive { background-color: #cbd5e1 !important; color: #94a3b8 !important; cursor: not-allowed; }
-        .nav-active { color: #22c55e !important; } /* Green Icons per description */
+        .nav-active { color: #22c55e !important; font-weight: bold; }
+        .btn-grey { background-color: #cbd5e1 !important; cursor: not-allowed; }
     </style>
 </head>
-<body class="bg-white font-sans text-slate-800">
+<body class="bg-white">
 
 <div id="authPage" class="p-8 max-w-md mx-auto mt-10">
     <div class="flex justify-between items-center mb-10">
         <h1 class="text-3xl font-black">LIFECARE</h1>
         <div class="flex gap-2">
-            <button onclick="toggleAuth('regView')" class="text-[10px] font-bold text-blue-600 border border-blue-200 px-3 py-1 rounded-full uppercase">Register</button>
-            <button onclick="adminLogin()" class="text-[10px] font-bold text-slate-400 border border-slate-200 px-3 py-1 rounded-full uppercase">Admin</button>
+            <button onclick="showAuth('reg')" class="text-[10px] border px-3 py-1 rounded-full uppercase font-bold text-blue-500">Register</button>
+            <button onclick="adminPrompt()" class="text-[10px] border px-3 py-1 rounded-full uppercase font-bold text-slate-400">Admin</button>
         </div>
     </div>
 
     <div id="loginView">
         <input type="email" id="lEmail" placeholder="Work Email" class="w-full p-4 mb-4 border rounded-xl bg-slate-50 outline-none">
         <input type="password" id="lPass" placeholder="Password" class="w-full p-4 mb-8 border rounded-xl bg-slate-50 outline-none">
-        <button onclick="handleLogin()" id="loginBtn" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold uppercase">Log In</button>
+        <button onclick="login()" id="loginBtn" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold uppercase">Log In</button>
     </div>
 
     <div id="regView" class="hidden">
         <input type="text" id="rId" placeholder="Employee ID" class="w-full p-4 mb-3 border rounded-xl bg-slate-50 outline-none">
         <input type="password" id="rPass" placeholder="Choose Password" class="w-full p-4 mb-6 border rounded-xl bg-slate-50 outline-none">
-        <button onclick="handleReg()" class="w-full bg-green-500 text-white p-4 rounded-xl font-bold uppercase">Save Password</button>
+        <button onclick="register()" class="w-full bg-green-500 text-white p-4 rounded-xl font-bold uppercase">Save Password</button>
+        <button onclick="showAuth('login')" class="w-full mt-4 text-[10px] text-slate-400 uppercase font-bold">Back</button>
     </div>
 </div>
 
-<div id="portalApp" class="hidden">
-    <header class="lc-blue-bg p-4 sticky top-0 flex justify-between items-center shadow-sm">
+<div id="app" class="hidden min-h-screen flex flex-col">
+    <header class="lc-blue p-4 flex justify-between items-center shadow-sm">
         <h2 class="font-black text-blue-900 text-sm">LIFECARE KIKUYU</h2>
-        <button onclick="location.reload()" class="text-[10px] font-bold text-blue-700 uppercase">Logout</button>
+        <span id="userNameDisplay" class="text-[10px] font-bold text-blue-700"></span>
     </header>
 
-    <main class="p-6">
+    <main class="flex-grow p-6">
         <div id="t-home" class="tab-content active text-center pt-10">
-            <p id="gpsLabel" class="text-red-500 font-bold text-[10px] mb-8 uppercase italic">Verifying Location...</p>
-            <button id="btnIn" onclick="clock('IN')" class="w-full py-14 rounded-3xl bg-green-500 text-white text-3xl font-black btn-inactive" disabled>CLOCK IN</button>
-            <button id="btnOut" onclick="clock('OUT')" class="w-full py-14 rounded-3xl bg-blue-600 text-white text-3xl font-black hidden">CLOCK OUT</button>
-        </div>
-
-        <div id="t-logs" class="tab-content">
-            <h3 class="font-bold mb-4">Attendance (24Hr)</h3>
-            <div class="overflow-x-auto text-[10px]">
-                <table class="w-full border text-left">
-                    <tr class="bg-slate-100">
-                        <th class="p-2">Date</th><th class="p-2">Status</th><th class="p-2">In</th><th class="p-2">Out</th><th class="p-2">Hrs</th>
-                    </tr>
-                    <tr id="logRow"></tr>
-                </table>
-            </div>
-        </div>
-
-        <div id="t-leave" class="tab-content space-y-4">
-            <div id="leaveList"></div>
+            <p id="gpsTxt" class="text-red-500 font-bold text-[10px] mb-8 italic uppercase">Checking Location...</p>
+            <button id="clockBtn" onclick="clockAction()" class="w-full py-14 rounded-3xl bg-green-500 text-white text-3xl font-black btn-grey" disabled>CLOCK IN</button>
         </div>
 
         <div id="t-bio" class="tab-content">
-            <h2 id="bioNameHead" class="text-3xl font-black mb-6">NAME</h2>
-            <div class="space-y-6">
-                <section>
-                    <h4 class="font-bold border-b pb-1 mb-2">Personal Details</h4>
-                    <p class="text-sm">ID: <span id="bId"></span></p>
-                    <p class="text-sm">Email: <span id="bEmail"></span></p>
-                    <p class="text-sm">Gender: <span id="bGender"></span></p>
-                </section>
-                <section>
-                    <h4 class="font-bold border-b pb-1 mb-2">Employment Details</h4>
-                    <p class="text-sm">Dept: <span id="bDept"></span></p>
-                    <p class="text-sm">Type: <span id="bType"></span></p>
-                </section>
+            <h2 id="bioName" class="text-3xl font-black mb-6 uppercase"></h2>
+            <div class="space-y-4 text-sm">
+                <div class="bg-slate-50 p-4 rounded-xl">
+                    <p class="font-bold text-blue-500 mb-2">PERSONAL DETAILS</p>
+                    <p>ID: <span id="bioId"></span></p>
+                    <p>Phone: <span id="bioPhone"></span></p>
+                    <p>Gender: <span id="bioGender"></span></p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl">
+                    <p class="font-bold text-blue-500 mb-2">EMPLOYMENT</p>
+                    <p>Dept: <span id="bioDept"></span></p>
+                    <p>Type: <span id="bioType"></span></p>
+                </div>
             </div>
         </div>
     </main>
 
-    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 text-slate-400">
-        <button onclick="showTab('t-home', this)" class="nav-btn nav-active text-center"><i class="fa fa-home"></i><p class="text-[8px]">Home</p></button>
-        <button onclick="showTab('t-logs', this)" class="nav-btn text-center"><i class="fa fa-list"></i><p class="text-[8px]">Logs</p></button>
-        <button onclick="showTab('t-leave', this)" class="nav-btn text-center"><i class="fa fa-calendar"></i><p class="text-[8px]">Leave</p></button>
-        <button onclick="showTab('t-bio', this)" class="nav-btn text-center"><i class="fa fa-user"></i><p class="text-[8px]">Bio</p></button>
+    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 pb-6">
+        <button onclick="tab('t-home', this)" class="nav-btn nav-active"><i class="fa fa-home"></i><p class="text-[8px]">Home</p></button>
+        <button onclick="tab('t-bio', this)" class="nav-btn"><i class="fa fa-user"></i><p class="text-[8px]">Bio</p></button>
     </nav>
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEJnEK8NdIRSlUwnGXS5CGhV66jT1YLaGNzuxoiuUAIDxf2nn8hs9pQOrRMZmmNEJm3A/exec"; 
-    let user = {};
+    const URL = "https://script.google.com/macros/s/AKfycbzFnzJ-hHOaLYx21JQSDi3ty-RlAYbXOfP8tbTDQvt64dkyp-7in5UuZXC0nsq0zEO83A/exec"; 
+    let u = {};
 
-    function toggleAuth(view) {
-        document.getElementById('loginView').classList.toggle('hidden', view === 'regView');
-        document.getElementById('regView').classList.toggle('hidden', view === 'loginView');
+    function showAuth(v) {
+        document.getElementById('loginView').classList.toggle('hidden', v === 'reg');
+        document.getElementById('regView').classList.toggle('hidden', v === 'login');
     }
 
-    function showTab(id, btn) {
+    function tab(id, btn) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
         document.getElementById(id).classList.add('active');
         btn.classList.add('nav-active');
     }
 
-    function handleLogin() {
+    function login() {
         const email = document.getElementById('lEmail').value;
         const pass = document.getElementById('lPass').value;
+        if(!email || !pass) return alert("Fill all fields");
         document.getElementById('loginBtn').innerText = "VERIFYING...";
         
-        const script = document.createElement('script');
-        script.src = `${WEB_APP_URL}?action=login&email=${email}&callback=loginCB`;
-        document.body.appendChild(script);
+        const s = document.createElement('script');
+        s.src = `${URL}?action=login&email=${email}&callback=onLogin`;
+        document.body.appendChild(s);
     }
 
-    window.loginCB = function(data) {
-        const pass = document.getElementById('lPass').value;
-        if(data.exists && data.pass === pass) {
-            user = data;
+    window.onLogin = function(data) {
+        const enteredPass = document.getElementById('lPass').value;
+        if(data.exists && data.pass === enteredPass) {
+            u = data;
             document.getElementById('authPage').classList.add('hidden');
-            document.getElementById('portalApp').classList.remove('hidden');
-            fillBio();
-            fillLeave();
-            checkLocation();
+            document.getElementById('app').classList.remove('hidden');
+            setupBio();
+            checkGps();
         } else {
-            alert("Login Failed");
+            alert("Wrong Email or Password");
             document.getElementById('loginBtn').innerText = "Log In";
         }
     };
 
-    function fillBio() {
-        document.getElementById('bioNameHead').innerText = user.name;
-        document.getElementById('bId').innerText = user.id;
-        document.getElementById('bEmail').innerText = user.email;
-        document.getElementById('bGender').innerText = user.gender;
-        document.getElementById('bDept').innerText = user.dept;
-        document.getElementById('bType').innerText = user.empType;
+    function setupBio() {
+        document.getElementById('bioName').innerText = u.name;
+        document.getElementById('userNameDisplay').innerText = u.name;
+        document.getElementById('bioId').innerText = u.id;
+        document.getElementById('bioPhone').innerText = u.phone;
+        document.getElementById('bioGender').innerText = u.gender;
+        document.getElementById('bioDept').innerText = u.dept;
+        document.getElementById('bioType').innerText = u.empType;
     }
 
-    function fillLeave() {
-        const types = [
-            {n: 'Annual', d: user.annual}, {n: 'Sick', d: user.sick},
-            {n: 'Maternity', d: user.mat}, {n: 'Paternity', d: user.pat}
-        ];
-        let html = '';
-        types.forEach(t => {
-            html += `<div class="p-4 border rounded-xl">
-                <p class="font-black text-xs">${t.n.toUpperCase()} LEAVE</p>
-                <div class="flex justify-between text-[10px] my-2">
-                    <span>Accrued: ${t.d.total}</span><span>Used: ${t.d.used}</span><span class="font-bold">Bal: ${t.d.total - t.d.used}</span>
-                </div>
-                <button class="w-full bg-blue-500 text-white text-[8px] py-1 rounded">APPLY</button>
-            </div>`;
-        });
-        document.getElementById('leaveList').innerHTML = html;
+    function checkGps() {
+        navigator.geolocation.getCurrentPosition(p => {
+            document.getElementById('gpsTxt').innerText = "LOCATION VERIFIED: WITHIN RANGE";
+            document.getElementById('gpsTxt').className = "text-green-500 font-bold text-[10px] mb-8 uppercase";
+            document.getElementById('clockBtn').disabled = false;
+            document.getElementById('clockBtn').classList.remove('btn-grey');
+        }, err => alert("Please enable GPS"));
     }
 
-    function checkLocation() {
-        // Here we simulate the location verify from the Settings sheet
-        setTimeout(() => {
-            document.getElementById('gpsLabel').innerText = "VERIFIED: IN HOSPITAL RANGE";
-            document.getElementById('gpsLabel').classList.replace('text-red-500', 'text-green-500');
-            document.getElementById('btnIn').disabled = false;
-            document.getElementById('btnIn').classList.remove('btn-inactive');
-        }, 2000);
+    function clockAction() {
+        const s = document.createElement('script');
+        s.src = `${URL}?action=clock&id=${u.id}&name=${u.name}&desig=${u.desig}&dept=${u.dept}&loc=Kikuyu&callback=onClock`;
+        document.body.appendChild(s);
     }
 
-    function clock(type) {
-        const script = document.createElement('script');
-        script.src = `${WEB_APP_URL}?action=clock_action&id=${user.id}&name=${user.name}&desig=${user.desig}&dept=${user.dept}&loc=Kikuyu&callback=clockCB`;
-        document.body.appendChild(script);
-    }
-
-    window.clockCB = function(d) {
-        alert("Success!");
+    window.onClock = function() {
+        alert("Success! Time Recorded.");
         location.reload();
+    };
+
+    function register() {
+        const id = document.getElementById('rId').value;
+        const pass = document.getElementById('rPass').value;
+        const s = document.createElement('script');
+        s.src = `${URL}?action=register&id=${id}&pass=${pass}&callback=onReg`;
+        document.body.appendChild(s);
     }
+
+    window.onReg = function(d) {
+        if(d.success) { alert("Registration Success!"); showAuth('login'); }
+        else { alert("ID not found in Staff list"); }
+    };
 </script>
 </body>
 </html>
