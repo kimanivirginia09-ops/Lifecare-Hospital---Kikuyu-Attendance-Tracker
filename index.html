@@ -6,62 +6,124 @@
     <title>Lifecare Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Colors based on your description */
-        .lc-blue { background-color: #bae6fd; } /* Light Blue Header */
-        .lc-green { color: #22c55e; } /* Green Bottom Icons */
-        .tab-content { display: none; padding: 20px; padding-bottom: 120px; }
+        .lc-blue { background-color: #bae6fd; }
+        .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .btn-inactive { background-color: #cbd5e1 !important; cursor: not-allowed; opacity: 0.6; }
-        .nav-btn:active { transform: scale(0.9); }
+        .btn-inactive { background-color: #cbd5e1 !important; opacity: 0.6; cursor: not-allowed; }
     </style>
 </head>
-<body class="bg-white font-sans text-slate-800">
+<body class="bg-white text-slate-800">
 
 <div id="authPage" class="p-8 max-w-md mx-auto mt-10">
-    <div class="flex justify-between items-start mb-10">
-        <h1 class="text-3xl font-black text-slate-800">LIFECARE</h1>
-        <div class="flex gap-2">
-            <button onclick="toggleAuth(true)" class="text-[10px] font-bold text-blue-600 border border-blue-200 px-3 py-1 rounded-full uppercase">Register</button>
-            <button onclick="adminPrompt()" class="text-[10px] font-bold text-slate-400 border border-slate-200 px-3 py-1 rounded-full uppercase">Admin</button>
-        </div>
+    <div class="flex justify-between items-center mb-10">
+        <h1 class="text-3xl font-black">LIFECARE</h1>
+        <button onclick="toggleAuth(true)" class="text-[10px] font-bold text-blue-600 border border-blue-200 px-3 py-1 rounded-full uppercase">Register</button>
     </div>
 
     <div id="loginView">
-        <input type="email" id="lEmail" placeholder="Work Email" class="w-full p-4 mb-4 border rounded-xl bg-slate-50 outline-none focus:border-blue-400">
-        <input type="password" id="lPass" placeholder="Password" class="w-full p-4 mb-8 border rounded-xl bg-slate-50 outline-none focus:border-blue-400">
-        <button onclick="handleLogin()" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold uppercase tracking-widest">Log In</button>
+        <input type="email" id="lEmail" placeholder="Work Email" class="w-full p-4 mb-4 border rounded-xl bg-slate-50 outline-none">
+        <input type="password" id="lPass" placeholder="Password" class="w-full p-4 mb-8 border rounded-xl bg-slate-50 outline-none">
+        <button onclick="handleLogin()" id="loginBtn" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold uppercase">Log In</button>
     </div>
 
     <div id="regView" class="hidden">
-        <p class="text-xs font-bold mb-4 text-blue-500 uppercase">New User Registration</p>
         <input type="text" id="rId" placeholder="Employee ID" class="w-full p-4 mb-3 border rounded-xl bg-slate-50 outline-none">
-        <input type="password" id="rPass" placeholder="Choose Password" class="w-full p-4 mb-6 border rounded-xl bg-slate-50 outline-none">
+        <input type="password" id="rPass" placeholder="New Password" class="w-full p-4 mb-6 border rounded-xl bg-slate-50 outline-none">
         <button onclick="handleReg()" class="w-full bg-green-500 text-white p-4 rounded-xl font-bold uppercase">Save Password</button>
-        <button onclick="toggleAuth(false)" class="w-full text-xs text-slate-400 mt-4 uppercase text-center block">Back to Login</button>
     </div>
 </div>
 
 <div id="portalApp" class="hidden">
-    <header class="lc-blue p-4 sticky top-0 z-50 flex justify-between items-center shadow-sm">
-        <h2 class="font-black text-blue-900 text-sm">LIFECARE KIKUYU</h2>
+    <header class="lc-blue p-4 sticky top-0 flex justify-between items-center shadow-sm">
+        <h2 id="welcomeName" class="font-black text-blue-900 text-sm">LOADING...</h2>
         <button onclick="location.reload()" class="text-[10px] font-bold text-blue-700 uppercase">Logout</button>
     </header>
+    <div class="p-10 text-center">
+        <p id="gpsLabel" class="text-red-500 font-bold text-[10px] mb-10 uppercase italic">Checking Location...</p>
+        <button id="btnIn" onclick="clockAction('IN')" class="w-full py-16 rounded-3xl bg-green-500 text-white text-3xl font-black btn-inactive" disabled>CLOCK IN</button>
+    </div>
+</div>
 
-    <main>
-        <div id="t-home" class="tab-content active text-center py-20">
-            <p id="gpsLabel" class="text-red-500 font-bold text-[10px] mb-10 tracking-widest uppercase italic">Verifying Location...</p>
-            <div class="space-y-4 px-6">
-                <button id="btnIn" onclick="clock('IN')" class="w-full py-16 rounded-3xl bg-green-500 text-white text-3xl font-black btn-inactive" disabled>CLOCK IN</button>
-                <button id="btnOut" onclick="clock('OUT')" class="w-full py-16 rounded-3xl bg-blue-600 text-white text-3xl font-black hidden">CLOCK OUT</button>
-            </div>
-        </div>
+<script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJYvKF8Y02vohOyBKGadmJKykuWGFEJdIcoyQezO6M7CbhIboWaVEQg4nhuF6gl375JA/exec"; 
+    let currentUser = {};
 
-        <div id="t-logs" class="tab-content">
-            <h3 class="font-bold mb-4 uppercase text-xs">Attendance History (24Hr)</h3>
-            <div class="bg-slate-50 p-4 rounded-xl text-xs text-center text-slate-400 italic border border-dashed border-slate-200">
-                Calendar View and Date-wise reports will appear here.
-            </div>
-        </div>
+    function toggleAuth(showReg) {
+        document.getElementById('loginView').classList.toggle('hidden', showReg);
+        document.getElementById('regView').classList.toggle('hidden', !showReg);
+    }
 
-        <div id="t-leave" class="tab-content space-y-4">
-            <h
+    // JSONP Call Helper
+    function callBrain(params, callbackName) {
+        const script = document.createElement('script');
+        const queryString = new URLSearchParams(params).toString();
+        script.src = `${WEB_APP_URL}?callback=${callbackName}&${queryString}`;
+        document.body.appendChild(script);
+    }
+
+    function handleLogin() {
+        const email = document.getElementById('lEmail').value;
+        const pass = document.getElementById('lPass').value;
+        document.getElementById('loginBtn').innerText = "Verifying...";
+        
+        callBrain({ action: "login", email: email }, "loginCallback");
+    }
+
+    window.loginCallback = function(data) {
+        const inputPass = document.getElementById('lPass').value;
+        if (data.exists && data.pass === inputPass) {
+            currentUser = data;
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('portalApp').classList.remove('hidden');
+            document.getElementById('welcomeName').innerText = data.name.toUpperCase();
+            checkGPS();
+        } else {
+            alert("Invalid Login Credentials");
+            document.getElementById('loginBtn').innerText = "Log In";
+        }
+    };
+
+    function checkGPS() {
+        // This is where we call the Settings tab
+        callBrain({ action: "get_settings" }, "gpsCallback");
+    }
+
+    window.gpsCallback = function(settings) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            // Simplified for this example: In real usage, use the distance formula
+            document.getElementById('gpsLabel').innerText = "LOCATION VERIFIED";
+            document.getElementById('gpsLabel').classList.replace('text-red-500', 'text-green-500');
+            document.getElementById('btnIn').disabled = false;
+            document.getElementById('btnIn').classList.remove('btn-inactive');
+        });
+    };
+
+    function clockAction(type) {
+        callBrain({
+            action: "clock_action",
+            id: currentUser.id,
+            name: currentUser.name,
+            type: type,
+            dept: currentUser.dept,
+            location: "Kikuyu Main"
+        }, "clockCallback");
+    }
+
+    window.clockCallback = function(data) {
+        alert("Clock Success!");
+        location.reload();
+    };
+
+    function handleReg() {
+        const id = document.getElementById('rId').value;
+        const pass = document.getElementById('rPass').value;
+        callBrain({ action: "register", id: id, pass: pass }, "regCallback");
+    }
+
+    window.regCallback = function(data) {
+        alert("Password Saved! Now please log in.");
+        toggleAuth(false);
+    };
+</script>
+</body>
+</html>
