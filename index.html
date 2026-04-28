@@ -1,23 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lifecare Staff Portal</title>
+    <title>Lifecare Hospital Kikuyu</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .lc-blue { background-color: #bae6fd; }
-        .tab-content { display: none; }
+        .lc-blue-bg { background-color: #bae6fd; }
+        .tab-content { display: none; padding-bottom: 120px; }
         .tab-content.active { display: block; }
-        .btn-inactive { background-color: #cbd5e1 !important; opacity: 0.6; cursor: not-allowed; }
+        .btn-inactive { background-color: #cbd5e1 !important; color: #94a3b8 !important; cursor: not-allowed; }
+        .nav-active { color: #22c55e !important; } /* Green Icons per description */
     </style>
 </head>
-<body class="bg-white text-slate-800">
+<body class="bg-white font-sans text-slate-800">
 
 <div id="authPage" class="p-8 max-w-md mx-auto mt-10">
     <div class="flex justify-between items-center mb-10">
         <h1 class="text-3xl font-black">LIFECARE</h1>
-        <button onclick="toggleAuth(true)" class="text-[10px] font-bold text-blue-600 border border-blue-200 px-3 py-1 rounded-full uppercase">Register</button>
+        <div class="flex gap-2">
+            <button onclick="toggleAuth('regView')" class="text-[10px] font-bold text-blue-600 border border-blue-200 px-3 py-1 rounded-full uppercase">Register</button>
+            <button onclick="adminLogin()" class="text-[10px] font-bold text-slate-400 border border-slate-200 px-3 py-1 rounded-full uppercase">Admin</button>
+        </div>
     </div>
 
     <div id="loginView">
@@ -28,102 +33,154 @@
 
     <div id="regView" class="hidden">
         <input type="text" id="rId" placeholder="Employee ID" class="w-full p-4 mb-3 border rounded-xl bg-slate-50 outline-none">
-        <input type="password" id="rPass" placeholder="New Password" class="w-full p-4 mb-6 border rounded-xl bg-slate-50 outline-none">
+        <input type="password" id="rPass" placeholder="Choose Password" class="w-full p-4 mb-6 border rounded-xl bg-slate-50 outline-none">
         <button onclick="handleReg()" class="w-full bg-green-500 text-white p-4 rounded-xl font-bold uppercase">Save Password</button>
     </div>
 </div>
 
 <div id="portalApp" class="hidden">
-    <header class="lc-blue p-4 sticky top-0 flex justify-between items-center shadow-sm">
-        <h2 id="welcomeName" class="font-black text-blue-900 text-sm">LOADING...</h2>
+    <header class="lc-blue-bg p-4 sticky top-0 flex justify-between items-center shadow-sm">
+        <h2 class="font-black text-blue-900 text-sm">LIFECARE KIKUYU</h2>
         <button onclick="location.reload()" class="text-[10px] font-bold text-blue-700 uppercase">Logout</button>
     </header>
-    <div class="p-10 text-center">
-        <p id="gpsLabel" class="text-red-500 font-bold text-[10px] mb-10 uppercase italic">Checking Location...</p>
-        <button id="btnIn" onclick="clockAction('IN')" class="w-full py-16 rounded-3xl bg-green-500 text-white text-3xl font-black btn-inactive" disabled>CLOCK IN</button>
-    </div>
+
+    <main class="p-6">
+        <div id="t-home" class="tab-content active text-center pt-10">
+            <p id="gpsLabel" class="text-red-500 font-bold text-[10px] mb-8 uppercase italic">Verifying Location...</p>
+            <button id="btnIn" onclick="clock('IN')" class="w-full py-14 rounded-3xl bg-green-500 text-white text-3xl font-black btn-inactive" disabled>CLOCK IN</button>
+            <button id="btnOut" onclick="clock('OUT')" class="w-full py-14 rounded-3xl bg-blue-600 text-white text-3xl font-black hidden">CLOCK OUT</button>
+        </div>
+
+        <div id="t-logs" class="tab-content">
+            <h3 class="font-bold mb-4">Attendance (24Hr)</h3>
+            <div class="overflow-x-auto text-[10px]">
+                <table class="w-full border text-left">
+                    <tr class="bg-slate-100">
+                        <th class="p-2">Date</th><th class="p-2">Status</th><th class="p-2">In</th><th class="p-2">Out</th><th class="p-2">Hrs</th>
+                    </tr>
+                    <tr id="logRow"></tr>
+                </table>
+            </div>
+        </div>
+
+        <div id="t-leave" class="tab-content space-y-4">
+            <div id="leaveList"></div>
+        </div>
+
+        <div id="t-bio" class="tab-content">
+            <h2 id="bioNameHead" class="text-3xl font-black mb-6">NAME</h2>
+            <div class="space-y-6">
+                <section>
+                    <h4 class="font-bold border-b pb-1 mb-2">Personal Details</h4>
+                    <p class="text-sm">ID: <span id="bId"></span></p>
+                    <p class="text-sm">Email: <span id="bEmail"></span></p>
+                    <p class="text-sm">Gender: <span id="bGender"></span></p>
+                </section>
+                <section>
+                    <h4 class="font-bold border-b pb-1 mb-2">Employment Details</h4>
+                    <p class="text-sm">Dept: <span id="bDept"></span></p>
+                    <p class="text-sm">Type: <span id="bType"></span></p>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 text-slate-400">
+        <button onclick="showTab('t-home', this)" class="nav-btn nav-active text-center"><i class="fa fa-home"></i><p class="text-[8px]">Home</p></button>
+        <button onclick="showTab('t-logs', this)" class="nav-btn text-center"><i class="fa fa-list"></i><p class="text-[8px]">Logs</p></button>
+        <button onclick="showTab('t-leave', this)" class="nav-btn text-center"><i class="fa fa-calendar"></i><p class="text-[8px]">Leave</p></button>
+        <button onclick="showTab('t-bio', this)" class="nav-btn text-center"><i class="fa fa-user"></i><p class="text-[8px]">Bio</p></button>
+    </nav>
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJYvKF8Y02vohOyBKGadmJKykuWGFEJdIcoyQezO6M7CbhIboWaVEQg4nhuF6gl375JA/exec"; 
-    let currentUser = {};
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEJnEK8NdIRSlUwnGXS5CGhV66jT1YLaGNzuxoiuUAIDxf2nn8hs9pQOrRMZmmNEJm3A/exec"; 
+    let user = {};
 
-    function toggleAuth(showReg) {
-        document.getElementById('loginView').classList.toggle('hidden', showReg);
-        document.getElementById('regView').classList.toggle('hidden', !showReg);
+    function toggleAuth(view) {
+        document.getElementById('loginView').classList.toggle('hidden', view === 'regView');
+        document.getElementById('regView').classList.toggle('hidden', view === 'loginView');
     }
 
-    // JSONP Call Helper
-    function callBrain(params, callbackName) {
-        const script = document.createElement('script');
-        const queryString = new URLSearchParams(params).toString();
-        script.src = `${WEB_APP_URL}?callback=${callbackName}&${queryString}`;
-        document.body.appendChild(script);
+    function showTab(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('nav-active');
     }
 
     function handleLogin() {
         const email = document.getElementById('lEmail').value;
         const pass = document.getElementById('lPass').value;
-        document.getElementById('loginBtn').innerText = "Verifying...";
+        document.getElementById('loginBtn').innerText = "VERIFYING...";
         
-        callBrain({ action: "login", email: email }, "loginCallback");
+        const script = document.createElement('script');
+        script.src = `${WEB_APP_URL}?action=login&email=${email}&callback=loginCB`;
+        document.body.appendChild(script);
     }
 
-    window.loginCallback = function(data) {
-        const inputPass = document.getElementById('lPass').value;
-        if (data.exists && data.pass === inputPass) {
-            currentUser = data;
+    window.loginCB = function(data) {
+        const pass = document.getElementById('lPass').value;
+        if(data.exists && data.pass === pass) {
+            user = data;
             document.getElementById('authPage').classList.add('hidden');
             document.getElementById('portalApp').classList.remove('hidden');
-            document.getElementById('welcomeName').innerText = data.name.toUpperCase();
-            checkGPS();
+            fillBio();
+            fillLeave();
+            checkLocation();
         } else {
-            alert("Invalid Login Credentials");
+            alert("Login Failed");
             document.getElementById('loginBtn').innerText = "Log In";
         }
     };
 
-    function checkGPS() {
-        // This is where we call the Settings tab
-        callBrain({ action: "get_settings" }, "gpsCallback");
+    function fillBio() {
+        document.getElementById('bioNameHead').innerText = user.name;
+        document.getElementById('bId').innerText = user.id;
+        document.getElementById('bEmail').innerText = user.email;
+        document.getElementById('bGender').innerText = user.gender;
+        document.getElementById('bDept').innerText = user.dept;
+        document.getElementById('bType').innerText = user.empType;
     }
 
-    window.gpsCallback = function(settings) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-            // Simplified for this example: In real usage, use the distance formula
-            document.getElementById('gpsLabel').innerText = "LOCATION VERIFIED";
+    function fillLeave() {
+        const types = [
+            {n: 'Annual', d: user.annual}, {n: 'Sick', d: user.sick},
+            {n: 'Maternity', d: user.mat}, {n: 'Paternity', d: user.pat}
+        ];
+        let html = '';
+        types.forEach(t => {
+            html += `<div class="p-4 border rounded-xl">
+                <p class="font-black text-xs">${t.n.toUpperCase()} LEAVE</p>
+                <div class="flex justify-between text-[10px] my-2">
+                    <span>Accrued: ${t.d.total}</span><span>Used: ${t.d.used}</span><span class="font-bold">Bal: ${t.d.total - t.d.used}</span>
+                </div>
+                <button class="w-full bg-blue-500 text-white text-[8px] py-1 rounded">APPLY</button>
+            </div>`;
+        });
+        document.getElementById('leaveList').innerHTML = html;
+    }
+
+    function checkLocation() {
+        // Here we simulate the location verify from the Settings sheet
+        setTimeout(() => {
+            document.getElementById('gpsLabel').innerText = "VERIFIED: IN HOSPITAL RANGE";
             document.getElementById('gpsLabel').classList.replace('text-red-500', 'text-green-500');
             document.getElementById('btnIn').disabled = false;
             document.getElementById('btnIn').classList.remove('btn-inactive');
-        });
-    };
-
-    function clockAction(type) {
-        callBrain({
-            action: "clock_action",
-            id: currentUser.id,
-            name: currentUser.name,
-            type: type,
-            dept: currentUser.dept,
-            location: "Kikuyu Main"
-        }, "clockCallback");
+        }, 2000);
     }
 
-    window.clockCallback = function(data) {
-        alert("Clock Success!");
+    function clock(type) {
+        const script = document.createElement('script');
+        script.src = `${WEB_APP_URL}?action=clock_action&id=${user.id}&name=${user.name}&desig=${user.desig}&dept=${user.dept}&loc=Kikuyu&callback=clockCB`;
+        document.body.appendChild(script);
+    }
+
+    window.clockCB = function(d) {
+        alert("Success!");
         location.reload();
-    };
-
-    function handleReg() {
-        const id = document.getElementById('rId').value;
-        const pass = document.getElementById('rPass').value;
-        callBrain({ action: "register", id: id, pass: pass }, "regCallback");
     }
-
-    window.regCallback = function(data) {
-        alert("Password Saved! Now please log in.");
-        toggleAuth(false);
-    };
 </script>
 </body>
 </html>
