@@ -3,234 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lifecare Hospital Kikuyu - Staff Portal</title>
+    <title>Lifecare Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #ffffff; color: #1e293b; font-family: sans-serif; }
-        .lc-header { background-color: #bae6fd; }
-        .tab-content { display: none; padding-bottom: 100px; }
+        .nav-active { color: #22c55e !important; border-top: 3px solid #22c55e; }
+        .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .nav-btn.nav-active { color: #22c55e !important; border-top: 3px solid #22c55e; }
-        .nav-btn { color: #64748b; transition: all 0.3s; }
-        .btn-grey { background-color: #cbd5e1 !important; color: #94a3b8 !important; cursor: not-allowed; }
     </style>
 </head>
-<body>
+<body class="bg-white">
 
-<!-- Login Page -->
-<div id="authPage" class="p-8 max-w-md mx-auto mt-10">
-    <div class="text-center mb-10">
-        <h1 class="text-4xl font-black text-blue-900">LIFECARE</h1>
-        <p class="text-xs text-slate-400 uppercase tracking-widest mt-2">Staff Portal</p>
-    </div>
-    
-    <div id="loginView" class="space-y-4">
-        <input type="email" id="lEmail" placeholder="Work Email" class="w-full p-4 border rounded-xl bg-slate-50 outline-none">
-        <input type="password" id="lPass" placeholder="Password" class="w-full p-4 border rounded-xl bg-slate-50 outline-none">
-        <button onclick="handleLogin()" id="loginBtn" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold uppercase shadow-lg">Log In</button>
-    </div>
+<div id="authPage" class="p-8 max-w-md mx-auto mt-20">
+    <h1 class="text-3xl font-black text-blue-900 mb-6">LIFECARE</h1>
+    <input type="email" id="lEmail" placeholder="Work Email" class="w-full p-4 border rounded-xl mb-4 bg-slate-50">
+    <input type="password" id="lPass" placeholder="Password" class="w-full p-4 border rounded-xl mb-6 bg-slate-50">
+    <button onclick="handleLogin()" id="loginBtn" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold uppercase">Log In</button>
 </div>
 
-<!-- Main App -->
 <div id="app" class="hidden min-h-screen flex flex-col">
-    <header class="lc-header p-4 sticky top-0 flex justify-between items-center z-50 shadow-sm">
-        <h2 class="font-black text-blue-900 text-xs uppercase">Lifecare Kikuyu</h2>
+    <header class="bg-blue-100 p-4 sticky top-0 flex justify-between items-center z-50">
+        <h2 class="font-black text-blue-900 text-xs">LIFECARE KIKUYU</h2>
         <span id="navName" class="text-[10px] font-bold text-blue-700"></span>
     </header>
 
-    <main class="flex-grow p-4">
-        <!-- Home Tab (Attendance) -->
+    <main class="p-4 flex-grow">
         <div id="t-home" class="tab-content active text-center pt-10">
-            <div class="bg-blue-50 p-4 rounded-2xl mb-8">
-                <p id="gpsTxt" class="text-slate-500 font-bold text-[10px] uppercase italic">Initializing GPS...</p>
-            </div>
-            <button id="btnIn" onclick="clockAction('IN')" class="w-full py-16 mb-4 rounded-3xl bg-green-500 text-white text-3xl font-black btn-grey shadow-xl" disabled>CLOCK IN</button>
-            <button id="btnOut" onclick="clockAction('OUT')" class="w-full py-16 rounded-3xl bg-blue-600 text-white text-3xl font-black hidden shadow-xl">CLOCK OUT</button>
-        </div>
-
-        <!-- Logs Tab -->
-        <div id="t-logs" class="tab-content">
-            <h3 class="font-bold text-xs uppercase border-b pb-2 mb-4">Your Attendance History</h3>
-            <div class="overflow-x-auto border rounded-xl bg-white">
-                <table class="w-full text-[10px] text-left">
-                    <tr class="bg-blue-50 border-b">
-                        <th class="p-3">Date</th>
-                        <th class="p-3">Clock In</th>
-                        <th class="p-3">Clock Out</th>
-                        <th class="p-3">Hours</th>
-                    </tr>
-                    <tbody id="logTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Leave Tab -->
-        <div id="t-leave" class="tab-content">
-            <h3 class="font-black text-xs uppercase mb-4">Leave Balances</h3>
-            <div id="leaveCards" class="grid grid-cols-1 gap-4"></div>
-        </div>
-
-        <!-- Bio Tab -->
-        <div id="t-bio" class="tab-content space-y-6">
-            <div class="bg-slate-50 p-5 rounded-2xl border">
-                <h4 class="font-bold text-blue-500 text-[10px] mb-3 uppercase">Profile Information</h4>
-                <div id="bioData" class="text-sm space-y-2"></div>
-            </div>
-            <button onclick="location.reload()" class="w-full p-4 text-red-500 text-xs font-bold uppercase">Logout</button>
+            <p id="gpsTxt" class="text-slate-400 text-[10px] mb-8 italic uppercase">Checking Location...</p>
+            <button id="btnIn" onclick="clockAction('IN')" class="w-full py-16 mb-4 rounded-3xl bg-green-500 text-white text-3xl font-black opacity-50 cursor-not-allowed" disabled>CLOCK IN</button>
+            <button id="btnOut" onclick="clockAction('OUT')" class="w-full py-16 rounded-3xl bg-blue-600 text-white text-3xl font-black hidden">CLOCK OUT</button>
         </div>
     </main>
 
-    <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 pb-6 z-50">
-        <button onclick="tab('t-home', this)" class="nav-btn nav-active text-center">
-            <i class="fa fa-home block text-lg"></i><span class="text-[8px] uppercase font-bold">Home</span>
-        </button>
-        <button onclick="tab('t-logs', this)" class="nav-btn text-center">
-            <i class="fa fa-list block text-lg"></i><span class="text-[8px] uppercase font-bold">Logs</span>
-        </button>
-        <button onclick="tab('t-leave', this)" class="nav-btn text-center">
-            <i class="fa fa-calendar block text-lg"></i><span class="text-[8px] uppercase font-bold">Leave</span>
-        </button>
-        <button onclick="tab('t-bio', this)" class="nav-btn text-center">
-            <i class="fa fa-user block text-lg"></i><span class="text-[8px] uppercase font-bold">Profile</span>
-        </button>
+    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-4 pb-8">
+        <button onclick="location.reload()" class="text-slate-400 text-center"><i class="fa fa-sign-out block"></i><span class="text-[8px]">LOGOUT</span></button>
     </nav>
 </div>
 
 <script>
-    // 1. YOUR SETTINGS
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwr9kmyGsdjrIBO0H5vroOQ329qPnGvryd3zRx0yfvqUpYOw1-votfemb_IdAOFqIW0ag/exec";
-    let userData = {};
-    let userLocation = "";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkZX1FcGl9GO0s27HA8Fpdcg1LBf-Mpqlg2NLDRnNfliBYrE4rvENUGFCnoezD33pFLg/exec";
+    let u = {};
 
-    // 2. NAVIGATION LOGIC
-    function tab(id, btn) {
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-        document.getElementById(id).classList.add('active');
-        btn.classList.add('nav-active');
-    }
-
-    // 3. LOGIN LOGIC
     function handleLogin() {
         const email = document.getElementById('lEmail').value;
         const pass = document.getElementById('lPass').value;
-        if(!email || !pass) return alert("Please enter credentials");
-        
-        document.getElementById('loginBtn').innerText = "VERIFYING...";
-        
-        const script = document.createElement('script');
-        script.src = `${SCRIPT_URL}?action=login&email=${email}&pass=${pass}&callback=onLogin`;
-        document.body.appendChild(script);
+        document.getElementById('loginBtn').innerText = "Verifying...";
+        const s = document.createElement('script');
+        s.src = `${SCRIPT_URL}?action=login&email=${email}&pass=${pass}&callback=onLogin`;
+        document.body.appendChild(s);
     }
 
     window.onLogin = function(data) {
         if(data.success) {
-            userData = data;
+            u = data;
             document.getElementById('authPage').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
-            renderData();
+            document.getElementById('navName').innerText = u.name;
             checkGPS();
         } else {
-            alert("Login Failed: " + data.message);
-            document.getElementById('loginBtn').innerText = "LOG IN";
+            alert(data.message);
+            document.getElementById('loginBtn').innerText = "Log In";
         }
     }
 
-    // 4. GPS & GEOFENCING
     function checkGPS() {
-        if (!navigator.geolocation) return alert("GPS not supported by your browser.");
-
         navigator.geolocation.getCurrentPosition(pos => {
-            const uLat = pos.coords.latitude;
-            const uLon = pos.coords.longitude;
-            userLocation = `${uLat.toFixed(4)}, ${uLon.toFixed(4)}`;
-
-            // Distance calculation
-            const R = 6371e3; 
-            const p1 = uLat * Math.PI/180;
-            const p2 = userData.geo.lat * Math.PI/180;
-            const dp = (userData.geo.lat - uLat) * Math.PI/180;
-            const dl = (userData.geo.lon - uLon) * Math.PI/180;
-            const a = Math.sin(dp/2) * Math.sin(dp/2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl/2) * Math.sin(dl/2);
-            const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-            if (dist <= userData.geo.rad) {
-                document.getElementById('gpsTxt').innerText = "LOCATION VERIFIED: AT HOSPITAL";
-                document.getElementById('gpsTxt').className = "text-green-600 font-bold text-[10px] uppercase italic";
+            const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, u.geo.lat, u.geo.lon);
+            if(dist <= u.geo.rad) {
+                document.getElementById('gpsTxt').innerText = "LOCATION VERIFIED";
                 document.getElementById('btnIn').disabled = false;
-                document.getElementById('btnIn').classList.remove('btn-grey');
+                document.getElementById('btnIn').classList.remove('opacity-50', 'cursor-not-allowed');
+                u.currentLoc = `${pos.coords.latitude},${pos.coords.longitude}`;
             } else {
-                document.getElementById('gpsTxt').innerText = `OUT OF RANGE: ${Math.round(dist)}m AWAY`;
-                document.getElementById('gpsTxt').className = "text-red-500 font-bold text-[10px] uppercase italic";
+                document.getElementById('gpsTxt').innerText = "OUT OF RANGE (" + Math.round(dist) + "m)";
             }
-        }, err => {
-            document.getElementById('gpsTxt').innerText = "ERROR: PLEASE ENABLE GPS";
         });
     }
 
-    // 5. ATTENDANCE LOGIC
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371e3;
+        const p1 = lat1 * Math.PI/180;
+        const p2 = lat2 * Math.PI/180;
+        const dp = (lat2-lat1) * Math.PI/180;
+        const dl = (lon2-lon1) * Math.PI/180;
+        const a = Math.sin(dp/2)**2 + Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
     function clockAction(type) {
         const action = type === 'IN' ? 'clockIn' : 'clockOut';
-        const script = document.createElement('script');
-        script.src = `${SCRIPT_URL}?action=${action}&id=${userData.id}&name=${userData.name}&desig=${userData.desig}&dept=${userData.dept}&loc=${userLocation}&callback=onClock`;
-        document.body.appendChild(script);
-        
-        document.getElementById(type === 'IN' ? 'btnIn' : 'btnOut').innerText = "SAVING...";
+        const s = document.createElement('script');
+        s.src = `${SCRIPT_URL}?action=${action}&id=${u.id}&name=${u.name}&desig=${u.desig}&dept=${u.dept}&loc=${u.currentLoc}&callback=onClock`;
+        document.body.appendChild(s);
     }
 
     window.onClock = function(data) {
         if(data.success) {
-            alert("Attendance Updated!");
+            alert("Success!");
             location.reload();
         } else {
-            alert("Error: " + data.message);
+            alert(data.message);
         }
-    }
-
-    // 6. UI RENDERING
-    function renderData() {
-        document.getElementById('navName').innerText = userData.name.split(' ')[0];
-        document.getElementById('bioData').innerHTML = `
-            <p><b>ID:</b> ${userData.id}</p>
-            <p><b>Name:</b> ${userData.name}</p>
-            <p><b>Dept:</b> ${userData.dept}</p>
-            <p><b>Role:</b> ${userData.desig}</p>
-            <p><b>Phone:</b> ${userData.phone}</p>
-        `;
-
-        // Attendance Table
-        let tableHtml = "";
-        userData.attendance.forEach(log => {
-            tableHtml += `<tr class="border-b">
-                <td class="p-3">${log.date}</td>
-                <td class="p-3">${log.in}</td>
-                <td class="p-3">${log.out || '--'}</td>
-                <td class="p-3 font-bold">${log.total || '0'}</td>
-            </tr>`;
-        });
-        document.getElementById('logTableBody').innerHTML = tableHtml;
-
-        // Check if already clocked in today
-        const today = new Date().toLocaleDateString();
-        const clockedInToday = userData.attendance.find(l => l.date === today && l.out === "");
-        if(clockedInToday) {
-            document.getElementById('btnIn').classList.add('hidden');
-            document.getElementById('btnOut').classList.remove('hidden');
-        }
-
-        // Leave Cards
-        document.getElementById('leaveCards').innerHTML = `
-            <div class="bg-white p-4 rounded-xl border shadow-sm">
-                <p class="text-blue-500 font-bold text-[10px] uppercase">Annual Leave</p>
-                <p class="text-2xl font-black">${userData.leaves.annual - userData.leaves.annual_u} <span class="text-xs font-normal">Days Remaining</span></p>
-            </div>
-            <div class="bg-white p-4 rounded-xl border shadow-sm">
-                <p class="text-blue-500 font-bold text-[10px] uppercase">Sick Leave</p>
-                <p class="text-2xl font-black">${userData.leaves.sick - userData.leaves.sick_u} <span class="text-xs font-normal">Days Remaining</span></p>
-            </div>
-        `;
     }
 </script>
 </body>
