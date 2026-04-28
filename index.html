@@ -9,16 +9,17 @@
         :root { --lc-blue: #e0f2fe; --lc-green: #22c55e; }
         body { background-color: #ffffff; color: #1e293b; font-family: sans-serif; padding-bottom: 100px; }
         header { background-color: var(--lc-blue); border-bottom: 2px solid #bae6fd; padding: 15px; position: sticky; top: 0; z-index: 100; }
-        .btn-green { background-color: var(--lc-green); color: white; font-weight: bold; padding: 12px; border-radius: 8px; width: 100%; }
+        .btn-green { background-color: var(--lc-green); color: white; font-weight: bold; padding: 12px; border-radius: 8px; width: 100%; transition: 0.2s; }
+        .btn-green:active { transform: scale(0.98); }
         .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #64748b; flex: 1; cursor: pointer; }
         .nav-btn.active { color: var(--lc-green); font-weight: bold; }
         .tab-content { display: none; padding: 20px; }
         .tab-content.active { display: block; }
         .glass-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 12px; }
-        .inactive-btn { background-color: #cbd5e1 !important; cursor: not-allowed !important; pointer-events: none; }
-        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        .inactive-btn { background-color: #cbd5e1 !important; cursor: not-allowed !important; pointer-events: none; opacity: 0.6; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        th { background: #bae6fd; color: #0369a1; padding: 8px; border: 1px solid #93c5fd; }
+        th { background: #bae6fd; color: #0369a1; padding: 8px; border: 1px solid #93c5fd; text-transform: uppercase; }
         td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; }
     </style>
 </head>
@@ -26,38 +27,57 @@
 
 <div id="loader">
     <div class="w-12 h-12 border-4 border-t-green-500 rounded-full animate-spin"></div>
-    <p class="mt-4 text-green-600 font-bold text-[10px] uppercase">Syncing with Sheet...</p>
+    <p class="mt-4 text-green-600 font-bold text-[10px] uppercase tracking-widest">Validating Credentials...</p>
 </div>
 
 <div id="authPage" class="max-w-md mx-auto min-h-screen flex flex-col justify-center px-8 relative">
-    <button onclick="checkAdmin()" class="absolute top-6 right-6 text-[10px] bg-slate-100 px-3 py-1 rounded border font-bold uppercase">Admin</button>
+    <button onclick="checkAdmin()" class="absolute top-6 right-6 text-[10px] bg-white text-slate-500 px-3 py-1 rounded border border-slate-200 font-bold uppercase z-50 shadow-sm">Admin Access</button>
+    
     <div class="text-center mb-10">
-        <h1 class="text-4xl font-black text-slate-800">LIFECARE</h1>
-        <p class="text-[10px] tracking-widest text-slate-400 uppercase">Hospital Kikuyu Portal</p>
+        <h1 class="text-4xl font-black text-slate-800 tracking-tighter">LIFECARE</h1>
+        <p class="text-[10px] tracking-[0.3em] text-slate-400 uppercase">Hospital Kikuyu Portal</p>
     </div>
-    <input type="email" id="lEmail" placeholder="Work Email" class="w-full border p-4 rounded-xl mb-3 outline-none focus:border-green-500">
-    <input type="password" id="lPass" placeholder="Password" class="w-full border p-4 rounded-xl mb-6 outline-none focus:border-green-500">
-    <button onclick="handleAuth()" class="btn-green uppercase">Log In</button>
+
+    <div id="loginSection">
+        <input type="email" id="lEmail" placeholder="Work Email" class="w-full border p-4 rounded-xl mb-3 outline-none focus:border-green-500 bg-slate-50">
+        <input type="password" id="lPass" placeholder="Password" class="w-full border p-4 rounded-xl mb-6 outline-none focus:border-green-500 bg-slate-50">
+        <button onclick="handleAuth()" class="btn-green uppercase tracking-widest">Log In</button>
+        <button onclick="showReg()" class="w-full text-[10px] text-blue-500 mt-6 font-bold uppercase">New User? Register Details</button>
+    </div>
+
+    <div id="regSection" class="hidden">
+        <p class="text-[10px] font-bold text-blue-600 mb-4 uppercase">Registration</p>
+        <input type="text" id="rId" placeholder="Employee ID" class="w-full border p-4 rounded-xl mb-3 outline-none bg-slate-50">
+        <input type="email" id="rEmail" placeholder="Email Address" class="w-full border p-4 rounded-xl mb-3 outline-none bg-slate-50">
+        <input type="password" id="rPass" placeholder="Create Password" class="w-full border p-4 rounded-xl mb-6 outline-none bg-slate-50">
+        <button onclick="doReg()" class="w-full bg-blue-600 text-white font-bold p-4 rounded-xl uppercase tracking-widest">Save & Register</button>
+        <button onclick="showLogin()" class="w-full text-[10px] text-slate-400 mt-4 uppercase">Back to Login</button>
+    </div>
 </div>
 
 <div id="portalApp" class="hidden">
     <header class="flex justify-between items-center">
         <h2 class="text-blue-900 font-black text-xs uppercase">Lifecare Kikuyu</h2>
-        <span id="adminBadge" class="hidden bg-red-500 text-white text-[8px] px-2 py-0.5 rounded font-bold">ADMIN</span>
+        <div class="flex items-center gap-2">
+            <span id="adminBadge" class="hidden bg-red-600 text-white text-[8px] px-2 py-0.5 rounded font-bold uppercase">Admin</span>
+            <button onclick="location.reload()" class="text-red-500 font-bold text-[10px] uppercase">Logout</button>
+        </div>
     </header>
 
     <main>
         <div id="t-home" class="tab-content active text-center py-12">
-            <p id="gpsLabel" class="text-[9px] font-bold text-red-500 mb-8 uppercase italic">Locating Hospital...</p>
-            <button id="btnIn" onclick="clockAction('IN')" class="btn-green py-20 text-4xl inactive-btn" disabled>CLOCK IN</button>
-            <button id="btnOut" onclick="clockAction('OUT')" class="btn-green py-20 text-4xl hidden">CLOCK OUT</button>
+            <p id="gpsLabel" class="text-[9px] font-bold text-red-500 mb-8 uppercase italic tracking-widest">Searching GPS...</p>
+            <div class="max-w-xs mx-auto space-y-4">
+                <button id="btnIn" onclick="clockAction('IN')" class="btn-green py-20 text-4xl inactive-btn" disabled>CLOCK IN</button>
+                <button id="btnOut" onclick="clockAction('OUT')" class="btn-green py-20 text-4xl hidden">CLOCK OUT</button>
+            </div>
         </div>
 
         <div id="t-logs" class="tab-content">
-            <h3 class="font-black text-[10px] text-blue-900 uppercase mb-4">Attendance Log</h3>
+            <h3 class="font-black text-[10px] text-blue-900 uppercase mb-4">My Attendance Log</h3>
             <div class="overflow-x-auto glass-card p-0">
                 <table id="logsTable">
-                    <thead><tr><th>Date</th><th>Clock In</th><th>Clock Out</th><th>Duration</th></tr></thead>
+                    <thead><tr><th>Date</th><th>Clock In</th><th>Clock Out</th></tr></thead>
                     <tbody id="logsBody"></tbody>
                 </table>
             </div>
@@ -71,82 +91,107 @@
         <div id="t-bio" class="tab-content">
             <h1 id="bioName" class="text-3xl font-black text-slate-800 uppercase mb-6 leading-none"></h1>
             <div class="glass-card text-xs space-y-4">
-                <div class="flex justify-between"><span>Employee ID</span><b id="bioId"></b></div>
-                <div class="flex justify-between"><span>Designation</span><b id="bioDesig"></b></div>
-                <div class="flex justify-between"><span>Department</span><b id="bioDept"></b></div>
+                <div class="flex justify-between border-b pb-2"><span>Employee ID</span><b id="bioId"></b></div>
+                <div class="flex justify-between border-b pb-2"><span>Department</span><b id="bioDept"></b></div>
+                <div class="flex justify-between border-b pb-2"><span>Designation</span><b id="bioDesig"></b></div>
+            </div>
+        </div>
+
+        <div id="t-admin" class="tab-content">
+            <h3 class="font-black text-[10px] text-red-600 uppercase mb-4">Master Reports</h3>
+            <div class="space-y-2">
+                <button class="glass-card w-full flex justify-between items-center"><span>Attendance Summary</span><b class="text-blue-500 text-[9px]">DOWNLOAD</b></button>
             </div>
         </div>
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-3 px-1">
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-4 shadow-lg">
         <div onclick="nav('home')" id="n-home" class="nav-btn active">Home</div>
         <div onclick="nav('logs')" id="n-logs" class="nav-btn">Logs</div>
         <div onclick="nav('leave')" id="n-leave" class="nav-btn">Leave</div>
         <div onclick="nav('bio')" id="n-bio" class="nav-btn">Bio</div>
-        <div onclick="nav('admin')" id="n-admin" class="nav-btn hidden text-red-500">Admin</div>
+        <div onclick="nav('admin')" id="n-admin" class="nav-btn hidden text-red-600 font-bold">Admin</div>
     </nav>
 </div>
 
 <script>
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycby54HfJj8c5Up4swSXRV5YhPP5y5g-lQj8OhPLSzDDcuKOnlaDgYJZfPveAlHo-XVMn_Q/exec";
-    let user, settings = {lat:0, lon:0, rad:0};
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby54HfJj8c5Up4swSXRV5YhPP5y5g-lQj8OhPLSzDDcuKOnlaDgYJZfPveAlHo-XVMn_Q/exec";
+    let currentUser, globalSettings = {lat:0, lon:0, rad:0};
 
     function setLoading(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
-    function checkAdmin() { if(prompt("Pin:") === "1234") { document.getElementById('n-admin').classList.remove('hidden'); document.getElementById('adminBadge').classList.remove('hidden'); } }
+    function showReg() { document.getElementById('loginSection').classList.add('hidden'); document.getElementById('regSection').classList.remove('hidden'); }
+    function showLogin() { document.getElementById('regSection').classList.add('hidden'); document.getElementById('loginSection').classList.remove('hidden'); }
+    
+    function checkAdmin() { 
+        if(prompt("Enter Admin Access Code:") === "1234") { 
+            document.getElementById('n-admin').classList.remove('hidden'); 
+            document.getElementById('adminBadge').classList.remove('hidden');
+            alert("Administrator mode enabled.");
+        } 
+    }
 
     function handleAuth() {
         setLoading(true);
-        const email = document.getElementById('lEmail').value;
+        const email = document.getElementById('lEmail').value.trim();
         const s = document.createElement('script');
-        s.src = `${SHEET_URL}?action=login&email=${encodeURIComponent(email)}&callback=authCB`;
+        s.src = `${SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&callback=authResult`;
         document.body.appendChild(s);
     }
 
-    window.authCB = (d) => {
+    window.authResult = (data) => {
         setLoading(false);
-        if(d.exists && d.pass == document.getElementById('lPass').value) {
-            user = d;
+        const typedPass = document.getElementById('lPass').value.trim();
+        // String conversion handles numeric passwords in the Sheet
+        if(data.exists && String(data.pass) === String(typedPass)) {
+            currentUser = data;
             document.getElementById('authPage').classList.add('hidden');
             document.getElementById('portalApp').classList.remove('hidden');
-            setupProfile();
-            fetchSettings();
-        } else { alert("Login Failed"); }
+            setupApp();
+        } else {
+            alert("Login Failed: Check your work email and password.");
+        }
     }
 
-    function setupProfile() {
-        document.getElementById('bioName').innerText = user.name;
-        document.getElementById('bioId').innerText = user.id;
-        document.getElementById('bioDesig').innerText = user.desig;
-        document.getElementById('bioDept').innerText = user.dept;
+    function doReg() {
+        setLoading(true);
+        const id = document.getElementById('rId').value.trim();
+        const email = document.getElementById('rEmail').value.trim();
+        const pass = document.getElementById('rPass').value.trim();
+        const s = document.createElement('script');
+        s.src = `${SCRIPT_URL}?action=register&id=${id}&email=${encodeURIComponent(email)}&pass=${pass}&callback=regResult`;
+        document.body.appendChild(s);
+    }
 
-        // Leave mapping adjusted to image headers: 8ick_Total, Annual_Total, etc.
-        const leaves = [
-            {n:'Annual', t: user.bal.Annual_Total, u: user.bal.Annual_Used},
-            {n:'Sick', t: user.bal['8ick_Total'], u: user.bal['8ick_Used']},
-            {n:'Maternity', t: user.bal.Maternity_Total, u: user.bal.Maternity_Used},
-            {n:'Compassionate', t: user.bal['Compassionate_T'], u: user.bal['Compassionate_U']}
-        ];
+    window.regResult = (d) => { setLoading(false); alert("Registration data saved. Please login."); showLogin(); }
 
-        document.getElementById('leaveArea').innerHTML = leaves.map(l => `
+    function setupApp() {
+        document.getElementById('bioName').innerText = currentUser.name;
+        document.getElementById('bioId').innerText = currentUser.id;
+        document.getElementById('bioDept').innerText = currentUser.dept;
+        document.getElementById('bioDesig').innerText = currentUser.desig || "Staff";
+
+        const leaves = {annual:'Annual', sick:'8ick', mat:'Maternity', comp:'Compassionate'};
+        document.getElementById('leaveArea').innerHTML = Object.keys(leaves).map(k => `
             <div class="glass-card flex justify-between items-center text-[10px]">
-                <span><b>${l.n} Leave</b> (Bal: ${(l.t||0)-(l.u||0)})</span>
-                <button class="text-blue-500 font-bold border px-3 py-1 rounded bg-white">APPLY</button>
+                <span><b>${leaves[k]} Leave</b></span>
+                <button class="text-blue-500 font-bold border border-blue-50 px-3 py-1 rounded bg-white">APPLY</button>
             </div>
         `).join('');
+        fetchSettings();
     }
 
-    function fetchSettings() { const s=document.createElement('script'); s.src=`${SHEET_URL}?action=get_settings&callback=setCB`; document.body.appendChild(s); }
-    window.setCB = (d) => { settings = d; startGPS(); }
+    function fetchSettings() { const s=document.createElement('script'); s.src=`${SCRIPT_URL}?action=get_settings&callback=setSettings`; document.body.appendChild(s); }
+    window.setSettings = (d) => { globalSettings = d; startGpsTracking(); }
 
-    function startGPS() {
-        navigator.geolocation.watchPosition(p => {
-            const dist = calcDist(p.coords.latitude, p.coords.longitude, settings.lat, settings.lon);
-            const ok = dist <= settings.rad;
+    function startGpsTracking() {
+        navigator.geolocation.watchPosition(pos => {
+            const distance = calcDist(pos.coords.latitude, pos.coords.longitude, globalSettings.lat, globalSettings.lon);
+            const verified = distance <= globalSettings.rad;
             const lb = document.getElementById('gpsLabel');
-            lb.innerText = ok ? "HOSPITAL RANGE VERIFIED" : `OUTSIDE RANGE (${Math.round(dist)}m)`;
-            lb.className = ok ? "text-[9px] font-bold text-green-500 mb-8 uppercase" : "text-[9px] font-bold text-red-500 mb-8 uppercase italic";
-            document.getElementById('btnIn').disabled = !ok;
-            document.getElementById('btnIn').classList.toggle('inactive-btn', !ok);
+            lb.innerText = verified ? "VICINITY VERIFIED" : `OUTSIDE HOSPITAL RANGE (${Math.round(distance)}m)`;
+            lb.className = verified ? "text-[9px] font-bold text-green-500 mb-8 uppercase" : "text-[9px] font-bold text-red-500 mb-8 uppercase italic";
+            document.getElementById('btnIn').disabled = !verified;
+            document.getElementById('btnIn').classList.toggle('inactive-btn', !verified);
         }, null, {enableHighAccuracy:true});
     }
 
@@ -156,17 +201,17 @@
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    function clockAction(type) {
+    function clockAction(t) {
         setLoading(true);
         navigator.geolocation.getCurrentPosition(p => {
             const loc = `${p.coords.latitude.toFixed(5)},${p.coords.longitude.toFixed(5)}`;
             const s = document.createElement('script');
-            s.src = `${SHEET_URL}?action=clock_action&id=${user.id}&name=${encodeURIComponent(user.name)}&desig=${encodeURIComponent(user.desig)}&dept=${encodeURIComponent(user.dept)}&type=${type}&location=${loc}&callback=clockCB`;
+            s.src = `${SCRIPT_URL}?action=clock_action&id=${currentUser.id}&name=${encodeURIComponent(currentUser.name)}&type=${t}&location=${loc}&callback=clockResult`;
             document.body.appendChild(s);
         });
     }
 
-    window.clockCB = (d) => { setLoading(false); alert(`Logged ${d.type}`); }
+    window.clockResult = (d) => { setLoading(false); alert("Attendance status updated."); }
 
     function nav(id) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
