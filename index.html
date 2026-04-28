@@ -5,93 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lifecare Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Colors based on your description */
+        .lc-blue { background-color: #bae6fd; } /* Light Blue Header */
+        .lc-green { color: #22c55e; } /* Green Bottom Icons */
+        .tab-content { display: none; padding: 20px; padding-bottom: 120px; }
+        .tab-content.active { display: block; }
+        .btn-inactive { background-color: #cbd5e1 !important; cursor: not-allowed; opacity: 0.6; }
+        .nav-btn:active { transform: scale(0.9); }
+    </style>
 </head>
-<body class="bg-slate-100 font-sans">
+<body class="bg-white font-sans text-slate-800">
 
-<div id="loginPage" class="p-8 max-w-md mx-auto mt-20 bg-white shadow-xl rounded-2xl">
-    <h1 class="text-3xl font-black text-center mb-2 text-slate-800">LIFECARE</h1>
-    <p class="text-center text-[10px] tracking-widest text-slate-400 mb-8 uppercase text-blue-500">Kikuyu Hospital</p>
-    
-    <input type="email" id="emailInput" placeholder="Work Email" class="w-full p-4 mb-4 border rounded-xl outline-none focus:border-blue-500 bg-slate-50">
-    <input type="password" id="passInput" placeholder="Password" class="w-full p-4 mb-8 border rounded-xl outline-none focus:border-blue-500 bg-slate-50">
-    <button onclick="login()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold uppercase tracking-widest hover:bg-blue-700 transition-all">Log In</button>
-</div>
-
-<div id="app" class="hidden p-6 text-center max-w-md mx-auto">
-    <div class="bg-white p-6 rounded-2xl shadow-lg mb-6 border-b-4 border-blue-100">
-        <h2 id="userName" class="text-2xl font-bold mb-2 text-slate-800"></h2>
-        <p id="gpsText" class="text-red-500 font-bold uppercase text-[10px] tracking-widest mb-4">Verifying Location...</p>
+<div id="authPage" class="p-8 max-w-md mx-auto mt-10">
+    <div class="flex justify-between items-start mb-10">
+        <h1 class="text-3xl font-black text-slate-800">LIFECARE</h1>
+        <div class="flex gap-2">
+            <button onclick="toggleAuth(true)" class="text-[10px] font-bold text-blue-600 border border-blue-200 px-3 py-1 rounded-full uppercase">Register</button>
+            <button onclick="adminPrompt()" class="text-[10px] font-bold text-slate-400 border border-slate-200 px-3 py-1 rounded-full uppercase">Admin</button>
+        </div>
     </div>
-    
-    <button id="clockBtn" onclick="sendClock()" class="w-full bg-green-500 text-white py-20 rounded-3xl text-4xl font-black shadow-2xl opacity-50 transition-all" disabled>
-        CLOCK IN
-    </button>
-    <p class="mt-8 text-slate-400 text-[10px] uppercase font-bold">Attendance System v2.0</p>
+
+    <div id="loginView">
+        <input type="email" id="lEmail" placeholder="Work Email" class="w-full p-4 mb-4 border rounded-xl bg-slate-50 outline-none focus:border-blue-400">
+        <input type="password" id="lPass" placeholder="Password" class="w-full p-4 mb-8 border rounded-xl bg-slate-50 outline-none focus:border-blue-400">
+        <button onclick="handleLogin()" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold uppercase tracking-widest">Log In</button>
+    </div>
+
+    <div id="regView" class="hidden">
+        <p class="text-xs font-bold mb-4 text-blue-500 uppercase">New User Registration</p>
+        <input type="text" id="rId" placeholder="Employee ID" class="w-full p-4 mb-3 border rounded-xl bg-slate-50 outline-none">
+        <input type="password" id="rPass" placeholder="Choose Password" class="w-full p-4 mb-6 border rounded-xl bg-slate-50 outline-none">
+        <button onclick="handleReg()" class="w-full bg-green-500 text-white p-4 rounded-xl font-bold uppercase">Save Password</button>
+        <button onclick="toggleAuth(false)" class="w-full text-xs text-slate-400 mt-4 uppercase text-center block">Back to Login</button>
+    </div>
 </div>
 
-<script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzz4v_cRPtWkiVmQbt9EHuqO3TIP14TNEacFItGTzYyQPf9u2JKpEbsuBzsA4A-AH-6g/exec";
-    let user, config;
+<div id="portalApp" class="hidden">
+    <header class="lc-blue p-4 sticky top-0 z-50 flex justify-between items-center shadow-sm">
+        <h2 class="font-black text-blue-900 text-sm">LIFECARE KIKUYU</h2>
+        <button onclick="location.reload()" class="text-[10px] font-bold text-blue-700 uppercase">Logout</button>
+    </header>
 
-    function callGoogle(params, callbackName) {
-        const script = document.createElement('script');
-        script.src = `${SCRIPT_URL}?${params}&callback=${callbackName}`;
-        document.body.appendChild(script);
-        document.body.removeChild(script); // Clean up
-    }
+    <main>
+        <div id="t-home" class="tab-content active text-center py-20">
+            <p id="gpsLabel" class="text-red-500 font-bold text-[10px] mb-10 tracking-widest uppercase italic">Verifying Location...</p>
+            <div class="space-y-4 px-6">
+                <button id="btnIn" onclick="clock('IN')" class="w-full py-16 rounded-3xl bg-green-500 text-white text-3xl font-black btn-inactive" disabled>CLOCK IN</button>
+                <button id="btnOut" onclick="clock('OUT')" class="w-full py-16 rounded-3xl bg-blue-600 text-white text-3xl font-black hidden">CLOCK OUT</button>
+            </div>
+        </div>
 
-    function login() {
-        const e = document.getElementById('emailInput').value.toLowerCase().trim();
-        callGoogle(`action=login&email=${encodeURIComponent(e)}`, 'loginResponse');
-    }
+        <div id="t-logs" class="tab-content">
+            <h3 class="font-bold mb-4 uppercase text-xs">Attendance History (24Hr)</h3>
+            <div class="bg-slate-50 p-4 rounded-xl text-xs text-center text-slate-400 italic border border-dashed border-slate-200">
+                Calendar View and Date-wise reports will appear here.
+            </div>
+        </div>
 
-    window.loginResponse = function(data) {
-        const p = document.getElementById('passInput').value.trim();
-        if (data.exists && String(data.pass) === p) {
-            user = data;
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            document.getElementById('userName').innerText = user.name;
-            getSettings();
-        } else {
-            alert("Login Failed. Please check your credentials.");
-        }
-    };
-
-    function getSettings() {
-        callGoogle(`action=get_settings`, 'settingsResponse');
-    }
-
-    window.settingsResponse = function(data) {
-        config = data;
-        navigator.geolocation.watchPosition(pos => {
-            const d = calcDist(pos.coords.latitude, pos.coords.longitude, config.lat, config.lon);
-            const ok = d <= config.rad;
-            const text = document.getElementById('gpsText');
-            text.innerText = ok ? "RANGE VERIFIED" : `OUT OF RANGE (${Math.round(d)}m)`;
-            text.style.color = ok ? "#22c55e" : "#ef4444";
-            document.getElementById('clockBtn').disabled = !ok;
-            document.getElementById('clockBtn').style.opacity = ok ? "1" : "0.5";
-        }, null, {enableHighAccuracy: true});
-    };
-
-    function calcDist(la1, lo1, la2, lo2) {
-        const R = 6371e3;
-        const f1 = la1*Math.PI/180, f2 = la2*Math.PI/180, df = (la2-la1)*Math.PI/180, dl = (lo2-lo1)*Math.PI/180;
-        const a = Math.sin(df/2)**2 + Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    }
-
-    function sendClock() {
-        navigator.geolocation.getCurrentPosition(pos => {
-            const loc = pos.coords.latitude.toFixed(5) + "," + pos.coords.longitude.toFixed(5);
-            callGoogle(`action=clock_action&id=${user.id}&name=${encodeURIComponent(user.name)}&type=IN&location=${loc}`, 'clockResponse');
-        });
-    }
-
-    window.clockResponse = function(data) {
-        alert("Attendance Recorded Successfully!");
-    };
-</script>
-</body>
-</html>
+        <div id="t-leave" class="tab-content space-y-4">
+            <h
