@@ -3,86 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lifecare Hospital – Kikuyu Staff Portal</title>
+    <title>Lifecare Hospital Kikuyu - Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: white; color: #334155; }
-        .lc-header { background-color: #e0f2fe; } /* Light Blue Header */
-        .tab-content { display: none; padding-bottom: 100px; }
+        body { background-color: #ffffff; color: #1e293b; }
+        .lc-header { background-color: #bae6fd; } /* Light Blue */
+        .tab-content { display: none; padding-bottom: 120px; }
         .tab-content.active { display: block; }
-        /* Green Navigation Icons */
-        .nav-btn.nav-active { color: #22c55e !important; border-top: 2px solid #22c55e; }
-        .nav-btn { color: #64748b; transition: all 0.3s; }
-        .btn-inactive { background-color: #cbd5e1 !important; color: #94a3b8 !important; cursor: not-allowed; }
-        
-        /* Calendar Styles */
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .day-box { border: 1px solid #e2e8f0; height: 60px; padding: 5px; font-size: 10px; }
-        .status-present { background-color: #dcfce7; color: #166534; }
-        .status-absent { background-color: #fee2e2; color: #991b1b; }
-        .status-leave { background-color: #fef9c3; color: #854d0e; }
+        /* Green Navigation Icons as requested */
+        .nav-btn.nav-active { color: #22c55e !important; border-top: 3px solid #22c55e; }
+        .nav-btn { color: #64748b; }
+        .btn-grey { background-color: #cbd5e1 !important; color: #94a3b8 !important; cursor: not-allowed; }
+        .calendar-day { border: 1px solid #e2e8f0; height: 50px; font-size: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
-<body class="font-sans">
+<body>
 
-<!-- Auth Page -->
+<!-- Login & Registration Page -->
 <div id="authPage" class="p-8 max-w-md mx-auto mt-10">
     <div class="flex justify-between items-center mb-10">
-        <h1 class="text-3xl font-black text-blue-900 leading-tight">LIFECARE<br><span class="text-sm font-normal">HOSPITAL KIKUYU</span></h1>
+        <h1 class="text-3xl font-black text-blue-900">LIFECARE</h1>
         <div class="flex gap-2">
-            <button onclick="toggleAuth('reg')" class="text-[10px] border border-blue-200 px-3 py-1 rounded-full uppercase font-bold text-blue-500">Register</button>
-            <button onclick="adminPrompt()" class="text-[10px] border border-slate-200 px-3 py-1 rounded-full uppercase font-bold text-slate-400">Admin Access</button>
+            <button onclick="toggleAuth('reg')" class="text-[10px] border px-3 py-1 rounded-full uppercase font-bold text-blue-500">Register</button>
+            <button onclick="adminPrompt()" class="text-[10px] border px-3 py-1 rounded-full uppercase font-bold text-slate-400">Admin Access</button>
         </div>
     </div>
     
+    <!-- Login View -->
     <div id="loginView" class="space-y-4">
-        <input type="email" id="lEmail" placeholder="Email" class="w-full p-4 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-200">
-        <input type="password" id="lPass" placeholder="Password" class="w-full p-4 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-200">
-        <button onclick="handleLogin()" id="loginBtn" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold uppercase shadow-lg shadow-blue-100">Log In</button>
+        <input type="email" id="lEmail" placeholder="Work Email" class="w-full p-4 border rounded-xl bg-slate-50 outline-none">
+        <input type="password" id="lPass" placeholder="Password" class="w-full p-4 border rounded-xl bg-slate-50 outline-none">
+        <button onclick="handleLogin()" id="loginBtn" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold uppercase">Log In</button>
     </div>
 
+    <!-- Registration View -->
     <div id="regView" class="hidden space-y-3">
         <input type="text" id="rId" placeholder="Employee ID" class="w-full p-4 border rounded-xl bg-slate-50 outline-none">
         <input type="email" id="rEmail" placeholder="Email" class="w-full p-4 border rounded-xl bg-slate-50 outline-none">
         <input type="password" id="rPass" placeholder="Choose Password" class="w-full p-4 border rounded-xl bg-slate-50 outline-none">
-        <button onclick="handleReg()" class="w-full bg-green-500 text-white p-4 rounded-xl font-bold uppercase">Register Account</button>
+        <button onclick="handleReg()" class="w-full bg-green-500 text-white p-4 rounded-xl font-bold uppercase">Create Account</button>
     </div>
 </div>
 
-<!-- Main App -->
+<!-- Main Employee Portal -->
 <div id="app" class="hidden min-h-screen flex flex-col">
     <header class="lc-header p-4 sticky top-0 flex justify-between items-center z-50 shadow-sm">
-        <h2 class="font-black text-blue-900 text-xs uppercase tracking-widest">Portal</h2>
-        <span id="navName" class="text-[10px] font-bold text-blue-700 bg-white/50 px-3 py-1 rounded-full">USER</span>
+        <h2 class="font-black text-blue-900 text-xs uppercase">Lifecare Kikuyu</h2>
+        <span id="navName" class="text-[10px] font-bold text-blue-700"></span>
     </header>
 
     <main class="flex-grow p-4">
-        
         <!-- Home Tab -->
-        <div id="t-home" class="tab-content active text-center pt-16">
-            <p id="gpsTxt" class="text-red-500 font-bold text-[10px] mb-8 uppercase italic">Locating Hospital Geofence...</p>
-            <button id="btnIn" onclick="clockAction('IN')" class="w-full py-20 mb-4 rounded-3xl bg-green-500 text-white text-3xl font-black btn-inactive shadow-xl" disabled>CLOCK IN</button>
-            <button id="btnOut" onclick="clockAction('OUT')" class="w-full py-20 rounded-3xl bg-blue-600 text-white text-3xl font-black hidden shadow-xl">CLOCK OUT</button>
+        <div id="t-home" class="tab-content active text-center pt-20">
+            <p id="gpsTxt" class="text-red-500 font-bold text-[10px] mb-8 uppercase italic">Checking Location...</p>
+            <button id="btnIn" onclick="clockAction('IN')" class="w-full py-20 mb-4 rounded-3xl bg-green-500 text-white text-3xl font-black btn-grey" disabled>CLOCK IN</button>
+            <button id="btnOut" onclick="clockAction('OUT')" class="w-full py-20 rounded-3xl bg-blue-600 text-white text-3xl font-black hidden">CLOCK OUT</button>
         </div>
 
-        <!-- Logs Tab -->
+        <!-- Logs Tab (Calendar + 5 Column Table) -->
         <div id="t-logs" class="tab-content space-y-6">
-            <h3 class="font-bold text-xs uppercase border-l-4 border-blue-400 pl-2">Attendance Calendar</h3>
-            <div class="calendar-grid" id="calendarGrid"></div>
-            
-            <h3 class="font-bold text-xs uppercase border-l-4 border-blue-400 pl-2">Date-wise View (24Hr Clock)</h3>
-            <div class="overflow-x-auto border rounded-xl bg-white shadow-sm">
+            <h3 class="font-bold text-xs uppercase border-b pb-2">Attendance Calendar</h3>
+            <div id="calendarGrid" class="grid grid-cols-7 gap-1 bg-white p-2 rounded-xl border">
+                <!-- Days 1-31 will be generated here -->
+            </div>
+
+            <h3 class="font-bold text-xs uppercase border-b pb-2">Date-wise Attendance (24Hr)</h3>
+            <div class="overflow-x-auto border rounded-xl bg-white">
                 <table class="w-full text-[10px] text-left">
-                    <thead class="bg-slate-50 border-b">
-                        <tr>
-                            <th class="p-3">Date</th>
-                            <th class="p-3">Status</th>
-                            <th class="p-3">Clock In</th>
-                            <th class="p-3">Clock Out</th>
-                            <th class="p-3">Total Hrs</th>
-                        </tr>
-                    </thead>
+                    <tr class="bg-blue-50 border-b">
+                        <th class="p-3">Date</th>
+                        <th class="p-3">Status</th>
+                        <th class="p-3">Clock In</th>
+                        <th class="p-3">Clock Out</th>
+                        <th class="p-3">Total Hours</th>
+                    </tr>
                     <tbody id="logTableBody"></tbody>
                 </table>
             </div>
@@ -90,8 +85,8 @@
 
         <!-- Leave Tab -->
         <div id="t-leave" class="tab-content space-y-4">
-            <h3 class="font-black text-xs uppercase mb-2">Leave Balances</h3>
-            <div id="leaveCards" class="grid grid-cols-1 gap-4"></div>
+            <h3 class="font-black text-xs uppercase mb-4">Leave Accruals</h3>
+            <div id="leaveCards" class="space-y-4"></div>
         </div>
 
         <!-- Out Duty Tab -->
@@ -99,93 +94,80 @@
             <h3 class="font-black text-xs mb-4 uppercase">Apply for Out-Duty</h3>
             <div class="bg-slate-50 p-6 rounded-2xl border space-y-4">
                 <input type="date" id="odDate" class="w-full p-4 border rounded-xl outline-none">
-                <textarea id="odReason" placeholder="Purpose & Destination" class="w-full p-4 border rounded-xl h-32 outline-none"></textarea>
-                <button onclick="submitOutDuty()" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold uppercase text-xs">Submit Request</button>
+                <textarea id="odReason" placeholder="Destination and Purpose" class="w-full p-4 border rounded-xl h-32 outline-none"></textarea>
+                <button onclick="alert('Request Sent')" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold uppercase text-xs">Submit Request</button>
             </div>
         </div>
 
         <!-- Bio Tab -->
         <div id="t-bio" class="tab-content space-y-6">
-            <h1 id="bioMainName" class="text-4xl font-black uppercase text-blue-900 border-b pb-2">NAME</h1>
+            <h1 id="bioHeaderName" class="text-3xl font-black uppercase text-blue-900 border-b pb-2"></h1>
             <div class="bg-slate-50 p-5 rounded-2xl border">
                 <h4 class="font-bold text-blue-500 text-[10px] mb-3 uppercase">Personal Details</h4>
-                <div id="bioPersonal" class="text-sm space-y-2"></div>
+                <div id="bioP" class="text-sm space-y-2"></div>
             </div>
             <div class="bg-slate-50 p-5 rounded-2xl border">
                 <h4 class="font-bold text-blue-500 text-[10px] mb-3 uppercase">Employment Details</h4>
-                <div id="bioEmploy" class="text-sm space-y-2"></div>
+                <div id="bioE" class="text-sm space-y-2"></div>
             </div>
         </div>
 
         <!-- Documents Tab -->
-        <div id="t-docs" class="tab-content">
-            <h3 class="font-black text-xs uppercase mb-4">Employee Documents</h3>
-            <div id="docGrid" class="space-y-3"></div>
+        <div id="t-docs" class="tab-content space-y-3">
+            <h3 class="font-black text-xs uppercase mb-4">Upload Documents</h3>
+            <div id="docList" class="space-y-2"></div>
         </div>
 
         <!-- Task Box Tab -->
         <div id="t-tasks" class="tab-content">
-            <h3 class="font-black text-xs uppercase mb-4">Manager Approvals</h3>
-            <div id="taskEmpty" class="p-20 text-center border-2 border-dashed rounded-3xl text-slate-300 italic text-xs">
-                No subordinates assigned. Task box remains empty.
-            </div>
-            <div id="taskLists" class="hidden space-y-6">
-                <div class="p-4 bg-blue-50 rounded-xl">
-                    <h4 class="font-bold text-[10px] uppercase text-blue-600 mb-2">Leave Requests</h4>
-                    <div id="mgrLeave"></div>
-                </div>
-                <div class="p-4 bg-green-50 rounded-xl">
-                    <h4 class="font-bold text-[10px] uppercase text-green-600 mb-2">Out-Duty Requests</h4>
-                    <div id="mgrDuty"></div>
-                </div>
+            <h3 class="font-black text-xs uppercase mb-4">Approvals (Leave & Out-Duty)</h3>
+            <div id="taskContainer" class="p-10 text-center border-2 border-dashed rounded-3xl text-slate-300 italic text-xs">
+                No subordinates assigned to you.
             </div>
         </div>
 
-        <!-- Admin Side: Reports -->
+        <!-- Admin: Reports -->
         <div id="t-admin-rep" class="tab-content space-y-4">
             <h3 class="font-black text-xs uppercase text-red-600">Admin Reports</h3>
-            <button onclick="downloadReport('work')" class="w-full bg-blue-900 text-white p-5 rounded-2xl text-left flex justify-between items-center">
-                <span class="text-xs font-bold uppercase">Total Work Duration Summary</span>
-                <i class="fa fa-file-excel"></i>
+            <button class="w-full bg-blue-900 text-white p-4 rounded-xl text-xs font-bold uppercase flex justify-between">
+                <span>Total Work Duration Summary</span><i class="fa fa-download"></i>
             </button>
-            <button onclick="downloadReport('attendance')" class="w-full bg-blue-900 text-white p-5 rounded-2xl text-left flex justify-between items-center">
-                <span class="text-xs font-bold uppercase">Date-wise Attendance Report</span>
-                <i class="fa fa-file-excel"></i>
+            <button class="w-full bg-blue-900 text-white p-4 rounded-xl text-xs font-bold uppercase flex justify-between">
+                <span>Date-wise Attendance Report</span><i class="fa fa-download"></i>
             </button>
         </div>
 
-        <!-- Admin Side: Settings -->
+        <!-- Admin: Settings -->
         <div id="t-admin-set" class="tab-content space-y-4">
             <h3 class="font-black text-xs uppercase text-red-600">Geofencing Settings</h3>
-            <div class="bg-slate-100 p-6 rounded-2xl border space-y-4">
-                <div><label class="text-[9px] font-bold">LATITUDE</label><input type="text" id="setLat" class="w-full p-2 border rounded shadow-inner"></div>
-                <div><label class="text-[9px] font-bold">LONGITUDE</label><input type="text" id="setLon" class="w-full p-2 border rounded shadow-inner"></div>
-                <div><label class="text-[9px] font-bold">RADIUS (METERS)</label><input type="text" id="setRad" class="w-full p-2 border rounded shadow-inner"></div>
-                <button onclick="saveGeoSettings()" class="w-full bg-red-600 text-white p-3 rounded-xl font-bold uppercase text-xs">Update Coordinates</button>
+            <div class="bg-slate-100 p-6 rounded-2xl border space-y-4 text-xs">
+                <div><label>Latitude:</label><input type="text" id="setLat" class="w-full p-2 border rounded mt-1"></div>
+                <div><label>Longitude:</label><input type="text" id="setLon" class="w-full p-2 border rounded mt-1"></div>
+                <div><label>Radius (Meters):</label><input type="text" id="setRad" class="w-full p-2 border rounded mt-1"></div>
+                <button class="w-full bg-red-600 text-white p-3 rounded-xl font-bold uppercase">Update Coordinates</button>
             </div>
         </div>
     </main>
 
-    <!-- Navigation -->
+    <!-- Navigation Bar -->
     <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 pb-8 z-50">
         <button onclick="tab('t-home', this)" class="nav-btn nav-active"><i class="fa fa-home"></i><p class="text-[7px] mt-1">Home</p></button>
-        <button onclick="tab('t-logs', this)" class="nav-btn"><i class="fa fa-calendar-check"></i><p class="text-[7px] mt-1">Logs</p></button>
-        <button onclick="tab('t-leave', this)" class="nav-btn"><i class="fa fa-briefcase"></i><p class="text-[7px] mt-1">Leave</p></button>
+        <button onclick="tab('t-logs', this)" class="nav-btn"><i class="fa fa-list"></i><p class="text-[7px] mt-1">Logs</p></button>
+        <button onclick="tab('t-leave', this)" class="nav-btn"><i class="fa fa-calendar-plus"></i><p class="text-[7px] mt-1">Leave</p></button>
         <button onclick="tab('t-duty', this)" class="nav-btn"><i class="fa fa-route"></i><p class="text-[7px] mt-1">OutDuty</p></button>
-        <button onclick="tab('t-bio', this)" class="nav-btn"><i class="fa fa-user-circle"></i><p class="text-[7px] mt-1">Bio</p></button>
-        <button onclick="tab('t-docs', this)" class="nav-btn"><i class="fa fa-folder-open"></i><p class="text-[7px] mt-1">Docs</p></button>
-        <button onclick="tab('t-tasks', this)" class="nav-btn"><i class="fa fa-check-double"></i><p class="text-[7px] mt-1">Tasks</p></button>
-        <button id="nRep" onclick="tab('t-admin-rep', this)" class="nav-btn hidden text-red-400"><i class="fa fa-chart-line"></i><p class="text-[7px] mt-1">Reports</p></button>
-        <button id="nSet" onclick="tab('t-admin-set', this)" class="nav-btn hidden text-red-400"><i class="fa fa-gears"></i><p class="text-[7px] mt-1">Settings</p></button>
+        <button onclick="tab('t-bio', this)" class="nav-btn"><i class="fa fa-user"></i><p class="text-[7px] mt-1">Bio</p></button>
+        <button onclick="tab('t-docs', this)" class="nav-btn"><i class="fa fa-folder"></i><p class="text-[7px] mt-1">Docs</p></button>
+        <button onclick="tab('t-tasks', this)" class="nav-btn"><i class="fa fa-tasks"></i><p class="text-[7px] mt-1">Tasks</p></button>
+        <button id="admR" onclick="tab('t-admin-rep', this)" class="nav-btn hidden text-red-400"><i class="fa fa-chart-bar"></i><p class="text-[7px] mt-1">Reports</p></button>
+        <button id="admS" onclick="tab('t-admin-set', this)" class="nav-btn hidden text-red-400"><i class="fa fa-gears"></i><p class="text-[7px] mt-1">Settings</p></button>
     </nav>
 </div>
 
 <script>
-    const URL = "https://script.google.com/macros/s/AKfycby_ouyp9o-Zvr-SvgCug1U08mSKFk0ugKiGOfYHH4bAqCUfPUN6KeVncAoxPYkDEO73Zg/exec";
-    let u = {};
-    let adminUnlocked = false;
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_ouyp9o-Zvr-SvgCug1U08mSKFk0ugKiGOfYHH4bAqCUfPUN6KeVncAoxPYkDEO73Zg/exec";
+    let u = {}; 
+    let isAdmin = false;
 
-    // --- Tab Switching Logic ---
     function tab(id, btn) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
@@ -193,145 +175,123 @@
         btn.classList.add('nav-active');
     }
 
-    function toggleAuth(v) {
-        document.getElementById('loginView').classList.toggle('hidden', v === 'reg');
-        document.getElementById('regView').classList.toggle('hidden', v === 'login');
+    function toggleAuth(view) {
+        document.getElementById('loginView').classList.toggle('hidden', view === 'reg');
+        document.getElementById('regView').classList.toggle('hidden', view === 'login');
     }
 
     function adminPrompt() {
-        const p = prompt("Enter Admin Access Password:");
-        if(p === "2026") {
-            adminUnlocked = true;
-            alert("Admin Access Authorized. Please log in to your account.");
-        } else { alert("Access Denied."); }
-    }
-
-    // --- Data Rendering ---
-    function handleLogin() {
-        // Assume basic logic to call your backend
-        document.getElementById('loginBtn').innerText = "VERIFYING...";
-        // Simulated success for preview:
-        onLoginSuccess({
-            id: "LK001", name: "John Doe", email: "john@lifecare.com", 
-            phone: "+254...", gender: "Male", dob: "1990-01-01",
-            dept: "Nursing", desig: "Senior Nurse", mgrName: "Alice Smith", empType: "Permanent",
-            attendance: [
-                {date: "2026-04-01", status: "Present", in: "08:00", out: "17:00", total: "9.0"}
-            ],
-            leaves: [
-                {type: "Annual", accrued: 21, utilized: 5},
-                {type: "Sick", accrued: 10, utilized: 1}
-            ]
-        });
-    }
-
-    function onLoginSuccess(data) {
-        u = data;
-        document.getElementById('authPage').classList.add('hidden');
-        document.getElementById('app').classList.remove('hidden');
-        document.getElementById('navName').innerText = u.name.toUpperCase();
-        
-        if(adminUnlocked) {
-            document.getElementById('nRep').classList.remove('hidden');
-            document.getElementById('nSet').classList.remove('hidden');
+        const pin = prompt("Admin Access PIN:");
+        if(pin === "2026") { 
+            isAdmin = true; 
+            alert("Admin Access Authorized for next Login.");
         }
-        
-        renderBio();
-        renderLogs();
-        renderLeaves();
-        renderDocs();
-        checkGPS();
     }
 
-    function renderLogs() {
+    function handleLogin() {
+        const email = document.getElementById('lEmail').value;
+        const pass = document.getElementById('lPass').value;
+        if(!email || !pass) return alert("Fill all fields");
+        
+        document.getElementById('loginBtn').innerText = "Verifying...";
+        
+        // This connects to your Google Script "brain"
+        const script = document.createElement('script');
+        script.src = `${SCRIPT_URL}?action=login&email=${email}&pass=${pass}&callback=onLogin`;
+        document.body.appendChild(script);
+    }
+
+    window.onLogin = function(data) {
+        if(data.success) {
+            u = data;
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            if(isAdmin) {
+                document.getElementById('admR').classList.remove('hidden');
+                document.getElementById('admS').classList.remove('hidden');
+            }
+            renderPortal();
+            checkGPS();
+        } else {
+            alert("Error: " + data.message);
+            document.getElementById('loginBtn').innerText = "Log In";
+        }
+    }
+
+    function renderPortal() {
+        document.getElementById('navName').innerText = u.name.toUpperCase();
+        document.getElementById('bioHeaderName').innerText = u.name;
+
+        // Populate Bio
+        document.getElementById('bioP').innerHTML = `<p>ID: ${u.id}</p><p>Email: ${u.email}</p><p>Phone: ${u.phone}</p><p>Gender: ${u.gender}</p><p>DOB: ${u.dob}</p>`;
+        document.getElementById('bioE').innerHTML = `<p>Dept: ${u.dept}</p><p>Role: ${u.desig}</p><p>Manager: ${u.mgr}</p><p>Type: ${u.type}</p>`;
+
+        // Populate Logs (Table + Calendar)
         const table = document.getElementById('logTableBody');
         const grid = document.getElementById('calendarGrid');
-        table.innerHTML = "";
-        grid.innerHTML = "";
-        
-        // Render 30 days placeholder for calendar
-        for(let i=1; i<=30; i++) {
-            grid.innerHTML += `<div class="day-box border rounded bg-white text-center flex flex-col justify-center items-center">
-                <span>${i}</span><span class="text-[8px] text-green-500 font-bold">PRESENT</span>
+        table.innerHTML = ""; grid.innerHTML = "";
+
+        // Loop through 30 days
+        for(let d=1; d<=30; d++) {
+            const dateStr = `2026-04-${d < 10 ? '0'+d : d}`;
+            const log = u.attendance.find(a => a.date === dateStr) || { status: 'Absent', in: '--', out: '--', total: '0' };
+            
+            // Table
+            table.innerHTML += `<tr class="border-b">
+                <td class="p-3">${dateStr}</td>
+                <td class="p-3 font-bold ${log.status==='Present'?'text-green-500':'text-red-400'}">${log.status}</td>
+                <td class="p-3">${log.in}</td><td class="p-3">${log.out}</td><td class="p-3 font-bold">${log.total}</td>
+            </tr>`;
+
+            // Calendar
+            grid.innerHTML += `<div class="calendar-day ${log.status==='Present'?'bg-green-50':'bg-slate-50'}">
+                <span>${d}</span><span class="text-[7px] font-bold">${log.status}</span>
             </div>`;
         }
 
-        // Render Table (Cross-referencing "brain" data)
-        u.attendance.forEach(log => {
-            table.innerHTML += `<tr class="border-b">
-                <td class="p-3 font-bold">${log.date}</td>
-                <td class="p-3"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full">${log.status}</span></td>
-                <td class="p-3">${log.in}</td>
-                <td class="p-3">${log.out}</td>
-                <td class="p-3 font-bold">${log.total}</td>
-            </tr>`;
+        // Populate Leave Cards
+        const leaveTypes = ['Annual', 'Sick', 'Maternity', 'Paternity', 'Compassionate'];
+        let lHtml = '';
+        leaveTypes.forEach(type => {
+            lHtml += `<div class="bg-white p-4 rounded-xl border shadow-sm">
+                <div class="flex justify-between font-black text-blue-500 text-[10px] mb-2 uppercase"><span>${type} Leave</span></div>
+                <div class="grid grid-cols-3 gap-2 text-center text-[10px]">
+                    <div class="bg-slate-50 p-2 rounded">Accrued<br><b>21</b></div>
+                    <div class="bg-slate-50 p-2 rounded">Used<br><b>5</b></div>
+                    <div class="bg-slate-50 p-2 rounded text-green-600">Balance<br><b>16</b></div>
+                </div>
+                <button class="w-full mt-3 py-2 bg-slate-100 rounded font-bold text-[9px] uppercase">Apply Now</button>
+            </div>`;
         });
-    }
+        document.getElementById('leaveCards').innerHTML = lHtml;
 
-    function renderBio() {
-        document.getElementById('bioMainName').innerText = u.name;
-        document.getElementById('bioPersonal').innerHTML = `
-            <p>Employee ID: <b>${u.id}</b></p>
-            <p>Email: <b>${u.email}</b></p>
-            <p>Phone: <b>${u.phone}</b></p>
-            <p>Gender: <b>${u.gender}</b></p>
-            <p>Date of Birth: <b>${u.dob}</b></p>`;
-        document.getElementById('bioEmploy').innerHTML = `
-            <p>Department: <b>${u.dept}</b></p>
-            <p>Designation: <b>${u.desig}</b></p>
-            <p>Manager Name: <b>${u.mgrName}</b></p>
-            <p>Employee Type: <b class="text-blue-600">${u.empType}</b></p>`;
-    }
-
-    function renderDocs() {
-        const docNames = ["Employee Contract", "CV/Resume", "Academic Documents", "License", "National ID/Passport", "KRA", "SHIF", "NSSF", "Bank form"];
-        const grid = document.getElementById('docGrid');
-        grid.innerHTML = "";
-        docNames.forEach(name => {
-            grid.innerHTML += `
-                <div class="flex justify-between items-center p-4 bg-white border rounded-2xl shadow-sm">
-                    <span class="text-[10px] font-bold uppercase tracking-tight">${name}</span>
-                    <div class="flex gap-2">
-                        <label class="cursor-pointer text-blue-500 hover:text-blue-700">
-                            <i class="fa fa-cloud-upload text-lg"></i>
-                            <input type="file" class="hidden" onchange="uploadDoc('${name}', this)">
-                        </label>
-                        <i class="fa fa-download text-slate-300"></i>
-                    </div>
-                </div>`;
+        // Populate Docs
+        const docs = ["Employee Contract", "CV/Resume", "Academic Documents", "License", "National ID/Passport", "KRA", "SHIF", "NSSF", "Bank form"];
+        let dHtml = '';
+        docs.forEach(d => {
+            dHtml += `<div class="flex justify-between items-center p-4 bg-slate-50 border rounded-xl">
+                <span class="text-[10px] font-bold uppercase">${d}</span>
+                <label class="bg-blue-500 text-white px-3 py-1 rounded text-[9px] cursor-pointer">UPLOAD<input type="file" class="hidden"></label>
+            </div>`;
         });
+        document.getElementById('docList').innerHTML = dHtml;
     }
 
-    function renderLeaves() {
-        const container = document.getElementById('leaveCards');
-        const types = ["Annual", "Sick", "Maternity", "Paternity", "Compassionate"];
-        container.innerHTML = "";
-        types.forEach(t => {
-            container.innerHTML += `
-                <div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col">
-                    <h4 class="font-black text-[11px] uppercase text-blue-500 border-b pb-2 mb-4">${t} Leave</h4>
-                    <div class="grid grid-cols-3 gap-2 text-center text-[10px] mb-4">
-                        <div class="bg-slate-50 p-2 rounded-lg">Accrued<br><b class="text-lg">21</b></div>
-                        <div class="bg-slate-50 p-2 rounded-lg">Utilized<br><b class="text-lg text-red-500">5</b></div>
-                        <div class="bg-slate-50 p-2 rounded-lg">Balance<br><b class="text-lg text-green-600">16</b></div>
-                    </div>
-                    <button class="w-full bg-slate-800 text-white py-3 rounded-xl text-[10px] font-bold uppercase">Apply for ${t}</button>
-                </div>`;
-        });
-    }
-
-    // --- Geofencing Logic ---
     function checkGPS() {
         navigator.geolocation.getCurrentPosition(pos => {
-            document.getElementById('gpsTxt').innerText = "HOSPITAL LOCATION VERIFIED";
+            document.getElementById('gpsTxt').innerText = "LOCATION VERIFIED";
             document.getElementById('gpsTxt').className = "text-green-500 font-bold text-[10px] mb-8 uppercase italic";
             document.getElementById('btnIn').disabled = false;
-            document.getElementById('btnIn').classList.remove('btn-inactive');
+            document.getElementById('btnIn').classList.remove('btn-grey');
         });
     }
 
-    function uploadDoc(type, input) {
-        if(input.files.length > 0) alert("Uploading " + type + "...");
+    function clockAction(type) {
+        alert("Clocked " + type + " successfully at Kikuyu Hospital.");
+        if(type === 'IN') {
+            document.getElementById('btnIn').classList.add('hidden');
+            document.getElementById('btnOut').classList.remove('hidden');
+        } else { location.reload(); }
     }
 </script>
 </body>
