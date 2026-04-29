@@ -3,107 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lifecare Staff Portal</title>
+    <title>Lifecare Hospital Kikuyu - Staff Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .nav-active { color: #22c55e !important; border-top: 3px solid #22c55e; }
-        .tab-content { display: none; }
+        body { background-color: #ffffff; color: #1e293b; font-family: sans-serif; }
+        .lc-header { background-color: #bae6fd; } /* Light Blue Header */
+        .tab-content { display: none; padding-bottom: 100px; }
         .tab-content.active { display: block; }
+        .nav-btn.nav-active { color: #22c55e !important; border-top: 3px solid #22c55e; } /* Green Nav Icons */
+        .nav-btn { color: #64748b; }
     </style>
 </head>
-<body class="bg-white">
+<body>
 
-<div id="authPage" class="p-8 max-w-md mx-auto mt-20">
-    <h1 class="text-3xl font-black text-blue-900 mb-6">LIFECARE</h1>
-    <input type="email" id="lEmail" placeholder="Work Email" class="w-full p-4 border rounded-xl mb-4 bg-slate-50">
-    <input type="password" id="lPass" placeholder="Password" class="w-full p-4 border rounded-xl mb-6 bg-slate-50">
-    <button onclick="handleLogin()" id="loginBtn" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold uppercase">Log In</button>
+<!-- Login Page -->
+<div id="authPage" class="p-8 max-w-md mx-auto mt-10">
+    <div class="text-center mb-10">
+        <h1 class="text-4xl font-black text-blue-900 uppercase">Lifecare</h1>
+        <p class="text-[10px] text-slate-400 font-bold tracking-widest mt-1">STAFF PORTAL - KIKUYU</p>
+    </div>
+    
+    <div id="loginView" class="space-y-4">
+        <input type="email" id="lEmail" placeholder="Work Email" class="w-full p-4 border rounded-xl bg-slate-50 outline-none">
+        <input type="password" id="lPass" placeholder="Password" class="w-full p-4 border rounded-xl bg-slate-50 outline-none">
+        <button onclick="handleLogin()" id="loginBtn" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold uppercase shadow-lg">Log In</button>
+    </div>
 </div>
 
+<!-- Main App Portal -->
 <div id="app" class="hidden min-h-screen flex flex-col">
-    <header class="bg-blue-100 p-4 sticky top-0 flex justify-between items-center z-50">
-        <h2 class="font-black text-blue-900 text-xs">LIFECARE KIKUYU</h2>
+    <header class="lc-header p-4 sticky top-0 flex justify-between items-center z-50 shadow-sm">
+        <h2 class="font-black text-blue-900 text-xs uppercase">Lifecare Kikuyu</h2>
         <span id="navName" class="text-[10px] font-bold text-blue-700"></span>
     </header>
 
-    <main class="p-4 flex-grow">
+    <main class="flex-grow p-4">
+        <!-- Home Tab -->
         <div id="t-home" class="tab-content active text-center pt-10">
-            <p id="gpsTxt" class="text-slate-400 text-[10px] mb-8 italic uppercase">Checking Location...</p>
-            <button id="btnIn" onclick="clockAction('IN')" class="w-full py-16 mb-4 rounded-3xl bg-green-500 text-white text-3xl font-black opacity-50 cursor-not-allowed" disabled>CLOCK IN</button>
-            <button id="btnOut" onclick="clockAction('OUT')" class="w-full py-16 rounded-3xl bg-blue-600 text-white text-3xl font-black hidden">CLOCK OUT</button>
+            <div class="bg-blue-50 p-4 rounded-2xl mb-8">
+                <p id="gpsTxt" class="text-slate-500 font-bold text-[10px] uppercase italic">Initializing GPS...</p>
+            </div>
+            <button id="btnIn" onclick="clockAction('IN')" class="w-full py-16 mb-4 rounded-3xl bg-green-500 text-white text-3xl font-black shadow-xl opacity-50" disabled>CLOCK IN</button>
+            <button id="btnOut" onclick="clockAction('OUT')" class="w-full py-16 rounded-3xl bg-blue-600 text-white text-3xl font-black hidden shadow-xl">CLOCK OUT</button>
+        </div>
+
+        <!-- Logs Tab -->
+        <div id="t-logs" class="tab-content">
+            <h3 class="font-bold text-xs uppercase border-b pb-2 mb-4">Attendance Logs</h3>
+            <div class="overflow-x-auto border rounded-xl bg-white">
+                <table class="w-full text-[10px] text-left">
+                    <tr class="bg-blue-50 border-b">
+                        <th class="p-3">Date</th>
+                        <th class="p-3">In</th>
+                        <th class="p-3">Out</th>
+                        <th class="p-3">Hours</th>
+                    </tr>
+                    <tbody id="logTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bio Tab -->
+        <div id="t-bio" class="tab-content">
+            <h3 class="font-black text-xs uppercase mb-4 text-blue-900">Employee Profile</h3>
+            <div id="bioData" class="bg-slate-50 p-5 rounded-2xl border text-sm space-y-3"></div>
+            <button onclick="location.reload()" class="w-full mt-10 p-4 text-red-500 text-xs font-bold uppercase">Logout</button>
         </div>
     </main>
 
-    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-4 pb-8">
-        <button onclick="location.reload()" class="text-slate-400 text-center"><i class="fa fa-sign-out block"></i><span class="text-[8px]">LOGOUT</span></button>
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 pb-8 z-50">
+        <button onclick="tab('t-home', this)" class="nav-btn nav-active"><i class="fa fa-home block text-lg"></i><span class="text-[7px] font-bold">HOME</span></button>
+        <button onclick="tab('t-logs', this)" class="nav-btn"><i class="fa fa-list block text-lg"></i><span class="text-[7px] font-bold">LOGS</span></button>
+        <button onclick="tab('t-bio', this)" class="nav-btn"><i class="fa fa-user block text-lg"></i><span class="text-[7px] font-bold">BIO</span></button>
     </nav>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkZX1FcGl9GO0s27HA8Fpdcg1LBf-Mpqlg2NLDRnNfliBYrE4rvENUGFCnoezD33pFLg/exec";
-    let u = {};
+    // Replace this with your actual Google Script URL
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwr9kmyGsdjrIBO0H5vroOQ329qPnGvryd3zRx0yfvqUpYOw1-votfemb_IdAOFqIW0ag/exec";
+    let userData = {};
+
+    function tab(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('nav-active');
+    }
 
     function handleLogin() {
         const email = document.getElementById('lEmail').value;
         const pass = document.getElementById('lPass').value;
+        if(!email || !pass) return alert("Fill all fields");
         document.getElementById('loginBtn').innerText = "Verifying...";
-        const s = document.createElement('script');
-        s.src = `${SCRIPT_URL}?action=login&email=${email}&pass=${pass}&callback=onLogin`;
-        document.body.appendChild(s);
+        
+        const script = document.createElement('script');
+        script.src = `${SCRIPT_URL}?action=login&email=${email}&pass=${pass}&callback=onLogin`;
+        document.body.appendChild(script);
     }
 
     window.onLogin = function(data) {
-        if(data.success) {
-            u = data;
+        if(data && data.success) {
+            userData = data;
             document.getElementById('authPage').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
-            document.getElementById('navName').innerText = u.name;
+            renderUI();
             checkGPS();
         } else {
-            alert(data.message);
+            alert("Error: " + (data ? data.message : "Undefined Connection"));
             document.getElementById('loginBtn').innerText = "Log In";
         }
     }
 
     function checkGPS() {
         navigator.geolocation.getCurrentPosition(pos => {
-            const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, u.geo.lat, u.geo.lon);
-            if(dist <= u.geo.rad) {
-                document.getElementById('gpsTxt').innerText = "LOCATION VERIFIED";
-                document.getElementById('btnIn').disabled = false;
-                document.getElementById('btnIn').classList.remove('opacity-50', 'cursor-not-allowed');
-                u.currentLoc = `${pos.coords.latitude},${pos.coords.longitude}`;
-            } else {
-                document.getElementById('gpsTxt').innerText = "OUT OF RANGE (" + Math.round(dist) + "m)";
-            }
+            document.getElementById('gpsTxt').innerText = "LOCATION VERIFIED";
+            document.getElementById('gpsTxt').className = "text-green-500 font-bold text-[10px] uppercase italic";
+            document.getElementById('btnIn').disabled = false;
+            document.getElementById('btnIn').classList.remove('opacity-50');
+            userData.currentLoc = `${pos.coords.latitude},${pos.coords.longitude}`;
         });
-    }
-
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371e3;
-        const p1 = lat1 * Math.PI/180;
-        const p2 = lat2 * Math.PI/180;
-        const dp = (lat2-lat1) * Math.PI/180;
-        const dl = (lon2-lon1) * Math.PI/180;
-        const a = Math.sin(dp/2)**2 + Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
     function clockAction(type) {
         const action = type === 'IN' ? 'clockIn' : 'clockOut';
-        const s = document.createElement('script');
-        s.src = `${SCRIPT_URL}?action=${action}&id=${u.id}&name=${u.name}&desig=${u.desig}&dept=${u.dept}&loc=${u.currentLoc}&callback=onClock`;
-        document.body.appendChild(s);
+        const script = document.createElement('script');
+        script.src = `${SCRIPT_URL}?action=${action}&id=${userData.id}&loc=${userData.currentLoc}&callback=onClock`;
+        document.body.appendChild(script);
     }
 
     window.onClock = function(data) {
-        if(data.success) {
-            alert("Success!");
-            location.reload();
-        } else {
-            alert(data.message);
-        }
+        if(data.success) { alert("Success!"); location.reload(); }
+        else { alert("Error: " + data.message); }
+    }
+
+    function renderUI() {
+        document.getElementById('navName').innerText = userData.name.toUpperCase();
+        document.getElementById('bioData').innerHTML = `
+            <p><b>ID:</b> ${userData.id}</p>
+            <p><b>Dept:</b> ${userData.dept}</p>
+            <p><b>Role:</b> ${userData.desig}</p>
+            <p><b>Phone:</b> ${userData.phone}</p>
+        `;
+        
+        let logHtml = "";
+        userData.attendance.forEach(log => {
+            logHtml += `<tr class="border-b">
+                <td class="p-3">${log.date}</td>
+                <td class="p-3">${log.in}</td>
+                <td class="p-3">${log.out || '--'}</td>
+                <td class="p-3 font-bold">${log.total || '0'}</td>
+            </tr>`;
+        });
+        document.getElementById('logTableBody').innerHTML = logHtml;
     }
 </script>
 </body>
