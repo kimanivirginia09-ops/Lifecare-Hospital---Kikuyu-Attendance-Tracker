@@ -1,112 +1,591 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <style>
-    body { background-color: #ffffff; }
-    .lc-blue { background-color: #e0f2fe; }
-    .tab-content { display: none; }
-    .active { display: block; }
-    .nav-green { color: #22c55e; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lifecare Hospital - Kikuyu Staff Portal</title>
+    
+    <style>
+        /* Master Settings: White BG, Light Blue Header */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #ffffff; 
+            color: #333333; 
+        }
+        .header { 
+            background-color: #e3f2fd; 
+            padding: 20px; 
+            border-bottom: 1px solid #bbdefb; 
+        }
+        .header-title { 
+            margin: 0; 
+            color: #0d47a1; 
+            font-size: 1.2rem; 
+            font-weight: bold; 
+        }
+        .header-subtitle { 
+            margin: 5px 0 0 0; 
+            font-size: 0.9rem; 
+            color: #546e7a; 
+        }
+        .form-area { 
+            max-width: 400px; 
+            margin: 50px auto; 
+            padding: 20px; 
+        }
+        .hidden { 
+            display: none !important; 
+        }
+        
+        /* Login Form Styles */
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #455a64; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #cfd8dc; border-radius: 5px; font-size: 1rem; box-sizing: border-box; }
+        .btn-primary { width: 100%; padding: 14px; background-color: #4caf50; color: white; border: none; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        .switch-link { text-align: center; margin-top: 20px; color: #0277bd; cursor: pointer; font-size: 0.9rem; }
+        #statusMessage { text-align: center; margin-top: 15px; font-size: 0.9rem; }
+        .text-red { color: #d32f2f; } 
+        .text-green { color: #2e7d32; }
+
+        .input-error { border-color: #d32f2f !important; }
+        .input-error { border-color: #d32f2f !important; }
+        /* --- PORTAL LAYOUT & NAVIGATION --- */
+        .app-header { background-color: #e3f2fd; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #bbdefb; }
+        .app-header h2 { margin: 0; color: #0d47a1; font-size: 1.1rem; }
+        .btn-logout { background: none; border: 1px solid #d32f2f; color: #d32f2f; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        .tab-content { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; }
+        .tab-page { display: none; } .tab-page.active { display: flex; flex-direction: column; flex-grow: 1; }
+        
+        .bottom-nav { display: flex; background-color: #ffffff; border-top: 1px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); overflow-x: auto; }
+        .nav-btn { flex: 1 1 0%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 0; background: none; border: none; color: #757575; cursor: pointer; font-size: 0.75rem; gap: 5px; }
+        .nav-btn.active { color: #2e7d32; font-weight: bold; } /* Green Active Tabs */
+        .nav-icon { font-size: 20px; }
+        .admin-only { display: none; } /* Hides admin tabs by default */
+
+        /* --- HOME TAB & CLOCK BUTTONS --- */
+        .home-container { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; gap: 25px; }
+        .location-status { font-size: 1.1rem; color: #555; text-align: center; font-weight: 500; }
+        .clock-btn { width: 220px; height: 220px; border-radius: 50%; border: none; font-size: 1.4rem; font-weight: bold; color: white; cursor: pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: 0.3s; }
+        .clock-btn:disabled { background-color: #bdbdbd !important; color: #757575; box-shadow: none; cursor: not-allowed; } /* Grey out of bounds */
+        .btn-clock-in { background-color: #4caf50; } /* Green */
+        .btn-clock-out { background-color: #ff9800; } /* Orange */
+        .logs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .logs-header h3 { margin: 0; color: #0d47a1; }
+        .logs-nav button { background: #e3f2fd; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: #0d47a1; font-weight: bold; }
+        .legend { display: flex; gap: 15px; margin-bottom: 20px; font-size: 0.8rem; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .legend-color { width: 12px; height: 12px; border-radius: 2px; border: 1px solid #ccc; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 30px; text-align: center; }
+        .cal-day-header { font-weight: bold; font-size: 0.8rem; color: #757575; padding: 5px 0; }
+        .cal-day { border: 1px solid #eee; padding: 8px 2px; border-radius: 4px; font-size: 0.85rem; }
+        .cal-empty { border: none; }
+        .cal-present { background-color: #e8f5e9; color: #2e7d32; font-weight: bold; border-color: #c8e6c9; }
+        .cal-absent { background-color: #ffebee; color: #c62828; border-color: #ffcdd2; }
+        .cal-time { font-size: 0.65rem; font-weight: normal; display: block; margin-top: 2px; color: #1b5e20; }
+        .logs-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
+        .logs-table th, .logs-table td { border: 1px solid #e0e0e0; padding: 8px; text-align: left; }
+        .logs-table th { background-color: #f5f5f5; color: #455a64; }
+        .leave-cards { display: flex; flex-direction: column; gap: 15px; }
+        .leave-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); background: #fafafa; }
+        .leave-card h4 { margin: 0 0 15px 0; color: #0d47a1; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px; }
+        .leave-stats { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 15px; }
+        .leave-stats span { font-weight: bold; color: #2e7d32; }
+        .btn-apply { background-color: #2196f3; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; }
+        .leave-form { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .form-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); background: #fafafa; }
+        .form-card h3 { margin: 0 0 15px 0; color: #0d47a1; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px; }
+        .bio-name-header { text-align: center; font-size: 1.5rem; font-weight: bold; color: #0d47a1; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 2px solid #e3f2fd; }
+        .bio-section { margin-bottom: 25px; }
+        .bio-section h4 { background-color: #e3f2fd; color: #0d47a1; padding: 10px 15px; margin: 0 0 10px 0; border-radius: 5px 5px 0 0; font-size: 1rem; }
+        .bio-details { background-color: #f9f9f9; padding: 15px; border: 1px solid #e0e0e0; border-radius: 0 0 5px 5px; }
+        .bio-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.95rem; }
+        .bio-row:last-child { border-bottom: none; }
+        .bio-label { color: #757575; }
+        .bio-value { font-weight: 600; color: #333; text-align: right; max-width: 60%; }
+    </style>
 </head>
-<body class="text-slate-800">
+<body>
 
-<!-- Auth Section -->
-<div id="authPage" class="p-6 max-w-md mx-auto">
-  <div class="flex justify-between items-center mb-10">
-    <h1 class="text-2xl font-bold text-blue-900">Lifecare</h1>
-    <button onclick="document.getElementById('loginView').classList.toggle('hidden'); document.getElementById('regView').classList.toggle('hidden');" class="text-xs font-bold text-blue-600 border border-blue-600 px-3 py-1 rounded-full">REGISTER</button>
-  </div>
-
-  <div id="loginView" class="space-y-4">
-    <input type="email" id="lEmail" placeholder="Work Email" class="w-full p-4 border rounded-xl bg-slate-50 outline-none">
-    <input type="password" id="lPass" placeholder="Password" class="w-full p-4 border rounded-xl bg-slate-50 outline-none">
-    <button onclick="handleLogin()" class="w-full bg-blue-500 text-white p-4 rounded-xl font-bold">LOG IN</button>
-  </div>
-
-  <div id="regView" class="hidden space-y-4">
-    <input type="text" id="rID" placeholder="Employee ID" class="w-full p-4 border rounded-xl outline-none">
-    <input type="email" id="rEmail" placeholder="Work Email" class="w-full p-4 border rounded-xl outline-none">
-    <input type="password" id="rPass" placeholder="Set Password" class="w-full p-4 border rounded-xl outline-none">
-    <button onclick="handleRegister()" class="w-full bg-green-500 text-white p-4 rounded-xl font-bold">REGISTER PASSWORD</button>
-  </div>
-</div>
-
-<!-- Main App -->
-<div id="app" class="hidden min-h-screen flex flex-col">
-  <header class="lc-blue p-4 text-center sticky top-0 shadow-sm">
-    <h2 id="tabTitle" class="font-bold text-blue-800 uppercase text-xs">Home</h2>
-  </header>
-
-  <main class="flex-grow p-4">
-    <!-- Home -->
-    <div id="t-home" class="tab-content active text-center pt-10">
-      <div class="bg-blue-50 p-4 rounded-xl mb-10">
-        <p id="geoText" class="text-[10px] font-bold text-slate-400">WAITING FOR GPS...</p>
-      </div>
-      <button id="btnIn" disabled class="w-full py-16 bg-slate-200 text-white text-3xl font-black rounded-3xl mb-4">CLOCK IN</button>
-      <button id="btnOut" disabled class="w-full py-16 bg-slate-200 text-white text-3xl font-black rounded-3xl">CLOCK OUT</button>
+    <!-- HEADER -->
+    <div class="header">
+        <h1 class="header-title">Lifecare Hospital</h1>
+        <p class="header-subtitle">Kikuyu Staff Portal</p>
     </div>
 
-    <!-- Bio -->
-    <div id="t-bio" class="tab-content">
-      <h1 id="userName" class="text-3xl font-black text-blue-900 mb-6"></h1>
-      <div class="space-y-4">
-        <div class="p-4 bg-slate-50 rounded-xl border">
-          <h4 class="text-blue-500 font-bold text-[10px] uppercase mb-2">Personal</h4>
-          <div id="bioPersonal" class="text-xs space-y-1"></div>
+    <!-- FORM AREA -->
+    <div class="form-area">
+        
+        <!-- LOGIN BOX -->
+        <div id="loginBox">
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn-primary">Log In</button>
+                <div class="switch-link" id="btnShowRegister">Activate a new account</div>
+                <div id="statusMessage"></div>
+            </form>
         </div>
-        <div class="p-4 bg-slate-50 rounded-xl border">
-          <h4 class="text-blue-500 font-bold text-[10px] uppercase mb-2">Employment</h4>
-          <div id="bioEmployment" class="text-xs space-y-1"></div>
+
+        <!-- REGISTER BOX -->
+        <div id="registerBox" class="hidden">
+            <form id="registerForm">
+                <div class="input-group">
+                    <label>Employee ID (5 digits)</label>
+                    <input type="text" id="regID" required maxlength="5" inputmode="numeric">
+                </div>
+                        <form id="registerForm"
+                <div class="input-group">
+                    <label>Employee ID (5 digits)</label>
+                    <input type="text" id="regID" required maxlength="5" inputmode="numeric">
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+                <div class="input-group">
+                    <label>Create Password</label>
+                    <input type="password" id="regPassword" required>
+                </div>
+                <div class="input-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="regConfirm" required>
+                </div>
+                <button type="submit" class="btn-primary">Activate Account</button>
+                <div class="switch-link" id="btnShowLogin">Already activated? Log In</div>
+                <div id="statusMessageReg"></div>
+            </form>
         </div>
-      </div>
+
     </div>
-  </main>
+    <!-- ========================================== -->
+    <!-- MAIN PORTAL SECTION (Hidden until login) -->
+    <!-- ========================================== -->
+    <div id="portalSection" class="hidden" style="display: none; flex-direction: column; height: 100vh;">
+        
+        <div class="app-header">
+            <h2 id="welcomeUser">Welcome!</h2>
+            <button class="btn-logout" id="btnLogout">Log Out</button>
+        </div>
+        
+        <div class="tab-content">
+            
+            <!-- TAB 1: HOME -->
+            <div id="page-home" class="tab-page active">
+                <div class="home-container">
+                    <div class="location-status" id="geoStatus">Checking location...</div>
+                <button id="devBypass" style="font-size:12px; color:#666; background:none; border:1px solid #ccc; padding:5px 10px; cursor:pointer; border-radius:4px; margin-top:-10px;">Bypass GPS for Testing</button>
+                    <button class="clock-btn btn-clock-in" id="btnClockIn" disabled>CLOCK IN</button>
+                    <button class="clock-btn btn-clock-out hidden" id="btnClockOut" disabled>CLOCK OUT</button>
+                </div>
+            </div>
 
-  <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 pb-6">
-    <button onclick="showTab('home')" class="text-center"><i class="fa fa-home nav-green block text-xl"></i><span class="text-[8px] font-bold">HOME</span></button>
-    <button onclick="showTab('bio')" class="text-center"><i class="fa fa-user nav-green block text-xl"></i><span class="text-[8px] font-bold">BIO</span></button>
-  </nav>
-</div>
+            <!-- TAB 2: LOGS -->
+            <div id="page-logs" class="tab-page">
+                <div class="logs-header">
+                    <div class="logs-nav"><button id="prevMonth">◀</button></div>
+                    <h3 id="currentMonthYear">November 2023</h3>
+                    <div class="logs-nav"><button id="nextMonth">▶</button></div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-color" style="background:#e8f5e9; border-color:#c8e6c9;"></div> Present</div>
+                    <div class="legend-item"><div class="legend-color" style="background:#ffebee; border-color:#ffcdd2;"></div> Absent</div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <div class="cal-day-header">Sun</div><div class="cal-day-header">Mon</div><div class="cal-day-header">Tue</div><div class="cal-day-header">Wed</div><div class="cal-day-header">Thu</div><div class="cal-day-header">Fri</div><div class="cal-day-header">Sat</div>
+                </div>
+                <table class="logs-table">
+                    <thead><tr><th>Date</th><th>Status</th><th>Clock In</th><th>Clock Out</th><th>Work Duration</th></tr></thead>
+                    <tbody id="logsTableBody"></tbody>
+                </table>
+            </div>
 
+            <!-- TAB 3: LEAVE -->
+            <div id="page-leave" class="tab-page">
+                <div class="leave-cards" id="leaveCardsContainer"></div>
+                <div id="leaveMsg" style="text-align:center; margin-top:15px; font-size:0.9rem;"></div>
+            </div>
+
+            <!-- TAB 4: OUT DUTY -->
+            <div id="page-outduty" class="tab-page">
+                <div class="form-card">
+                    <h3>Apply for Out Duty</h3>
+                    <div class="input-group">
+                        <label>From Date</label>
+                        <input type="date" id="odFromDate" required>
+                    </div>
+                    <div class="input-group">
+                        <label>To Date</label>
+                        <input type="date" id="odToDate" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Reason</label>
+                        <textarea id="odReason" rows="4" placeholder="Enter reason for out duty..." required style="resize: vertical;"></textarea>
+                    </div>
+                    <button class="btn-primary" id="btnSubmitOd">Submit Out Duty Request</button>
+                    <div id="odMsg" style="text-align:center; margin-top:15px; font-size:0.9rem;"></div>
+                </div>
+            </div>
+
+            <!-- TAB 5: BIO -->
+            <div id="page-bio" class="tab-page">
+                <h2 class="bio-name-header" id="bioEmployeeName">Loading...</h2>
+                <div class="bio-section">
+                    <h4>Personal Details</h4>
+                    <div class="bio-details">
+                        <div class="bio-row"><span class="bio-label">Employee ID</span><span class="bio-value" id="bioId">-</span></div>
+                        <div class="bio-row"><span class="bio-label">Email</span><span class="bio-value" id="bioEmail">-</span></div>
+                        <div class="bio-row"><span class="bio-label">Phone Number</span><span class="bio-value" id="bioPhone">-</span></div>
+                        <div class="bio-row"><span class="bio-label">Gender</span><span class="bio-value" id="bioGender">-</span></div>
+                        <div class="bio-row"><span class="bio-label">Date of Birth</span><span class="bio-value" id="bioDob">-</span></div>
+                    </div>
+                </div>
+                <div class="bio-section">
+                    <h4>Employment Details</h4>
+                    <div class="bio-details">
+                        <div class="bio-row"><span class="bio-label">Department</span><span class="bio-value" id="bioDept">-</span></div>
+                        <div class="bio-row"><span class="bio-label">Designation</span><span class="bio-value" id="bioDesig">-</span></div>
+                        <div class="bio-row"><span class="bio-label">Employee Type</span><span class="bio-value" id="bioType">-</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: DOCUMENTS -->
+            <div id="page-docs" class="tab-page">
+                <h2 style="margin:auto;color:#ccc;">Documents</h2>
+            </div>
+
+            <!-- TAB 7: TASK BOX -->
+            <div id="page-taskbox" class="tab-page">
+                <h2 style="margin:auto;color:#ccc;">Task Box</h2>
+            </div>
+
+            <!-- ADMIN TABS -->
+            <div id="page-reports" class="tab-page admin-only"><h2 style="margin:auto;color:#ccc;">Reports</h2></div>
+            <div id="page-settings" class="tab-page admin-only">
+                <div style="max-width:400px; margin:auto; width:100%;">
+                    <h3 style="color:#0d47a1;">Geofence Settings</h3>
+                    <div class="input-group">
+                        <label>Hospital Latitude</label>
+                        <input type="number" step="any" id="settingLat">
+                    </div>
+                    <div class="input-group">
+                        <label>Hospital Longitude</label>
+                        <input type="number" step="any" id="settingLng">
+                    </div>
+                    <div class="input-group">
+                        <label>Allowed Radius (meters)</label>
+                        <input type="number" id="settingRadius">
+                    </div>
+                    <button class="btn-primary" id="btnSaveSettings">Save Settings</button>
+                    <div id="settingsMsg" style="text-align:center; margin-top:10px;"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM NAVIGATION -->
+        <div class="bottom-nav" id="bottomNav">
+            <button class="nav-btn active" data-page="home"><span class="nav-icon">🏠</span>Home</button>
+            <button class="nav-btn" data-page="logs"><span class="nav-icon">📅</span>Logs</button>
+            <button class="nav-btn" data-page="leave"><span class="nav-icon">🏖️</span>Leave</button>
+            <button class="nav-btn" data-page="outduty"><span class="nav-icon">🚗</span>Out Duty</button>
+            <button class="nav-btn" data-page="bio"><span class="nav-icon">👤</span>Bio</button>
+            <button class="nav-btn" data-page="docs"><span class="nav-icon">📂</span>Docs</button>
+            <button class="nav-btn" data-page="taskbox"><span class="nav-icon">✅</span>Task Box</button>
+            <button class="nav-btn admin-only" data-page="reports"><span class="nav-icon">📊</span>Reports</button>
+            <button class="nav-btn admin-only" data-page="settings"><span class="nav-icon">⚙️</span>Settings</button>
+        </div>
+    </div>
 <script>
-  let userData = {};
+document.addEventListener("DOMContentLoaded", () => {
 
-  function showTab(t) {
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.getElementById('t-' + t).classList.add('active');
-    document.getElementById('tabTitle').innerText = t;
-  }
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYfnlOqaoZlGM46JJXezcQP0YOnebpk9pCRakrGGaR5icEEkrfVChXCzAlziCGjAuU4g/exec";
 
-  function handleLogin() {
-    const email = document.getElementById('lEmail').value;
-    const pass = document.getElementById('lPass').value;
-    google.script.run.withSuccessHandler(res => {
-      if(res.success) {
-        userData = res;
-        document.getElementById('authPage').classList.add('hidden');
-        document.getElementById('app').classList.remove('hidden');
-        renderData();
-      } else { alert(res.message); }
-    }).handleAction({action:'login', email:email, password:pass});
-  }
+    const loginBox = document.getElementById('loginBox');
+    const registerBox = document.getElementById('registerBox');
+    const statusMessage = document.getElementById('statusMessage');
+    const statusMessageReg = document.getElementById('statusMessageReg');
+    let currentUser = null; 
 
-  function renderData() {
-    document.getElementById('userName').innerText = userData.name;
-    document.getElementById('bioPersonal').innerHTML = `
-      <p><b>ID:</b> ${userData.id}</p>
-      <p><b>Email:</b> ${userData.email}</p>
-      <p><b>Phone:</b> ${userData.phone}</p>
-      <p><b>Gender:</b> ${userData.gender}</p>`;
-    document.getElementById('bioEmployment').innerHTML = `
-      <p><b>Dept:</b> ${userData.dept}</p>
-      <p><b>Designation:</b> ${userData.desig}</p>
-      <p><b>Type:</b> ${userData.empType}</p>
-      <p><b>Role:</b> ${userData.role}</p>`;
-  }
+    // Auto-login check
+    try { 
+        const savedUser = localStorage.getItem('lifecareUser');
+        if (savedUser) { enterPortal(JSON.parse(savedUser)); }
+    } catch(e) { localStorage.removeItem('lifecareUser'); }
+
+    // Screen Swapping
+    document.getElementById('btnShowRegister').addEventListener('click', () => {
+        loginBox.classList.add('hidden');
+        registerBox.classList.remove('hidden');
+    });
+    document.getElementById('btnShowLogin').addEventListener('click', () => {
+        registerBox.classList.add('hidden');
+        loginBox.classList.remove('hidden');
+    });
+
+    // Force 5-digit ID
+    document.getElementById('regID').addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        this.classList.toggle('input-error', this.value.length !== 5);
+    });
+
+    // REGISTER API CALL
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('regID').value;
+        const email = document.getElementById('regEmail').value;
+        const pw = document.getElementById('regPassword').value;
+        const pwc = document.getElementById('regConfirm').value;
+
+        if(id.length !== 5) { statusMessageReg.innerText = "ID must be 5 digits."; statusMessageReg.className = "text-red"; return; }
+        if(pw !== pwc || pw.length < 6) { statusMessageReg.innerText = "Passwords do not match or are too short."; statusMessageReg.className = "text-red"; return; }
+
+        statusMessageReg.innerText = "Activating..."; statusMessageReg.className = "";
+        try {
+            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "registerUser", id, email, password: pw }) });
+            const result = await res.json();
+            statusMessageReg.innerText = result.message;
+            statusMessageReg.className = result.success ? "text-green" : "text-red";
+            if(result.success) { setTimeout(() => { registerBox.classList.add('hidden'); loginBox.classList.remove('hidden'); document.getElementById('registerForm').reset(); statusMessageReg.innerText = ""; }, 2000); }
+        } catch(e) { statusMessageReg.innerText = "Network error."; statusMessageReg.className = "text-red"; }
+    });
+
+    // LOGIN API CALL
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const pw = document.getElementById('loginPassword').value;
+
+        statusMessage.innerText = "Logging in..."; statusMessage.className = "";
+        try {
+            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "loginUser", email, password: pw }) });
+            const result = await res.json();
+            if(result.success) {
+                localStorage.setItem('lifecareUser', JSON.stringify(result.user));
+                enterPortal(result.user);
+            } else {
+                statusMessage.innerText = result.message; statusMessage.className = "text-red";
+            }
+        } catch(e) { statusMessage.innerText = "Connection failed."; statusMessage.className = "text-red"; }
+    });
+
+    // --- PORTAL LOGIC ---
+    function enterPortal(user) {
+        currentUser = user; 
+        const displayName = user.Name ? user.Name.split(' ')[0] : "User";
+        document.getElementById('welcomeUser').innerText = `Welcome, ${displayName}!`;
+        document.querySelector('.header').style.display = 'none';
+        document.querySelector('.form-area').style.display = 'none';
+        const portal = document.getElementById('portalSection');
+        portal.classList.remove('hidden');
+        portal.style.display = 'flex';
+        if(user.Role === "Admin") { document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('admin-only')); }
+        checkGeofence();
+    }
+
+    // Bottom Navigation Click Logic
+    document.getElementById('bottomNav').addEventListener('click', (e) => {
+        const btn = e.target.closest('.nav-btn');
+        if (!btn) return;
+        document.querySelectorAll('.tab-page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        const activePage = document.getElementById(`page-${btn.dataset.page}`);
+        activePage.classList.add('active');
+        activePage.style.display = 'flex'; 
+        btn.classList.add('active');
+        if(btn.dataset.page === 'logs') renderLogs(); 
+        if(btn.dataset.page === 'leave') renderLeaveCards();
+        if(btn.dataset.page === 'bio') loadBioData();
+        if(btn.dataset.page === 'settings') loadSettings();
+    });
+
+    // Log Out Logic
+    document.getElementById('btnLogout').addEventListener('click', () => {
+        localStorage.removeItem('lifecareUser');
+        location.reload();
+    });
+
+    // --- GEOFENCING LOGIC ---
+    async function checkGeofence() {
+        if (!navigator.geolocation) { document.getElementById('geoStatus').innerText = "Geolocation not supported."; return; }
+        document.getElementById('geoStatus').innerText = "Fetching hospital settings...";
+        try {
+            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getSettings" }) });
+            const data = await res.json();
+            let hospitalLat = -1.2450833, hospitalLng = 36.662088, allowedRadius = 500;
+            if(data.success && data.latitude) { hospitalLat = data.latitude; hospitalLng = data.longitude; allowedRadius = data.radius; }
+            
+            document.getElementById('geoStatus').innerText = "Checking your GPS location...";
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const userLat = position.coords.latitude; const userLng = position.coords.longitude;
+                    const R = 6371e3; const dLat = (userLat - hospitalLat) * Math.PI / 180; const dLng = (userLng - hospitalLng) * Math.PI / 180;
+                    const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(hospitalLat*Math.PI/180)*Math.cos(userLat*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); const distance = R * c;
+                    if (distance <= allowedRadius) {
+                        document.getElementById('geoStatus').innerText = "You are within Lifecare Hospital."; document.getElementById('geoStatus').style.color = "#2e7d32";
+                        document.getElementById('btnClockIn').disabled = false; checkTodayStatus();
+                    } else {
+                        document.getElementById('geoStatus').innerText = `You are ${Math.round(distance)}m away.`; document.getElementById('geoStatus').style.color = "#d32f2f";
+                        document.getElementById('btnClockIn').disabled = true;
+                    }
+                }, (error) => { document.getElementById('geoStatus').innerText = "Location access denied."; document.getElementById('geoStatus').style.color = "#d32f2f"; }, { enableHighAccuracy: true, timeout: 10000 }
+            );
+        } catch(e) { document.getElementById('geoStatus').innerText = "Network error checking location."; document.getElementById('geoStatus').style.color = "#d32f2f"; }
+    }
+
+    // --- CLOCK IN ---
+    document.getElementById('btnClockIn').addEventListener('click', async () => {
+        if (document.getElementById('btnClockIn').disabled) return;
+        const btn = document.getElementById('btnClockIn'); btn.innerText = "Saving..."; btn.disabled = true;
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const locationStr = `${position.coords.latitude}, ${position.coords.longitude}`;
+            const now = new Date(); const dateStr = now.toISOString().split('T')[0]; const timeStr = now.toTimeString().split(' ')[0];
+            try {
+                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "clockIn", id: currentUser.ID, name: currentUser.Name, designation: currentUser.Designation || "N/A", department: currentUser.Department || "N/A", date: dateStr, time: timeStr, location: locationStr }) });
+                const result = await res.json();
+                if (result.success) {
+                    document.getElementById('btnClockIn').style.display = 'none';
+                    const outBtn = document.getElementById('btnClockOut'); outBtn.classList.remove('hidden'); outBtn.style.display = 'flex'; outBtn.disabled = false;
+                    document.getElementById('geoStatus').innerText = `Clocked in at ${timeStr.substring(0,5)}`; document.getElementById('geoStatus').style.color = "#2e7d32";
+                } else { btn.innerText = "CLOCK IN"; btn.disabled = false; }
+            } catch(e) { btn.innerText = "CLOCK IN"; btn.disabled = false; }
+        }, (error) => { btn.innerText = "CLOCK IN"; btn.disabled = false; }, { enableHighAccuracy: true, timeout: 10000 });
+    });
+
+    // --- CLOCK OUT ---
+    document.getElementById('btnClockOut').addEventListener('click', async () => {
+        if (document.getElementById('btnClockOut').disabled) return;
+        const btn = document.getElementById('btnClockOut'); btn.innerText = "Saving..."; btn.disabled = true;
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const locationStr = `${position.coords.latitude}, ${position.coords.longitude}`;
+            const now = new Date(); const dateStr = now.toISOString().split('T')[0]; const timeStr = now.toTimeString().split(' ')[0];
+            try {
+                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "clockOut", id: currentUser.ID, date: dateStr, clockOut: timeStr, locationOut: locationStr }) });
+                const result = await res.json();
+                if (result.success) { btn.innerText = "CLOCKED OUT"; btn.style.backgroundColor = "#bdbdbd"; document.getElementById('geoStatus').innerText = `Clocked out at ${timeStr.substring(0,5)}. Have a good day!`; }
+                else { btn.innerText = "CLOCK OUT"; btn.disabled = false; }
+            } catch(e) { btn.innerText = "CLOCK OUT"; btn.disabled = false; }
+        }, (error) => { btn.innerText = "CLOCK OUT"; btn.disabled = false; }, { enableHighAccuracy: true, timeout: 10000 });
+    });
+
+    // --- CHECK TODAY STATUS ---
+    async function checkTodayStatus() {
+        const todayStr = new Date().toISOString().split('T')[0];
+        try {
+            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "checkTodayStatus", staffId: currentUser.ID, date: todayStr }) });
+            const result = await res.json();
+            if(result.success && result.clockedIn) {
+                document.getElementById('btnClockIn').style.display = 'none';
+                const outBtn = document.getElementById('btnClockOut'); outBtn.classList.remove('hidden'); outBtn.style.display = 'flex'; outBtn.disabled = false;
+                document.getElementById('geoStatus').innerText = `Clocked in at ${result.time.substring(0,5)}. Ready to clock out.`; document.getElementById('geoStatus').style.color = "#ff9800";
+            }
+        } catch(e) {}
+    }
+
+    // --- LOGS TAB LOGIC ---
+    let currentDate = new Date();
+    document.getElementById('prevMonth').addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); renderLogs(); });
+    document.getElementById('nextMonth').addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); renderLogs(); });
+
+    async function renderLogs() {
+        const monthStr = currentDate.toISOString().substring(0, 7);
+        document.getElementById('currentMonthYear').innerText = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+        let records = [];
+        try { const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getLogs", staffId: currentUser.ID, month: monthStr }) }); const result = await res.json(); if(result.success) records = result.data; } catch(e) {}
+        const grid = document.getElementById('calendarGrid'); const headers = Array.from(grid.querySelectorAll('.cal-day-header')); grid.innerHTML = ''; headers.forEach(h => grid.appendChild(h));
+        const year = currentDate.getFullYear(), month = currentDate.getMonth(), daysInMonth = new Date(year, month + 1, 0).getDate(), firstDay = new Date(year, month, 1).getDay(), today = new Date();
+        const recordMap = {}; records.forEach(r => { recordMap[r.date] = r; });
+        for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="cal-day cal-empty"></div>`;
+        for(let day=1; day<=daysInMonth; day++) {
+            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`; const dateObj = new Date(year, month, day); const isPast = dateObj < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            let cssClass = "cal-day"; let innerHtml = day;
+            if(recordMap[dateStr]) { cssClass += " cal-present"; innerHtml = `${day}<span class="cal-time">In: ${recordMap[dateStr].clockIn ? recordMap[dateStr].clockIn.substring(0,5) : ''}</span>`; } else if(isPast) { cssClass += " cal-absent"; innerHtml = `${day}<span class="cal-time">Absent</span>`; }
+            grid.innerHTML += `<div class="${cssClass}">${innerHtml}</div>`;
+        }
+        const tbody = document.getElementById('logsTableBody'); tbody.innerHTML = '';
+        for(let day=1; day<=daysInMonth; day++) {
+            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`; const record = recordMap[dateStr]; const tr = document.createElement('tr');
+            if(record) { tr.innerHTML = `<td>${dateStr}</td><td><span style="color:#2e7d32;font-weight:bold;">Present</span></td><td>${record.clockIn || '-'}</td><td>${record.clockOut || '-'}</td><td>${record.duration || '-'}</td>`; }
+            else { tr.innerHTML = `<td>${dateStr}</td><td><span style="color:#c62828;font-weight:bold;">Absent</span></td><td>-</td><td>-</td><td>-</td>`; }
+            tbody.appendChild(tr);
+        }
+    }
+
+    // --- LEAVE TAB LOGIC ---
+    const leaveTypes = ["Annual", "Sick", "Maternity", "Paternity", "Compassionate"];
+    function renderLeaveCards() {
+        const container = document.getElementById('leaveCardsContainer'); container.innerHTML = ''; 
+        leaveTypes.forEach(type => {
+            const total = currentUser[`${type}_Total`] || 0; const used = currentUser[`${type}_Used`] || 0; const balance = total - used;
+            const card = document.createElement('div'); card.className = 'leave-card';
+            card.innerHTML = `<h4>${type} Leave</h4><div class="leave-stats"><div>Accrued: <span>${total}</span></div><div>Utilized: <span>${used}</span></div><div>Balance: <span>${balance}</span></div></div><button class="btn-apply btn-toggle-form" data-type="${type}">Apply</button><div id="form-${type}" class="leave-form hidden"><div class="input-group"><label>From Date</label><input type="date" id="from-${type}"></div><div class="input-group"><label>To Date</label><input type="date" id="to-${type}"></div><button class="btn-primary btn-submit-form" data-type="${type}">Submit Request</button></div>`;
+            container.appendChild(card);
+        });
+    }
+    document.getElementById('leaveCardsContainer').addEventListener('click', async (e) => {
+        const btn = e.target;
+        if (btn.classList.contains('btn-toggle-form')) { document.getElementById(`form-${btn.dataset.type}`).classList.toggle('hidden'); }
+        if (btn.classList.contains('btn-submit-form')) {
+            const type = btn.dataset.type; const fromDate = document.getElementById(`from-${type}`).value; const toDate = document.getElementById(`to-${type}`).value; const leaveMsg = document.getElementById('leaveMsg'); leaveMsg.innerText = ""; leaveMsg.className = "";
+            if(!fromDate || !toDate || toDate < fromDate) { leaveMsg.innerText = "Invalid dates."; leaveMsg.className = "text-red"; return; }
+            const t1 = new Date(fromDate); const t2 = new Date(toDate); const diffDays = Math.ceil(Math.abs(t2 - t1) / (1000 * 60 * 60 * 24)) + 1; btn.innerText = "Submitting..."; btn.disabled = true;
+                alert("Sending ID: " + currentUser.ID);
+            try {
+                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "addLeaveRequest", staffId: currentUser.ID, name: currentUser.Name, leaveType: type, managerId: "Manager", fromDate, toDate, duration: diffDays }) });
+                const text = await res.text(); let result; try { result = JSON.parse(text); } catch(e) { btn.innerText = "Script Error"; btn.disabled = false; return; }
+                if(result.success) { leaveMsg.innerText = "Leave submitted successfully!"; leaveMsg.className = "text-green"; document.getElementById(`form-${type}`).classList.add('hidden'); btn.innerText = "Submitted!"; btn.style.backgroundColor = "#4caf50"; }
+                else { btn.innerText = result.message || "Failed"; btn.disabled = false; }
+            } catch(e) { btn.innerText = "Network Error"; btn.disabled = false; }
+        }
+    });
+
+    // --- OUT DUTY LOGIC ---
+    document.getElementById('btnSubmitOd').addEventListener('click', async () => {
+        const fromDate = document.getElementById('odFromDate').value; const toDate = document.getElementById('odToDate').value; const reason = document.getElementById('odReason').value.trim();
+        const odMsg = document.getElementById('odMsg'); const btn = document.getElementById('btnSubmitOd'); odMsg.innerText = ""; odMsg.className = "";
+        if(!fromDate || !toDate || toDate < fromDate || !reason) { odMsg.innerText = "Please fill all fields correctly."; odMsg.className = "text-red"; return; }
+        const t1 = new Date(fromDate); const t2 = new Date(toDate); const daysApplied = Math.ceil(Math.abs(t2 - t1) / (1000 * 60 * 60 * 24)) + 1; btn.innerText = "Submitting..."; btn.disabled = true;
+        try {
+            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "addOutDutyRequest", staffId: currentUser.ID, name: currentUser.Name, fromDate, toDate, daysApplied: daysApplied, reason: reason, managerId: "Manager" }) });
+            const text = await res.text(); let result = JSON.parse(text);
+            if(result.success) { odMsg.innerText = `Out duty for ${daysApplied} day(s) submitted!`; odMsg.className = "text-green"; document.getElementById('odFromDate').value = ""; document.getElementById('odToDate').value = ""; document.getElementById('odReason').value = ""; btn.innerText = "Submitted!"; btn.style.backgroundColor = "#4caf50"; }
+            else { odMsg.innerText = result.message || "Error"; odMsg.className = "text-red"; btn.innerText = "Submit Out Duty Request"; btn.disabled = false; }
+        } catch(e) { odMsg.innerText = "Network error."; odMsg.className = "text-red"; btn.innerText = "Submit Out Duty Request"; btn.disabled = false; }
+    });
+
+    // --- BIO TAB LOGIC ---
+    function loadBioData() {
+        if(!currentUser) return;
+        const nameParts = currentUser.Name ? currentUser.Name.split(' ') : ["User"]; const formattedName = nameParts.length > 1 ? `${nameParts[1]} ${nameParts[0]}` : nameParts[0];
+        document.getElementById('bioEmployeeName').innerText = formattedName.toUpperCase(); 
+        document.getElementById('bioId').innerText = currentUser.ID || '-'; document.getElementById('bioEmail').innerText = currentUser.Email || '-'; document.getElementById('bioPhone').innerText = currentUser.Phone || '-'; document.getElementById('bioGender').innerText = currentUser.Gender || '-';
+        let dobStr = '-'; if(currentUser.DOB) { try { let d = new Date(currentUser.DOB); dobStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }); } catch(e) { dobStr = currentUser.DOB; } }
+        document.getElementById('bioDob').innerText = dobStr; document.getElementById('bioDept').innerText = currentUser.Department || '-'; document.getElementById('bioDesig').innerText = currentUser.Designation || '-'; document.getElementById('bioType').innerText = currentUser.EmpType || '-';
+    }
+
+    // --- SETTINGS UI LOGIC ---
+    async function loadSettings() {
+        try { const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getSettings" }) }); const data = await res.json(); if(data.success) { document.getElementById('settingLat').value = data.latitude; document.getElementById('settingLng').value = data.longitude; document.getElementById('settingRadius').value = data.radius; } } catch(e) {}
+    }
+    document.getElementById('btnSaveSettings').addEventListener('click', async () => {
+        const msg = document.getElementById('settingsMsg'); msg.innerText = "Saving...";
+        try {
+            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "saveSettings", latitude: parseFloat(document.getElementById('settingLat').value), longitude: parseFloat(document.getElementById('settingLng').value), radius: parseFloat(document.getElementById('settingRadius').value) })});
+            const result = await res.json(); msg.innerText = result.message; msg.className = result.success ? "text-green" : "text-red";
+        } catch(e) { msg.innerText = "Network error"; msg.className = "text-red"; }
+    });
+
+});
 </script>
 </body>
 </html>
