@@ -142,11 +142,6 @@
                     <label>Employee ID (5 digits)</label>
                     <input type="text" id="regID" required maxlength="5" inputmode="numeric">
                 </div>
-                        <form id="registerForm"
-                <div class="input-group">
-                    <label>Employee ID (5 digits)</label>
-                    <input type="text" id="regID" required maxlength="5" inputmode="numeric">
-                </div>
                 <div class="input-group">
                     <label>Email</label>
                     <input type="email" id="regEmail" required>
@@ -166,6 +161,7 @@
         </div>
 
     </div>
+
     <!-- ========================================== -->
     <!-- MAIN PORTAL SECTION (Hidden until login) -->
     <!-- ========================================== -->
@@ -182,7 +178,6 @@
             <div id="page-home" class="tab-page active">
                 <div class="home-container">
                     <div class="location-status" id="geoStatus">Checking location...</div>
-                <button id="devBypass" style="font-size:12px; color:#666; background:none; border:1px solid #ccc; padding:5px 10px; cursor:pointer; border-radius:4px; margin-top:-10px;">Bypass GPS for Testing</button>
                     <button class="clock-btn btn-clock-in" id="btnClockIn" disabled>CLOCK IN</button>
                     <button class="clock-btn btn-clock-out hidden" id="btnClockOut" disabled>CLOCK OUT</button>
                 </div>
@@ -353,6 +348,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "registerUser", id, email, password: pw }) });
             const result = await res.json();
+                alert("Google replied with: " + JSON.stringify(result));
             statusMessageReg.innerText = result.message;
             statusMessageReg.className = result.success ? "text-green" : "text-red";
             if(result.success) { setTimeout(() => { registerBox.classList.add('hidden'); loginBox.classList.remove('hidden'); document.getElementById('registerForm').reset(); statusMessageReg.innerText = ""; }, 2000); }
@@ -456,7 +452,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (result.success) {
                     document.getElementById('btnClockIn').style.display = 'none';
                     const outBtn = document.getElementById('btnClockOut'); outBtn.classList.remove('hidden'); outBtn.style.display = 'flex'; outBtn.disabled = false;
-                    document.getElementById('geoStatus').innerText = `Clocked in at ${timeStr.substring(0,5)}`; document.getElementById('geoStatus').style.color = "#2e7d32";
+document.getElementById('geoStatus').innerText = result.message; document.getElementById('geoStatus').style.color = "#2e7d32";
                 } else { btn.innerText = "CLOCK IN"; btn.disabled = false; }
             } catch(e) { btn.innerText = "CLOCK IN"; btn.disabled = false; }
         }, (error) => { btn.innerText = "CLOCK IN"; btn.disabled = false; }, { enableHighAccuracy: true, timeout: 10000 });
