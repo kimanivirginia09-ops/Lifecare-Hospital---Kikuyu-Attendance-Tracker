@@ -423,48 +423,99 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('geoStatus').innerText = "Checking your GPS location...";
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    const userLat = position.coords.latitude; const userLng = position.coords.longitude;
-                    const R = 6371e3; const dLat = (userLat - hospitalLat) * Math.PI / 180; const dLng = (userLng - hospitalLng) * Math.PI / 180;
+                    const userLat = position.coords.latitude; 
+                    const userLng = position.coords.longitude;
+                    const R = 6371e3; 
+                    const dLat = (userLat - hospitalLat) * Math.PI / 180; 
+                    const dLng = (userLng - hospitalLng) * Math.PI / 180;
                     const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(hospitalLat*Math.PI/180)*Math.cos(userLat*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
-                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); const distance = R * c;
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+                    const distance = R * c;
                     if (distance <= allowedRadius) {
-                        document.getElementById('geoStatus').innerText = "You are within Lifecare Hospital."; document.getElementById('geoStatus').style.color = "#2e7d32";
-                        document.getElementById('btnClockIn').disabled = false; checkTodayStatus();
+                        document.getElementById('geoStatus').innerText = "You are within Lifecare Hospital."; 
+                        document.getElementById('geoStatus').style.color = "#2e7d32";
+                        document.getElementById('btnClockIn').disabled = false; 
+                        checkTodayStatus();
                     } else {
-                        document.getElementById('geoStatus').innerText = `You are ${Math.round(distance)}m away.`; document.getElementById('geoStatus').style.color = "#d32f2f";
+                        document.getElementById('geoStatus').innerText = `You are ${Math.round(distance)}m away.`; 
+                        document.getElementById('geoStatus').style.color = "#d32f2f";
                         document.getElementById('btnClockIn').disabled = true;
                     }
-                }, (error) => { document.getElementById('geoStatus').innerText = "Location access denied."; document.getElementById('geoStatus').style.color = "#d32f2f"; }, { enableHighAccuracy: true, timeout: 10000 }
+                }, 
+                (error) => { 
+                    let errorMsg = "GPS Error: ";
+                    if(error.code === 1) errorMsg += "Permission denied.";
+                    else if(error.code === 2) errorMsg += "No GPS chip/Wi-Fi detected.";
+                    else if(error.code === 3) errorMsg += "GPS timed out.";
+                    else errorMsg += "Unknown: " + error.message;
+                    
+                    document.getElementById('geoStatus').innerText = errorMsg; 
+                    document.getElementById('geoStatus').style.color = "#d32f2f"; 
+                }, 
+                { enableHighAccuracy: true, timeout: 10000 }
             );
-        } catch(e) { document.getElementById('geoStatus').innerText = "Network error checking location."; document.getElementById('geoStatus').style.color = "#d32f2f"; }
+        } catch(e) { 
+            document.getElementById('geoStatus').innerText = "Network error checking location."; 
+            document.getElementById('geoStatus').style.color = "#d32f2f"; 
+        }
     }
 
-    // --- CLOCK IN ---
+    // --- CLOCK IN (DESKTOP TEST MODE - BYPASSES GPS) ---
     document.getElementById('btnClockIn').addEventListener('click', async () => {
         if (document.getElementById('btnClockIn').disabled) return;
-        const btn = document.getElementById('btnClockIn'); btn.innerText = "Saving..."; btn.disabled = true;
-        navigator.geolocation.getCurrentPosition(async (position) => {
-            const locationStr = `${position.coords.latitude}, ${position.coords.longitude}`;
-            const now = new Date(); const dateStr = now.toISOString().split('T')[0]; const timeStr = now.toTimeString().split(' ')[0];
-            try {
-                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "clockIn", id: currentUser.ID, name: currentUser.Name, designation: currentUser.Designation || "N/A", department: currentUser.Department || "N/A", date: dateStr, time: timeStr, location: locationStr }) });
-                const result = await res.json();
-                if (result.success) {
-                    document.getElementById('btnClockIn').style.display = 'none';
-                    const outBtn = document.getElementById('btnClockOut'); outBtn.classList.remove('hidden'); outBtn.style.display = 'flex'; outBtn.disabled = false;
-document.getElementById('geoStatus').innerText = result.message; document.getElementById('geoStatus').style.color = "#2e7d32";
-                } else { btn.innerText = "CLOCK IN"; btn.disabled = false; }
-            } catch(e) { btn.innerText = "CLOCK IN"; btn.disabled = false; }
-        }, (error) => { btn.innerText = "CLOCK IN"; btn.disabled = false; }, { enableHighAccuracy: true, timeout: 10000 });
+        const btn = document.getElementById('btnClockIn'); 
+        btn.innerText = "Saving..."; 
+        btn.disabled = true;
+        
+        const now = new Date(); 
+        const dateStr = now.toISOString().split('T')[0]; 
+        const timeStr = now.toTimeString().split(' ')[0];
+        
+        try {
+            const res = await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ 
+                    action: "clockIn", 
+                    id: currentUser.ID, 
+                    name: currentUser.Name, 
+                    designation: currentUser.Designation || "N/A", 
+                    department: currentUser.Department || "N/A", 
+                    date: dateStr, 
+                    time: timeStr, 
+                    location: "0, 0" 
+                }) 
+            });
+            const result = await res.json();
+            
+            if (result.success) {
+                document.getElementById('geoStatus').innerText = result.message;
+                document.getElementById('geoStatus').style.color = "#2e7d32";
+                
+                document.getElementById('btnClockIn').style.display = 'none';
+                const outBtn = document.getElementById('btnClockOut'); 
+                outBtn.classList.remove('hidden'); 
+                outBtn.style.display = 'flex'; 
+                outBtn.disabled = false;
+            } else {
+                document.getElementById('geoStatus').innerText = "Failed: " + result.message;
+                document.getElementById('geoStatus').style.color = "#d32f2f";
+                btn.innerText = "CLOCK IN"; 
+                btn.disabled = false;
+            }
+        } catch(e) { 
+            document.getElementById('geoStatus').innerText = "Network Error"; 
+            document.getElementById('geoStatus').style.color = "#d32f2f";
+            btn.innerText = "CLOCK IN"; 
+            btn.disabled = false; 
+        }
     });
-
     // --- CLOCK OUT ---
     document.getElementById('btnClockOut').addEventListener('click', async () => {
         if (document.getElementById('btnClockOut').disabled) return;
         const btn = document.getElementById('btnClockOut'); btn.innerText = "Saving..."; btn.disabled = true;
         navigator.geolocation.getCurrentPosition(async (position) => {
             const locationStr = `${position.coords.latitude}, ${position.coords.longitude}`;
-            const now = new Date(); const dateStr = now.toISOString().split('T')[0]; const timeStr = now.toTimeString().split(' ')[0];
+const now = new Date(); const dateStr = now.toISOString().split('T')[0]; const timeStr = now.toTimeString().split(' ')[0];
             try {
                 const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "clockOut", id: currentUser.ID, date: dateStr, clockOut: timeStr, locationOut: locationStr }) });
                 const result = await res.json();
@@ -476,7 +527,8 @@ document.getElementById('geoStatus').innerText = result.message; document.getEle
 
     // --- CHECK TODAY STATUS ---
     async function checkTodayStatus() {
-        const todayStr = new Date().toISOString().split('T')[0];
+         const now = new Date(); 
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
         try {
             const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "checkTodayStatus", staffId: currentUser.ID, date: todayStr }) });
             const result = await res.json();
@@ -494,7 +546,7 @@ document.getElementById('geoStatus').innerText = result.message; document.getEle
     document.getElementById('nextMonth').addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); renderLogs(); });
 
     async function renderLogs() {
-        const monthStr = currentDate.toISOString().substring(0, 7);
+const monthStr = currentDate.toISOString().substring(0, 7);
         document.getElementById('currentMonthYear').innerText = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
         let records = [];
         try { const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getLogs", staffId: currentUser.ID, month: monthStr }) }); const result = await res.json(); if(result.success) records = result.data; } catch(e) {}
