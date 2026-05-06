@@ -198,7 +198,7 @@
                     <div class="cal-day-header">Sun</div><div class="cal-day-header">Mon</div><div class="cal-day-header">Tue</div><div class="cal-day-header">Wed</div><div class="cal-day-header">Thu</div><div class="cal-day-header">Fri</div><div class="cal-day-header">Sat</div>
                 </div>
                 <table class="logs-table">
-                    <thead><tr><th>Date</th><th>Status</th><th>Clock In</th><th>Clock Out</th><th>Work Duration</th></tr></thead>
+<thead><tr><th>Date</th><th>Status</th><th>Clock In</th><th>Clock Out</th><th>Work Duration</th>${currentUser.Role === 'Admin' ? '<th>Action</th>' : ''}</tr></thead>
                     <tbody id="logsTableBody"></tbody>
                 </table>
             </div>
@@ -572,11 +572,40 @@ const monthStr = getLocalDateStr(currentDate, 'month');
         const tbody = document.getElementById('logsTableBody'); tbody.innerHTML = '';
         for(let day=1; day<=daysInMonth; day++) {
             const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`; const record = recordMap[dateStr]; const tr = document.createElement('tr');
-            if(record) { tr.innerHTML = `<td>${dateStr}</td><td><span style="color:#2e7d32;font-weight:bold;">Present</span></td><td>${record.clockIn || '-'}</td><td>${record.clockOut || '-'}</td><td>${record.duration || '-'}</td>`; }
-            else { tr.innerHTML = `<td>${dateStr}</td><td><span style="color:#c62828;font-weight:bold;">Absent</span></td><td>-</td><td>-</td><td>-</td>`; }
+if(record) { tr.innerHTML = `<td>${dateStr}</td><td><span style="color:#2e7d32;font-weight:bold;">Present</span></td><td>${record.clockIn || '-'}</td><td>${record.clockOut || '-'}</td><td>${record.duration || '-'}</td>${currentUser.Role === 'Admin' ? `<td><button class="btn-apply" style="font-size:0.8rem;padding:5px;" onclick="editAttendance('${dateStr}')">Edit</button></td>` : ''}`; }
+else { tr.innerHTML = `<td>${dateStr}</td><td><span style="color:#c62828;font-weight:bold;">Absent</span></td><td>-</td><td>-</td><td>-</td>${currentUser.Role === 'Admin' ? `<td><button class="btn-apply" style="font-size:0.8rem;padding:5px;" onclick="editAttendance('${dateStr}')">Edit</button></td>` : ''}`; }
             tbody.appendChild(tr);
         }
     }
+
+    // --- ADMIN EDIT ATTENDANCE LOGIC ---
+    window.editAttendance = async function(dateStr) {
+        const newClockOut = prompt("Enter new Clock Out time (e.g., 17:00):", "");
+        if (!newClockOut) return;
+        const newDuration = prompt("Enter new Work Duration (e.g., 08:00):", "");
+        
+        const btn = event.target;
+        btn.innerText = "Saving...";
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(SCRIPT_URL, { 
+                method: "POST", 
+body: JSON.stringify({ action: "updateAttendance", staffId: currentUser.ID, name: currentUser.Name, designation: currentUser.Designation, department: currentUser.Department, date: dateStr, clockOut: newClockOut, duration: newDuration })
+            });
+            const result = await res.json();
+            if(result.success) { 
+                alert("Attendance updated in the Brain!"); 
+                renderLogs(); // Refresh the table
+            } else { 
+                alert("Failed: " + result.message); 
+                btn.innerText = "Edit"; btn.disabled = false;
+            }
+        } catch(e) { 
+            alert("Network error"); 
+            btn.innerText = "Edit"; btn.disabled = false;
+        }
+    };
 
     // --- LEAVE TAB LOGIC ---
     const leaveTypes = ["Annual", "Sick", "Maternity", "Paternity", "Compassionate"];
