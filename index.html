@@ -105,6 +105,16 @@
         .bio-row:last-child { border-bottom: none; }
         .bio-label { color: #757575; }
         .bio-value { font-weight: 600; color: #333; text-align: right; max-width: 60%; }
+        .task-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #fafafa; }
+        .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .task-type { font-weight: bold; color: #0d47a1; }
+        .task-details { font-size: 0.9rem; color: #555; margin-bottom: 10px; line-height: 1.4; }
+        .task-actions { display: flex; gap: 10px; }
+        .btn-approve { flex: 1; background-color: #4caf50; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-reject { flex: 1; background-color: #d32f2f; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .task-toggle { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .task-toggle button { padding: 10px 15px; border: 1px solid #ccc; background: white; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .task-toggle button.active { background-color: #e3f2fd; color: #0d47a1; border-color: #90caf9; }
     </style>
 </head>
 <body>
@@ -248,6 +258,7 @@
                     <div class="bio-details">
                         <div class="bio-row"><span class="bio-label">Department</span><span class="bio-value" id="bioDept">-</span></div>
                         <div class="bio-row"><span class="bio-label">Designation</span><span class="bio-value" id="bioDesig">-</span></div>
+                        <div class="bio-row"><span class="bio-label">Manager Name</span><span class="bio-value" id="bioMgr">-</span></div>
                         <div class="bio-row"><span class="bio-label">Employee Type</span><span class="bio-value" id="bioType">-</span></div>
                     </div>
                 </div>
@@ -260,7 +271,8 @@
 
             <!-- TAB 7: TASK BOX -->
             <div id="page-taskbox" class="tab-page">
-                <h2 style="margin:auto;color:#ccc;">Task Box</h2>
+                <div id="taskBoxContainer"></div>
+                <div id="taskBoxMsg" style="text-align:center; margin-top:15px; font-size:0.9rem;"></div>
             </div>
 
             <!-- ADMIN TABS -->
@@ -408,6 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if(btn.dataset.page === 'logs') renderLogs(); 
         if(btn.dataset.page === 'leave') renderLeaveCards();
         if(btn.dataset.page === 'bio') loadBioData();
+        if(btn.dataset.page === 'taskbox') renderTaskBox();
         if(btn.dataset.page === 'settings') loadSettings();
     });
 
@@ -577,34 +590,93 @@ else { tr.innerHTML = `<td>${dateStr}</td><td><span style="color:#c62828;font-we
             tbody.appendChild(tr);
         }
     }
+    // --- TASK BOX LOGIC (ADMIN TOGGLE MODE) ---
+    let taskViewMode = "employee"; // Default to showing your own requests first
 
-    // --- ADMIN EDIT ATTENDANCE LOGIC ---
-    window.editAttendance = async function(dateStr) {
-        const newClockOut = prompt("Enter new Clock Out time (e.g., 17:00):", "");
-        if (!newClockOut) return;
-        const newDuration = prompt("Enter new Work Duration (e.g., 08:00):", "");
+    async function renderTaskBox() {
+        const container = document.getElementById('taskBoxContainer');
+        container.innerHTML = '<p style="text-align:center;color:#999;">Loading requests...</p>';
+        const isAdmin = currentUser.Role === 'Admin';
         
-        const btn = event.target;
-        btn.innerText = "Saving...";
-        btn.disabled = true;
-
         try {
-            const res = await fetch(SCRIPT_URL, { 
-                method: "POST", 
-body: JSON.stringify({ action: "updateAttendance", staffId: currentUser.ID, name: currentUser.Name, designation: currentUser.Designation, department: currentUser.Department, date: dateStr, clockOut: newClockOut, duration: newDuration })
-            });
+            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getTaskBox", staffId: currentUser.ID, managerId: currentUser.ID, viewMode: taskViewMode, isAdmin: isAdmin }) });
             const result = await res.json();
-            if(result.success) { 
-                alert("Attendance updated in the Brain!"); 
-                renderLogs(); // Refresh the table
-            } else { 
-                alert("Failed: " + result.message); 
-                btn.innerText = "Edit"; btn.disabled = false;
+            container.innerHTML = ''; 
+            
+            // 1. Draw the correct buttons based on role
+            let toggleHtml = '';
+            if (isAdmin) {
+                toggleHtml = `
+                    <div class="task-toggle">
+                        <button class="${taskViewMode === 'employee' ? 'active' : ''}" onclick="switchTaskView('employee')">My Requests</button>
+                        <button class="${taskViewMode === 'manager' ? 'active' : ''}" onclick="switchTaskView('manager')">Pending My Approval</button>
+                        <button class="${taskViewMode === 'admin' ? 'active' : ''}" onclick="switchTaskView('admin')">Final Admin Approvals</button>
+                    </div>`;
+            } else {
+                toggleHtml = `<div class="task-toggle"><button class="active">My Requests</button></div>`;
             }
-        } catch(e) { 
-            alert("Network error"); 
-            btn.innerText = "Edit"; btn.disabled = false;
-        }
+            
+            // 2. Draw the Cards
+            let cardsHtml = '';
+            if(result.success && result.data.length > 0) {
+                result.data.forEach(item => {
+                    let statusColor = '#757575';
+                    if(item.status === 'Pending Manager') statusColor = '#ff9800'; 
+                    else if(item.status === 'Pending Admin') statusColor = '#2196f3'; 
+                    else if(item.status === 'Approved') statusColor = '#4caf50'; 
+                    else if(item.status === 'Rejected') statusColor = '#d32f2f'; 
+                    
+                    let detailsHtml = `<strong>Employee:</strong> ${item.name}<br><strong>From:</strong> ${item.fromDate} <strong>To:</strong> ${item.toDate}`;
+                    if(item.reason) detailsHtml += `<br><strong>Reason:</strong> ${item.reason}`;
+                    if(item.leaveType) detailsHtml += `<br><strong>Type:</strong> ${item.leaveType}`;
+                    
+                    // Show Buttons ONLY if approving, otherwise show Status Badge
+                    let actionsHtml = '';
+                    if(taskViewMode === 'manager' || taskViewMode === 'admin') {
+                        let approveText = taskViewMode === 'admin' ? "Final Approve" : "Approve";
+                        let approveStatus = taskViewMode === 'admin' ? "Approved" : "Pending Admin";
+                        actionsHtml = `
+                            <div class="task-actions">
+                                <button class="btn-approve" onclick="handleTaskAction('${item.type}', ${item.row}, '${approveStatus}')">${approveText}</button>
+                                <button class="btn-reject" onclick="handleTaskAction('${item.type}', ${item.row}, 'Rejected')">Reject</button>
+                            </div>`;
+                    } else {
+                        actionsHtml = `<div style="text-align:right;font-weight:bold;color:${statusColor};margin-top:5px;">Status: ${item.status}</div>`;
+                    }
+                    
+                    cardsHtml += `
+                        <div class="task-card">
+                            <div class="task-header"><span class="task-type">${item.type} Request</span></div>
+                            <div class="task-details">${detailsHtml}</div>
+                            ${actionsHtml}
+                        </div>`;
+                });
+            } else {
+                let msg = 'You have not made any requests yet.';
+                if(taskViewMode === 'manager') msg = 'No pending requests to review.';
+                if(taskViewMode === 'admin') msg = 'No final approvals pending.';
+                cardsHtml = `<p style="text-align:center;color:#999;">${msg}</p>`;
+            }
+            
+            // Draw BOTH safely (Toggle on top, Cards on bottom)
+            container.innerHTML = toggleHtml + cardsHtml;
+            
+        } catch(e) { container.innerHTML = '<p style="color:red;text-align:center;">Error loading requests.</p>'; }
+    }
+
+    window.switchTaskView = function(mode) {
+        taskViewMode = mode;
+        renderTaskBox(); 
+    };
+
+    window.handleTaskAction = async function(type, row, newStatus) {
+        if(!confirm(`Are you sure you want to ${newStatus.toLowerCase()} this?`)) return;
+        try {
+            const sheetName = type === "Leave" ? "LeaveRequests" : "OutDutyRequests";
+            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "approveTask", sheetName: sheetName, row: row, newStatus: newStatus }) });
+            const result = await res.json();
+            if(result.success) { alert(result.message); renderTaskBox(); } else { alert("Failed: " + result.message); }
+        } catch(e) { alert("Network error."); }
     };
 
     // --- LEAVE TAB LOGIC ---
@@ -627,7 +699,7 @@ body: JSON.stringify({ action: "updateAttendance", staffId: currentUser.ID, name
             const t1 = new Date(fromDate); const t2 = new Date(toDate); const diffDays = Math.ceil(Math.abs(t2 - t1) / (1000 * 60 * 60 * 24)) + 1; btn.innerText = "Submitting..."; btn.disabled = true;
                 alert("Sending ID: " + currentUser.ID);
             try {
-                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "addLeaveRequest", staffId: currentUser.ID, name: currentUser.Name, leaveType: type, managerId: "Manager", fromDate, toDate, duration: diffDays }) });
+                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "addLeaveRequest", staffId: currentUser.ID, name: currentUser.Name, leaveType: type, managerId: currentUser.ManagerId || "Manager", fromDate, toDate, duration: diffDays }) });
                 const text = await res.text(); let result; try { result = JSON.parse(text); } catch(e) { btn.innerText = "Script Error"; btn.disabled = false; return; }
                 if(result.success) { leaveMsg.innerText = "Leave submitted successfully!"; leaveMsg.className = "text-green"; document.getElementById(`form-${type}`).classList.add('hidden'); btn.innerText = "Submitted!"; btn.style.backgroundColor = "#4caf50"; }
                 else { btn.innerText = result.message || "Failed"; btn.disabled = false; }
@@ -642,7 +714,7 @@ body: JSON.stringify({ action: "updateAttendance", staffId: currentUser.ID, name
         if(!fromDate || !toDate || toDate < fromDate || !reason) { odMsg.innerText = "Please fill all fields correctly."; odMsg.className = "text-red"; return; }
         const t1 = new Date(fromDate); const t2 = new Date(toDate); const daysApplied = Math.ceil(Math.abs(t2 - t1) / (1000 * 60 * 60 * 24)) + 1; btn.innerText = "Submitting..."; btn.disabled = true;
         try {
-            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "addOutDutyRequest", staffId: currentUser.ID, name: currentUser.Name, fromDate, toDate, daysApplied: daysApplied, reason: reason, managerId: "Manager" }) });
+            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "addOutDutyRequest", staffId: currentUser.ID, name: currentUser.Name, fromDate, toDate, daysApplied: daysApplied, reason: reason, managerId: currentUser.ManagerId || "Manager" }) });
             const text = await res.text(); let result = JSON.parse(text);
             if(result.success) { odMsg.innerText = `Out duty for ${daysApplied} day(s) submitted!`; odMsg.className = "text-green"; document.getElementById('odFromDate').value = ""; document.getElementById('odToDate').value = ""; document.getElementById('odReason').value = ""; btn.innerText = "Submitted!"; btn.style.backgroundColor = "#4caf50"; }
             else { odMsg.innerText = result.message || "Error"; odMsg.className = "text-red"; btn.innerText = "Submit Out Duty Request"; btn.disabled = false; }
@@ -657,6 +729,7 @@ body: JSON.stringify({ action: "updateAttendance", staffId: currentUser.ID, name
         document.getElementById('bioId').innerText = currentUser.ID || '-'; document.getElementById('bioEmail').innerText = currentUser.Email || '-'; document.getElementById('bioPhone').innerText = currentUser.Phone || '-'; document.getElementById('bioGender').innerText = currentUser.Gender || '-';
         let dobStr = '-'; if(currentUser.DOB) { try { let d = new Date(currentUser.DOB); dobStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }); } catch(e) { dobStr = currentUser.DOB; } }
         document.getElementById('bioDob').innerText = dobStr; document.getElementById('bioDept').innerText = currentUser.Department || '-'; document.getElementById('bioDesig').innerText = currentUser.Designation || '-'; document.getElementById('bioType').innerText = currentUser.EmpType || '-';
+        document.getElementById('bioMgr').innerText = currentUser.ManagerName || '-';
     }
 
     // --- SETTINGS UI LOGIC ---
